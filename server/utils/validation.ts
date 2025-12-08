@@ -98,3 +98,15 @@ export const updateAppSchema = z.object({
  * App 更新請求的類型
  */
 export type UpdateAppInput = z.infer<typeof updateAppSchema>
+
+/**
+ * 評分驗證 Schema
+ */
+export const ratingSchema = z.object({
+  rating: z.number().int('評分必須是整數').min(1, '評分最小為 1').max(5, '評分最大為 5')
+})
+
+/**
+ * 評分請求的類型
+ */
+export type RatingInput = z.infer<typeof ratingSchema>
