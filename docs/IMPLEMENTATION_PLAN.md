@@ -10,7 +10,7 @@
 | 階段 | 狀態 | 開始日期 | 完成日期 | 完成度 |
 |------|------|----------|----------|--------|
 | Stage 1: 專案初始化與基礎建設 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
-| Stage 2: 認證系統 | 🚧 In Progress | 2024-12-08 | - | 40% |
+| Stage 2: 認證系統 | 🚧 In Progress | 2024-12-08 | - | 50% |
 | Stage 3: S3 儲存與基礎上傳 | ⏳ Not Started | - | - | 0% |
 | Stage 4: App 核心功能與 ZIP 支援 | ⏳ Not Started | - | - | 0% |
 | Stage 5: 社群互動功能 | ⏳ Not Started | - | - | 0% |
@@ -253,7 +253,7 @@ export default defineNuxtConfig({
 
 **成功標準 (Success Criteria)**:
 - [x] 使用者可以註冊新帳號 (email 驗證、密碼加密)
-- [ ] 使用者可以登入並獲得 JWT token
+- [x] 使用者可以登入並獲得 JWT token
 - [ ] API 受 JWT 保護，未認證請求返回 401
 - [ ] 前端可獲取當前使用者資訊
 - [ ] 測試覆蓋率 ≥ 90%
@@ -441,10 +441,10 @@ export default defineEventHandler(async (event) => {
 ```
 
 #### 2.5 登入 API (TDD)
-- [ ] **TDD - 登入測試**: `tests/integration/api/auth/login.test.ts`
-- [ ] 實作 `server/api/auth/login.post.ts`
-- [ ] 測試密碼驗證
-- [ ] 測試 JWT 生成
+- [x] **TDD - 登入測試**: `tests/integration/api/auth/login.test.ts`
+- [x] 實作 `server/api/auth/login.post.ts`
+- [x] 測試密碼驗證
+- [x] 測試 JWT 生成
 
 #### 2.6 Auth Middleware (TDD)
 - [ ] **TDD - Middleware 測試**: `tests/unit/middleware/auth.test.ts`
