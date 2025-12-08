@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3'
-import { createError } from 'h3'
 
 /**
  * Rate Limit 配置
@@ -93,11 +92,10 @@ export async function checkRateLimit(
 
   // 檢查是否超過限制
   if (record.count > config.limit) {
-    throw createError({
-      statusCode: 429,
-      statusMessage: 'Too Many Requests',
-      message: `Rate limit exceeded. Try again in ${resetTime} seconds.`
-    })
+    const error = new Error(`Rate limit exceeded. Try again in ${resetTime} seconds.`) as any
+    error.statusCode = 429
+    error.statusMessage = 'Too Many Requests'
+    throw error
   }
 }
 

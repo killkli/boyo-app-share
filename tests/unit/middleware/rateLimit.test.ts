@@ -1,20 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { H3Event } from 'h3'
-
-// Mock h3 createError
-vi.mock('h3', () => ({
-  createError: (opts: any) => {
-    const error = new Error(opts.message) as any
-    error.statusCode = opts.statusCode
-    error.statusMessage = opts.statusMessage
-    return error
-  }
-}))
+import { checkRateLimit, clearAllRateLimits } from '~/server/utils/rateLimit'
 
 // 測試用的 rate limit middleware
 async function testRateLimitMiddleware(event: H3Event) {
-  const { checkRateLimit } = await import('~/server/utils/rateLimit')
-
   const ip = event.node.req.socket?.remoteAddress || 'unknown'
   const userId = event.context.userId
 
@@ -26,7 +15,7 @@ describe('Rate Limit Middleware', () => {
 
   beforeEach(() => {
     // 清除 rate limit 狀態
-    vi.resetModules()
+    clearAllRateLimits()
 
     mockEvent = {
       path: '/api/apps',
@@ -58,8 +47,6 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該在超過限制時拋出 429 錯誤', async () => {
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
-
     // 模擬大量請求
     for (let i = 0; i < 60; i++) {
       await checkRateLimit(mockEvent as H3Event, '127.0.0.1')
@@ -74,8 +61,6 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該為認證用戶提供更高的限制', async () => {
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
-
     mockEvent.context = { userId: 'user-123' }
 
     // 模擬 60 個請求（未認證用戶的限制）
@@ -90,7 +75,6 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該為不同 IP 分別計數', async () => {
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
 
     const event1 = { ...mockEvent } as H3Event
     const event2 = {
@@ -116,8 +100,6 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該設置 rate limit headers', async () => {
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
-
     await checkRateLimit(mockEvent as H3Event, '127.0.0.1')
 
     // 應該設置 X-RateLimit-* headers
@@ -133,8 +115,6 @@ describe('Rate Limit Middleware', () => {
 
   it('應該在一段時間後重置計數', async () => {
     vi.useFakeTimers()
-
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
 
     // 發送 60 個請求
     for (let i = 0; i < 60; i++) {
@@ -160,8 +140,6 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該跳過白名單路徑', async () => {
-    const { checkRateLimit } = await import('~/server/utils/rateLimit')
-
     mockEvent.path = '/api/health'
 
     // 即使超過限制，健康檢查端點也應該通過
