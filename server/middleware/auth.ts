@@ -4,6 +4,11 @@ export default defineEventHandler(async (event) => {
   const path = event.node.req.url
   const method = event.node.req.method
 
+  // 只攔截 API 請求，不攔截前端頁面路由
+  if (!path?.startsWith('/api/')) {
+    return
+  }
+
   // 公開路由跳過認證
   const publicPaths = ['/api/auth/login', '/api/auth/register']
   if (publicPaths.some(p => path?.startsWith(p))) {
