@@ -648,21 +648,23 @@ test(integration): 修復所有整合測試，重構為直接測試 API 處理�
 **目標 (Goal)**: 整合 Tebi S3，實作剪貼簿與單檔上傳功能。
 
 **成功標準 (Success Criteria)**:
-- [ ] 能將 HTML 內容上傳至 S3 bucket
-- [ ] 能生成正確的公開存取 URL
+- [x] 能將 HTML 內容上傳至 S3 bucket
+- [x] 能生成正確的公開存取 URL
 - [ ] 能上傳單個 HTML 檔案
-- [ ] 測試覆蓋率 ≥ 85%
+- [x] 測試覆蓋率 ≥ 85%
 
-**狀態**: ⏳ Not Started
-**預估工時**: 10-14 小時
+**狀態**: 🚧 In Progress
+**完成度**: 80%
+**實際工時**: 約 4 小時
+**開始日期**: 2024-12-09
 **依賴**: Stage 2
 
 ### 📋 Tasks
 
 #### 3.1 S3 客戶端設置 (TDD)
-- [ ] 安裝依賴:
+- [x] 安裝依賴:
   - `pnpm add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner`
-- [ ] **TDD - S3 測試**: `tests/unit/utils/s3.test.ts`
+- [x] **TDD - S3 測試**: `tests/unit/utils/s3.test.ts`
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { uploadToS3, deleteFromS3, getPresignedUploadUrl } from '~/server/utils/s3'
@@ -765,12 +767,12 @@ export const getPresignedUploadUrl = async (
 ```
 
 #### 3.2 建立 Apps 資料表
-- [ ] 確認 `apps` table schema
-- [ ] 執行遷移
-- [ ] 建立索引
+- [x] 確認 `apps` table schema
+- [x] 執行遷移
+- [x] 建立索引
 
 #### 3.3 上傳 API - 剪貼簿 (TDD)
-- [ ] **TDD - 剪貼簿上傳測試**: `tests/integration/api/apps/upload-paste.test.ts`
+- [x] **TDD - 剪貼簿上傳測試**: `tests/integration/api/apps/create.test.ts`
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
 import { $fetch } from '@nuxt/test-utils'
@@ -829,7 +831,11 @@ describe('POST /api/apps - 剪貼簿上傳', () => {
   })
 })
 ```
-- [ ] 實作 `server/api/apps/index.post.ts` (Part 1: paste)
+- [x] 實作 `server/api/apps/index.post.ts` (Part 1: paste)
+- [x] 實作剪貼簿上傳功能
+- [x] 整合 S3 上傳
+- [x] 驗證使用者輸入
+- [x] 7 個測試全數通過
 
 #### 3.4 上傳 API - 單檔 (TDD)
 - [ ] **TDD - 單檔上傳測試**: `tests/integration/api/apps/upload-file.test.ts`
