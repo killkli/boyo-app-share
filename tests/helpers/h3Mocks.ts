@@ -8,12 +8,14 @@ export function createMockEvent(options: {
   headers?: Record<string, string>
   method?: string
   path?: string
+  context?: Record<string, any>
 } = {}) {
   const {
     body = {},
     headers = {},
     method = 'POST',
-    path = '/'
+    path = '/',
+    context = {}
   } = options
 
   return {
@@ -29,7 +31,7 @@ export function createMockEvent(options: {
         end: vi.fn()
       }
     },
-    context: {},
+    context,
     _method: method,
     _path: path,
     _body: body
