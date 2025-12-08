@@ -14,7 +14,7 @@
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 5: 社群互動功能 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 65% |
+| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 75% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
 
@@ -1377,8 +1377,8 @@ describe('POST /api/apps/[id]/rate', () => {
 - [ ] 所有 E2E 測試通過
 
 **狀態**: 🚧 In Progress
-**完成度**: 65%
-**實際工時**: 約 5 小時
+**完成度**: 75%
+**實際工時**: 約 6 小時
 **開始日期**: 2024-12-09
 **依賴**: Stage 5
 
@@ -1422,10 +1422,10 @@ describe('POST /api/apps/[id]/rate', () => {
 - ✅ DEPLOYMENT.md：詳細的部署指南（Cloudflare、Vercel）
 - ✅ 資料庫管理文檔：README.md 含監控與維護指南
 
-#### 6.4 CI/CD 設定
-- [ ] 建立 `.github/workflows/test.yml`
-- [ ] 建立 `.github/workflows/deploy.yml`
-- [ ] 設定 Cloudflare Pages 自動部署
+#### 6.4 CI/CD 設定 ✅
+- [x] 建立 `.github/workflows/test.yml`
+- [x] 建立 `.github/workflows/deploy.yml`
+- [x] 設定 Cloudflare Pages 自動部署
 
 #### 6.5 E2E 測試
 - [ ] 安裝 Playwright
@@ -1459,7 +1459,7 @@ describe('POST /api/apps/[id]/rate', () => {
 
 ### 📊 Stage 6 階段性總結 (2024-12-09)
 
-**已完成項目 (65%)**:
+**已完成項目 (75%)**:
 1. ✅ Cache Control Middleware (7 個測試)
 2. ✅ 資料庫效能優化 (9 個索引 + 物化視圖 + 觸發器)
 3. ✅ LazyImage 圖片延遲載入組件 (6 個測試)
@@ -1469,6 +1469,7 @@ describe('POST /api/apps/[id]/rate', () => {
 7. ✅ 環境配置文檔 (.env.example 含詳細註釋)
 8. ✅ 部署指南 (DEPLOYMENT.md - Cloudflare & Vercel)
 9. ✅ 資料庫管理文檔 (server/database/README.md)
+10. ✅ GitHub Actions CI/CD 工作流程 (test.yml + deploy.yml)
 
 **測試結果**:
 - 測試文件：25 個全部通過 ✅
@@ -1476,7 +1477,7 @@ describe('POST /api/apps/[id]/rate', () => {
 - 新增測試：42 個 (Cache: 7, Rate Limit: 7, Sanitize: 22, LazyImage: 6)
 - 測試執行時間：~20s
 
-**Commits** (13 個):
+**Commits** (14 個):
 1. `docs: 更新 Stage 6 進度 (開始部署與優化階段)` (499ccd4)
 2. `test(middleware): 新增 Cache Control 測試 (TDD 紅燈)` (fee6828)
 3. `feat(middleware): 實作 Cache Control middleware` (0b1d6d1)
@@ -1492,18 +1493,17 @@ describe('POST /api/apps/[id]/rate', () => {
 13. `fix(test): 添加明確的文件擴展名配置` (ad27456)
 14. `fix(test): 修復 rate limit 測試的 h3 模組解析問題` (7ad7daf)
 
-**待完成項目 (35%)**:
+**待完成項目 (25%)**:
 - [ ] Bundle size 優化
-- [ ] CI/CD 設定 (GitHub Actions)
 - [ ] E2E 測試 (Playwright)
 - [ ] 實際部署到生產環境
 - [ ] 監控與錯誤追蹤設定
 - [ ] API 文檔與貢獻指南
 
 **下一步**:
-- Task 6.4: CI/CD 設定
 - Task 6.5: E2E 測試
 - Task 6.6: 生產環境部署
+- Task 6.7: 監控與日誌設定
 
 ---
 
