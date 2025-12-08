@@ -1,6 +1,22 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { query } from '~/server/utils/db'
+import { setupH3Mocks, createMockEvent } from '~/tests/helpers/h3Mocks'
 import bcrypt from 'bcrypt'
+
+// 設置 H3 mocks
+setupH3Mocks()
+
+// 動態導入處理器（在 mocks 設置之後）
+let meHandler: any
+let authMiddleware: any
+let generateToken: any
+
+beforeAll(async () => {
+  meHandler = (await import('~/server/api/auth/me.get')).default
+  authMiddleware = (await import('~/server/middleware/auth')).default
+  const jwtModule = await import('~/server/utils/jwt')
+  generateToken = jwtModule.generateToken
+})
 
 // 跳過測試如果沒有資料庫連接
 const skipIfNoDb = process.env.DATABASE_URL ? false : true
@@ -22,18 +38,22 @@ describe.skipIf(skipIfNoDb)('GET /api/auth/me', () => {
     testUserId = result.rows[0].id
 
     // 生成測試 token
-    const { generateToken } = await import('~/server/utils/jwt')
     testToken = generateToken(testUserId)
   })
 
   it('應該返回當前使用者資訊', async () => {
-    const { $fetch } = await import('@nuxt/test-utils/e2e')
-
-    const response = await $fetch('/api/auth/me', {
+    const event = createMockEvent({
+      method: 'GET',
+      path: '/api/auth/me',
       headers: {
-        Authorization: `Bearer ${testToken}`
+        authorization: `Bearer ${testToken}`
       }
     })
+
+    // 運行 auth middleware 來設置 userId
+    await authMiddleware(event)
+
+    const response = await meHandler(event)
 
     expect(response).toHaveProperty('user')
     expect(response.user.id).toBe(testUserId)
@@ -43,36 +63,47 @@ describe.skipIf(skipIfNoDb)('GET /api/auth/me', () => {
   })
 
   it('應該拒絕沒有 token 的請求', async () => {
-    const { $fetch } = await import('@nuxt/test-utils/e2e')
+    const event = createMockEvent({
+      method: 'GET',
+      path: '/api/auth/me'
+    })
 
-    await expect(
-      $fetch('/api/auth/me')
-    ).rejects.toThrow()
+    await expect(authMiddleware(event)).rejects.toMatchObject({
+      statusCode: 401
+    })
   })
 
   it('應該拒絕無效的 token', async () => {
-    const { $fetch } = await import('@nuxt/test-utils/e2e')
+    const event = createMockEvent({
+      method: 'GET',
+      path: '/api/auth/me',
+      headers: {
+        authorization: 'Bearer invalid-token'
+      }
+    })
 
-    await expect(
-      $fetch('/api/auth/me', {
-        headers: {
-          Authorization: 'Bearer invalid-token'
-        }
-      })
-    ).rejects.toThrow()
+    await expect(authMiddleware(event)).rejects.toMatchObject({
+      statusCode: 401
+    })
   })
 
   it('應該拒絕不存在使用者的 token', async () => {
-    const { $fetch } = await import('@nuxt/test-utils/e2e')
-    const { generateToken } = await import('~/server/utils/jwt')
     const fakeToken = generateToken('00000000-0000-0000-0000-000000000000')
 
-    await expect(
-      $fetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${fakeToken}`
-        }
-      })
-    ).rejects.toThrow()
+    const event = createMockEvent({
+      method: 'GET',
+      path: '/api/auth/me',
+      headers: {
+        authorization: `Bearer ${fakeToken}`
+      }
+    })
+
+    // 運行 auth middleware 來驗證 token
+    await authMiddleware(event)
+
+    // me handler 應該拒絕不存在的使用者
+    await expect(meHandler(event)).rejects.toMatchObject({
+      statusCode: 404
+    })
   })
 })
