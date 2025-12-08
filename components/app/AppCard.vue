@@ -2,7 +2,7 @@
   <Card class="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" @click="navigateToApp">
     <!-- 縮圖 -->
     <div class="relative aspect-video bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900">
-      <img
+      <LazyImage
         v-if="app.thumbnail_s3_key"
         :src="getThumbnailUrl(app.thumbnail_s3_key)"
         :alt="app.title"
@@ -112,6 +112,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import Rating from '@/components/common/Rating.vue'
+import LazyImage from '@/components/common/LazyImage.vue'
 
 interface App {
   id: string
