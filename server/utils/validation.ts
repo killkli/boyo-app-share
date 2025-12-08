@@ -75,3 +75,26 @@ export const uploadZipSchema = z.object({
 export type UploadPasteInput = z.infer<typeof uploadPasteSchema>
 export type UploadFileInput = z.infer<typeof uploadFileSchema>
 export type UploadZipInput = z.infer<typeof uploadZipSchema>
+
+/**
+ * App 分類枚舉
+ */
+export const appCategories = ['tool', 'game', 'demo', 'art', 'education', 'other'] as const
+
+/**
+ * App 更新驗證 Schema
+ * 所有欄位都是可選的，支援部分更新
+ */
+export const updateAppSchema = z.object({
+  title: z.string().min(1, '標題不能為空').max(255, '標題最多 255 個字元').optional(),
+  description: z.string().max(2000, '描述最多 2000 個字元').optional(),
+  category: z.enum(appCategories, {
+    errorMap: () => ({ message: `分類必須是以下之一: ${appCategories.join(', ')}` })
+  }).optional(),
+  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional()
+})
+
+/**
+ * App 更新請求的類型
+ */
+export type UpdateAppInput = z.infer<typeof updateAppSchema>
