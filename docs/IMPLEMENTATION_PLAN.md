@@ -11,7 +11,7 @@
 |------|------|----------|----------|--------|
 | Stage 1: 專案初始化與基礎建設 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
 | Stage 2: 認證系統 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
-| Stage 3: S3 儲存與基礎上傳 | ⏳ Not Started | - | - | 0% |
+| Stage 3: S3 儲存與基礎上傳 | 🚧 In Progress | 2024-12-09 | - | 80% |
 | Stage 4: App 核心功能與 ZIP 支援 | ⏳ Not Started | - | - | 0% |
 | Stage 5: 社群互動功能 | ⏳ Not Started | - | - | 0% |
 | Stage 6: 部署與優化 | ⏳ Not Started | - | - | 0% |
@@ -699,7 +699,7 @@ describe('S3 工具函數', () => {
   })
 })
 ```
-- [ ] 實作 `server/utils/s3.ts`:
+- [x] 實作 `server/utils/s3.ts`:
 ```typescript
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
