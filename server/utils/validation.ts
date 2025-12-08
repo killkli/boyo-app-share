@@ -33,3 +33,32 @@ export type RegisterInput = z.infer<typeof registerSchema>
  * 登入請求的類型
  */
 export type LoginInput = z.infer<typeof loginSchema>
+
+/**
+ * App 上傳驗證 Schema (剪貼簿)
+ */
+export const uploadPasteSchema = z.object({
+  uploadType: z.literal('paste'),
+  title: z.string().min(1, '標題不能為空').max(255, '標題最多 255 個字元'),
+  description: z.string().max(2000, '描述最多 2000 個字元').optional(),
+  category: z.string().max(50, '分類最多 50 個字元').optional(),
+  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
+  htmlContent: z.string().min(1, 'HTML 內容不能為空')
+})
+
+/**
+ * App 上傳驗證 Schema (單檔)
+ */
+export const uploadFileSchema = z.object({
+  uploadType: z.literal('file'),
+  title: z.string().min(1, '標題不能為空').max(255, '標題最多 255 個字元'),
+  description: z.string().max(2000, '描述最多 2000 個字元').optional(),
+  category: z.string().max(50, '分類最多 50 個字元').optional(),
+  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional()
+})
+
+/**
+ * App 上傳類型
+ */
+export type UploadPasteInput = z.infer<typeof uploadPasteSchema>
+export type UploadFileInput = z.infer<typeof uploadFileSchema>
