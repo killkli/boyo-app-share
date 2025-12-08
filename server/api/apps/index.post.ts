@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { uploadPasteSchema } from '~/server/utils/validation'
+import { uploadPasteSchema, uploadFileSchema } from '~/server/utils/validation'
 import { uploadToS3 } from '~/server/utils/s3'
 import { query } from '~/server/utils/db'
 
@@ -15,8 +15,26 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  // 驗證輸入
-  const validated = uploadPasteSchema.parse(body)
+  // 根據 uploadType 選擇對應的 schema
+  let validated: any
+  let uploadType: 'paste' | 'file'
+
+  if (body.uploadType === 'paste') {
+    validated = uploadPasteSchema.parse(body)
+    uploadType = 'paste'
+  } else if (body.uploadType === 'file') {
+    // 檔案上傳也需要 htmlContent
+    const fileSchema = uploadFileSchema.extend({
+      htmlContent: uploadPasteSchema.shape.htmlContent
+    })
+    validated = fileSchema.parse(body)
+    uploadType = 'file'
+  } else {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid uploadType. Must be "paste" or "file"'
+    })
+  }
 
   // 生成 App ID
   const appId = randomUUID()
@@ -52,7 +70,7 @@ export default defineEventHandler(async (event) => {
       validated.description || null,
       validated.category || null,
       validated.tags || null,
-      'paste',
+      uploadType,
       htmlS3Key
     ]
   )
