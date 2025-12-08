@@ -107,7 +107,8 @@ describe.skipIf(skipIfNoDb)('GET /api/apps', () => {
     expect(response).toHaveProperty('limit')
     expect(Array.isArray(response.apps)).toBe(true)
     expect(response.apps.length).toBeGreaterThan(0)
-    expect(response.total).toBe(15)
+    // 至少有我們插入的 15 個測試資料
+    expect(response.total).toBeGreaterThanOrEqual(15)
   })
 
   it('應該支援分頁（第 1 頁）', async () => {
@@ -121,7 +122,8 @@ describe.skipIf(skipIfNoDb)('GET /api/apps', () => {
     expect(response.apps).toHaveLength(5)
     expect(response.page).toBe(1)
     expect(response.limit).toBe(5)
-    expect(response.total).toBe(15)
+    // 至少有我們插入的 15 個測試資料
+    expect(response.total).toBeGreaterThanOrEqual(15)
   })
 
   it('應該支援分頁（第 2 頁）', async () => {

@@ -32,12 +32,15 @@ describe.skipIf(skipIfNoDb)('DELETE /api/apps/[id]', () => {
     // 清理 mock
     vi.clearAllMocks()
 
+    const timestamp = Date.now()
+    const random = Math.random().toString(36).substring(7)
+
     // 建立測試使用者 1 (App 擁有者)
     const userResult = await query(
       `INSERT INTO users (email, username, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      [`delete-owner-${Date.now()}@example.com`, `owner-${Date.now()}`, 'hash']
+      [`delete-owner-${timestamp}-${random}@example.com`, `owner-${timestamp}-${random}`, 'hash']
     )
     testUserId = userResult.rows[0].id
     testToken = generateToken(testUserId)
@@ -47,7 +50,7 @@ describe.skipIf(skipIfNoDb)('DELETE /api/apps/[id]', () => {
       `INSERT INTO users (email, username, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      [`delete-other-${Date.now()}@example.com`, `other-${Date.now()}`, 'hash']
+      [`delete-other-${timestamp}-${random}@example.com`, `other-${timestamp}-${random}`, 'hash']
     )
     otherUserId = otherResult.rows[0].id
     otherToken = generateToken(otherUserId)

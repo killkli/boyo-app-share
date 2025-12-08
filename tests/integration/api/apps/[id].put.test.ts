@@ -24,12 +24,15 @@ describe.skipIf(skipIfNoDb)('PUT /api/apps/[id]', () => {
   let testAppId: string
 
   beforeEach(async () => {
+    const timestamp = Date.now()
+    const random = Math.random().toString(36).substring(7)
+
     // 建立測試使用者 1 (App 擁有者)
     const userResult = await query(
       `INSERT INTO users (email, username, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      [`update-owner-${Date.now()}@example.com`, `owner-${Date.now()}`, 'hash']
+      [`update-owner-${timestamp}-${random}@example.com`, `owner-${timestamp}-${random}`, 'hash']
     )
     testUserId = userResult.rows[0].id
     testToken = generateToken(testUserId)
@@ -39,7 +42,7 @@ describe.skipIf(skipIfNoDb)('PUT /api/apps/[id]', () => {
       `INSERT INTO users (email, username, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      [`update-other-${Date.now()}@example.com`, `other-${Date.now()}`, 'hash']
+      [`update-other-${timestamp}-${random}@example.com`, `other-${timestamp}-${random}`, 'hash']
     )
     otherUserId = otherResult.rows[0].id
     otherToken = generateToken(otherUserId)
