@@ -14,7 +14,7 @@
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 5: 社群互動功能 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 85% |
+| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 88% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
 
@@ -1377,8 +1377,8 @@ describe('POST /api/apps/[id]/rate', () => {
 - [ ] 所有 E2E 測試通過
 
 **狀態**: 🚧 In Progress
-**完成度**: 75%
-**實際工時**: 約 6 小時
+**完成度**: 88%
+**實際工時**: 約 7 小時
 **開始日期**: 2024-12-09
 **依賴**: Stage 5
 
@@ -1445,7 +1445,7 @@ describe('POST /api/apps/[id]/rate', () => {
 #### 6.7 監控與日誌
 - [ ] 設定 Cloudflare Analytics
 - [ ] 設定錯誤追蹤
-- [ ] 建立健康檢查 endpoint
+- [x] 建立健康檢查 endpoint
 
 #### 6.8 文檔完善
 - [x] 撰寫部署指南 (DEPLOYMENT.md)
@@ -1461,7 +1461,7 @@ describe('POST /api/apps/[id]/rate', () => {
 
 ### 📊 Stage 6 階段性總結 (2024-12-09)
 
-**已完成項目 (85%)**:
+**已完成項目 (88%)**:
 1. ✅ Cache Control Middleware (7 個測試)
 2. ✅ 資料庫效能優化 (9 個索引 + 物化視圖 + 觸發器)
 3. ✅ LazyImage 圖片延遲載入組件 (6 個測試)
@@ -1476,11 +1476,12 @@ describe('POST /api/apps/[id]/rate', () => {
     - auth.spec.ts: 認證流程測試 (7 個測試)
     - upload.spec.ts: 上傳流程測試 (5 個測試)
     - interaction.spec.ts: 互動流程測試 (11 個測試)
+12. ✅ Health Check Endpoint (5 個測試)
 
 **測試結果**:
-- 單元測試與整合測試：25 個測試文件，193 個測試案例 ✅
+- 單元測試與整合測試：26 個測試文件，198 個測試案例 ✅
 - E2E 測試：3 個測試文件，23 個測試案例
-- 總測試覆蓋：216 個測試案例
+- 總測試覆蓋：221 個測試案例
 - 測試執行時間：單元測試 ~20s，E2E 測試 ~2-3min
 
 **Commits** (17 個):
@@ -1502,7 +1503,7 @@ describe('POST /api/apps/[id]/rate', () => {
 16. `test(e2e): 新增上傳與互動流程 E2E 測試` (2780db3)
 17. `chore(ci): 新增 E2E 測試到 CI/CD 工作流程` (4bc01bf)
 
-**待完成項目 (15%)**:
+**待完成項目 (12%)**:
 - [ ] Bundle size 優化
 - [ ] 實際部署到生產環境
 - [ ] 監控與錯誤追蹤設定
