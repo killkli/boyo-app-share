@@ -12,7 +12,7 @@
 | Stage 1: 專案初始化與基礎建設 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
 | Stage 2: 認證系統 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 4: App 核心功能與 ZIP 支援 | 🚧 In Progress | 2024-12-09 | - | 30% |
+| Stage 4: App 核心功能與 ZIP 支援 | 🚧 In Progress | 2024-12-09 | - | 40% |
 | Stage 5: 社群互動功能 | ⏳ Not Started | - | - | 0% |
 | Stage 6: 部署與優化 | ⏳ Not Started | - | - | 0% |
 
@@ -903,21 +903,22 @@ describe('POST /api/apps - 剪貼簿上傳', () => {
 **成功標準 (Success Criteria)**:
 - [x] 支援 ZIP 檔案上傳並保留目錄結構
 - [x] 能自動偵測主 HTML 檔案
-- [ ] App 列表頁面支援分頁、篩選、排序
+- [x] App 列表 API 支援分頁、篩選、排序
 - [ ] App 詳情頁面支援安全預覽
 - [ ] 測試覆蓋率 ≥ 85%
 
 **狀態**: 🚧 In Progress
-**完成度**: 30%
+**完成度**: 40%
 **開始日期**: 2024-12-09
 **依賴**: Stage 3
 
 ### ✅ 已完成任務 (2024-12-09)
 
-**Task 4.1-4.3 完成總結**:
+**Task 4.1-4.4 完成總結**:
 - ✅ Task 4.1: MIME Type 工具建立完成（7 個測試通過）
 - ✅ Task 4.2: ZIP 處理工具建立完成（9 個測試通過）
 - ✅ Task 4.3: ZIP 上傳 API 實作完成（7 個測試通過）
+- ✅ Task 4.4: App 列表 API 實作完成（14 個測試通過）
 
 **Commits**:
 1. `test(utils): 新增 MIME Type 工具測試` (27f2932)
@@ -925,8 +926,11 @@ describe('POST /api/apps - 剪貼簿上傳', () => {
 3. `feat(validation): 新增 ZIP 上傳驗證 schema` (cc6ecb0)
 4. `feat(api): 實作 ZIP 檔案上傳功能` (f5f819a)
 5. `test(api): 新增 ZIP 上傳整合測試` (5acbbee)
+6. `test(helpers): 擴展 h3Mocks 支援 getQuery 參數` (bea5858)
+7. `test(api): 新增 App 列表 API 測試 (TDD)` (f50a7b7)
+8. `feat(api): 實作 App 列表 API (GET /api/apps)` (907ebe2)
 
-**測試結果**: 所有 23 個測試通過 ✅
+**測試結果**: 所有 37 個測試通過 ✅（23 + 14）
 
 ### 📋 Tasks
 
@@ -1068,8 +1072,8 @@ export const findMainHtml = (files: ZipFile[]): string | null => {
 - [ ] 保持目錄結構
 - [ ] 生成 file_manifest
 
-#### 4.4 App 列表 API (TDD)
-- [ ] **TDD - 列表測試**: `tests/integration/api/apps/list.test.ts`
+#### 4.4 App 列表 API (TDD) ✅
+- [x] **TDD - 列表測試**: `tests/integration/api/apps/list.test.ts`
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
 import { $fetch } from '@nuxt/test-utils'
@@ -1133,7 +1137,7 @@ describe('GET /api/apps', () => {
   })
 })
 ```
-- [ ] 實作 `server/api/apps/index.get.ts`
+- [x] 實作 `server/api/apps/index.get.ts`
 
 #### 4.5 App 詳情 API (TDD)
 - [ ] **TDD - 詳情測試**: `tests/integration/api/apps/[id].get.test.ts`
