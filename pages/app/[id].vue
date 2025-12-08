@@ -40,17 +40,30 @@
                   </CardDescription>
                 </div>
 
-                <!-- 編輯按鈕 (僅作者可見) -->
-                <Button
-                  v-if="canEdit"
-                  variant="outline"
-                  size="sm"
-                  as-child
-                >
-                  <NuxtLink :to="`/edit/${app.id}`">
-                    編輯
-                  </NuxtLink>
-                </Button>
+                <!-- 操作按鈕 -->
+                <div class="flex gap-2">
+                  <!-- 收藏按鈕 -->
+                  <FavoriteButton
+                    :is-favorited="isFavorited"
+                    :favorite-count="app.favorite_count || 0"
+                    :is-authenticated="isAuthenticated"
+                    :loading="favoriteSubmitting"
+                    show-label
+                    @toggle="handleToggleFavorite"
+                  />
+
+                  <!-- 編輯按鈕 (僅作者可見) -->
+                  <Button
+                    v-if="canEdit"
+                    variant="outline"
+                    size="sm"
+                    as-child
+                  >
+                    <NuxtLink :to="`/edit/${app.id}`">
+                      編輯
+                    </NuxtLink>
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
@@ -74,8 +87,30 @@
                 </Badge>
               </div>
 
+              <!-- 評分區域 -->
+              <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold text-lg">為這個 App 評分</h3>
+                  <Rating
+                    v-if="app.avg_rating && app.avg_rating > 0"
+                    :rating="app.avg_rating"
+                    :count="app.rating_count"
+                    show-value
+                  />
+                </div>
+                <Rating
+                  :rating="userRating"
+                  :interactive="isAuthenticated"
+                  size="lg"
+                  @rate="handleRate"
+                />
+                <p v-if="!isAuthenticated" class="text-sm text-gray-500 mt-2">
+                  請登入後評分
+                </p>
+              </div>
+
               <!-- 統計資訊 -->
-              <div class="flex items-center gap-6 text-sm text-gray-600">
+              <div class="flex items-center gap-6 text-sm text-gray-600 mb-6">
                 <div class="flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -86,18 +121,20 @@
 
                 <div class="flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  <span>{{ app.like_count }} 個讚</span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>{{ formatDate(app.created_at) }}</span>
                 </div>
               </div>
+
+              <!-- 評論區域 -->
+              <Comments
+                :comments="comments"
+                :loading="commentsLoading"
+                :is-authenticated="isAuthenticated"
+                :total-count="app.comment_count || 0"
+                @submit="handleSubmitComment"
+              />
             </CardContent>
           </Card>
         </div>
@@ -167,6 +204,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppPreview from '@/components/app/AppPreview.vue'
+import Rating from '@/components/common/Rating.vue'
+import Comments from '@/components/common/Comments.vue'
+import FavoriteButton from '@/components/common/FavoriteButton.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -175,6 +215,14 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 definePageMeta({
   layout: 'default'
 })
+
+interface Comment {
+  id: string
+  content: string
+  username: string
+  user_avatar?: string | null
+  created_at: string
+}
 
 interface App {
   id: string
@@ -194,6 +242,10 @@ interface App {
   } | null
   view_count: number
   like_count: number
+  avg_rating?: number
+  rating_count?: number
+  comment_count?: number
+  favorite_count?: number
   created_at: string
   author_username: string
   author_email: string
@@ -209,8 +261,19 @@ const htmlContent = ref('')
 const loading = ref(true)
 const error = ref(false)
 
+// 互動狀態
+const comments = ref<Comment[]>([])
+const commentsLoading = ref(false)
+const userRating = ref<number>(0)
+const isFavorited = ref(false)
+const ratingSubmitting = ref(false)
+const favoriteSubmitting = ref(false)
+
 // 獲取目前使用者 (用於判斷是否可編輯)
-const { user } = useAuth()
+const { user, token } = useAuth()
+
+// 判斷是否已登入
+const isAuthenticated = computed(() => !!user.value)
 
 // 判斷是否可編輯
 const canEdit = computed(() => {
@@ -292,7 +355,107 @@ const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-onMounted(() => {
-  fetchApp()
+// 獲取評論
+const fetchComments = async () => {
+  if (!app.value) return
+
+  try {
+    commentsLoading.value = true
+    const response = await $fetch<{ comments: Comment[] }>(`/api/apps/${app.value.id}/comments`)
+    comments.value = response.comments
+  } catch (err) {
+    console.error('Failed to fetch comments:', err)
+  } finally {
+    commentsLoading.value = false
+  }
+}
+
+// 提交評論
+const handleSubmitComment = async (content: string) => {
+  if (!app.value || !token.value) return
+
+  try {
+    await $fetch(`/api/apps/${app.value.id}/comments`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      },
+      body: { content }
+    })
+
+    // 重新載入評論
+    await fetchComments()
+
+    // 更新評論數量
+    if (app.value.comment_count !== undefined) {
+      app.value.comment_count += 1
+    }
+  } catch (err) {
+    console.error('Failed to submit comment:', err)
+    alert('發送評論失敗，請稍後再試')
+  }
+}
+
+// 提交評分
+const handleRate = async (rating: number) => {
+  if (!app.value || !token.value) return
+
+  try {
+    ratingSubmitting.value = true
+    const response = await $fetch<{ avgRating: number, ratingCount: number }>(`/api/apps/${app.value.id}/rate`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      },
+      body: { rating }
+    })
+
+    // 更新使用者評分
+    userRating.value = rating
+
+    // 更新平均評分
+    if (app.value) {
+      app.value.avg_rating = response.avgRating
+      app.value.rating_count = response.ratingCount
+    }
+  } catch (err) {
+    console.error('Failed to submit rating:', err)
+    alert('評分失敗，請稍後再試')
+  } finally {
+    ratingSubmitting.value = false
+  }
+}
+
+// 切換收藏
+const handleToggleFavorite = async () => {
+  if (!app.value || !token.value) return
+
+  try {
+    favoriteSubmitting.value = true
+    const response = await $fetch<{ isFavorited: boolean, favoriteCount: number }>(`/api/apps/${app.value.id}/favorite`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    })
+
+    // 更新收藏狀態
+    isFavorited.value = response.isFavorited
+
+    // 更新收藏數量
+    if (app.value) {
+      app.value.favorite_count = response.favoriteCount
+    }
+  } catch (err) {
+    console.error('Failed to toggle favorite:', err)
+    alert('操作失敗，請稍後再試')
+  } finally {
+    favoriteSubmitting.value = false
+  }
+}
+
+onMounted(async () => {
+  await fetchApp()
+  await fetchComments()
 })
 </script>
