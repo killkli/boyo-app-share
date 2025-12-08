@@ -14,7 +14,7 @@
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 5: 社群互動功能 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 6: 部署與優化 | ⏳ Not Started | - | - | 0% |
+| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 5% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
 
@@ -1376,8 +1376,10 @@ describe('POST /api/apps/[id]/rate', () => {
 - [ ] Lighthouse 分數 ≥ 90
 - [ ] 所有 E2E 測試通過
 
-**狀態**: ⏳ Not Started
-**預估工時**: 10-14 小時
+**狀態**: 🚧 In Progress
+**完成度**: 5%
+**實際工時**: 開始計時
+**開始日期**: 2024-12-09
 **依賴**: Stage 5
 
 ### 📋 Tasks
