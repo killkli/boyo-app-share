@@ -14,7 +14,7 @@
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 5: 社群互動功能 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 75% |
+| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 85% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
 
@@ -1427,11 +1427,13 @@ describe('POST /api/apps/[id]/rate', () => {
 - [x] 建立 `.github/workflows/deploy.yml`
 - [x] 設定 Cloudflare Pages 自動部署
 
-#### 6.5 E2E 測試
-- [ ] 安裝 Playwright
-- [ ] 建立測試: 註冊流程
-- [ ] 建立測試: 上傳流程
-- [ ] 建立測試: 互動流程
+#### 6.5 E2E 測試 ✅
+- [x] 安裝 Playwright
+- [x] 建立 playwright.config.ts 配置文件
+- [x] 建立測試: 註冊與登入流程 (auth.spec.ts - 7 個測試)
+- [x] 建立測試: 上傳流程 (upload.spec.ts - 5 個測試)
+- [x] 建立測試: 互動流程 (interaction.spec.ts - 11 個測試)
+- [x] 更新 CI/CD 工作流程包含 E2E 測試
 
 #### 6.6 部署
 - [ ] 部署到 Cloudflare Pages
@@ -1459,7 +1461,7 @@ describe('POST /api/apps/[id]/rate', () => {
 
 ### 📊 Stage 6 階段性總結 (2024-12-09)
 
-**已完成項目 (75%)**:
+**已完成項目 (85%)**:
 1. ✅ Cache Control Middleware (7 個測試)
 2. ✅ 資料庫效能優化 (9 個索引 + 物化視圖 + 觸發器)
 3. ✅ LazyImage 圖片延遲載入組件 (6 個測試)
@@ -1470,14 +1472,18 @@ describe('POST /api/apps/[id]/rate', () => {
 8. ✅ 部署指南 (DEPLOYMENT.md - Cloudflare & Vercel)
 9. ✅ 資料庫管理文檔 (server/database/README.md)
 10. ✅ GitHub Actions CI/CD 工作流程 (test.yml + deploy.yml)
+11. ✅ Playwright E2E 測試框架 (23 個測試)
+    - auth.spec.ts: 認證流程測試 (7 個測試)
+    - upload.spec.ts: 上傳流程測試 (5 個測試)
+    - interaction.spec.ts: 互動流程測試 (11 個測試)
 
 **測試結果**:
-- 測試文件：25 個全部通過 ✅
-- 測試案例：193 個全部通過 ✅
-- 新增測試：42 個 (Cache: 7, Rate Limit: 7, Sanitize: 22, LazyImage: 6)
-- 測試執行時間：~20s
+- 單元測試與整合測試：25 個測試文件，193 個測試案例 ✅
+- E2E 測試：3 個測試文件，23 個測試案例
+- 總測試覆蓋：216 個測試案例
+- 測試執行時間：單元測試 ~20s，E2E 測試 ~2-3min
 
-**Commits** (14 個):
+**Commits** (17 個):
 1. `docs: 更新 Stage 6 進度 (開始部署與優化階段)` (499ccd4)
 2. `test(middleware): 新增 Cache Control 測試 (TDD 紅燈)` (fee6828)
 3. `feat(middleware): 實作 Cache Control middleware` (0b1d6d1)
@@ -1492,18 +1498,21 @@ describe('POST /api/apps/[id]/rate', () => {
 12. `refactor: 整合 LazyImage 到 AppCard 組件` (a359c31)
 13. `fix(test): 添加明確的文件擴展名配置` (ad27456)
 14. `fix(test): 修復 rate limit 測試的 h3 模組解析問題` (7ad7daf)
+15. `test(e2e): 建立 Playwright E2E 測試框架與認證流程測試` (d5c58e7)
+16. `test(e2e): 新增上傳與互動流程 E2E 測試` (2780db3)
+17. `chore(ci): 新增 E2E 測試到 CI/CD 工作流程` (4bc01bf)
 
-**待完成項目 (25%)**:
+**待完成項目 (15%)**:
 - [ ] Bundle size 優化
-- [ ] E2E 測試 (Playwright)
 - [ ] 實際部署到生產環境
 - [ ] 監控與錯誤追蹤設定
 - [ ] API 文檔與貢獻指南
+- [ ] 更新 README.md
 
 **下一步**:
-- Task 6.5: E2E 測試
 - Task 6.6: 生產環境部署
 - Task 6.7: 監控與日誌設定
+- Task 6.8: 完善文檔
 
 ---
 
