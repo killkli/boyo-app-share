@@ -110,3 +110,15 @@ export const ratingSchema = z.object({
  * 評分請求的類型
  */
 export type RatingInput = z.infer<typeof ratingSchema>
+
+/**
+ * 評論驗證 Schema
+ */
+export const commentSchema = z.object({
+  content: z.string().min(1, '評論內容不能為空').max(2000, '評論內容最多 2000 個字元')
+})
+
+/**
+ * 評論請求的類型
+ */
+export type CommentInput = z.infer<typeof commentSchema>
