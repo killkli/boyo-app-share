@@ -40,6 +40,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mime-types": "^2.1.4",
     "@types/pg": "^8.11.5",
+    "@vitejs/plugin-vue": "^6.0.2",
     "@vue/test-utils": "^2.4.5",
     "@vueuse/nuxt": "^10.9.0",
     "clsx": "^2.1.1",

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { config } from 'dotenv'
 
@@ -6,6 +7,7 @@ import { config } from 'dotenv'
 config()
 
 export default defineConfig({
+  plugins: [vue()],
   resolve: {
     alias: {
       '~': resolve(__dirname, './'),
@@ -13,7 +15,7 @@ export default defineConfig({
     }
   },
   test: {
-    environment: 'node',
+    environment: 'happy-dom',
     globals: true,
     coverage: {
       provider: 'v8',
