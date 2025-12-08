@@ -1,5 +1,9 @@
 import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
+import { config } from 'dotenv'
+
+// 載入 .env 檔案
+config()
 
 export default defineConfig({
   resolve: {
