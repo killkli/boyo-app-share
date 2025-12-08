@@ -1476,7 +1476,7 @@ describe('POST /api/apps/[id]/rate', () => {
 - 新增測試：42 個 (Cache: 7, Rate Limit: 7, Sanitize: 22, LazyImage: 6)
 - 測試執行時間：~20s
 
-**Commits** (10 個):
+**Commits** (13 個):
 1. `docs: 更新 Stage 6 進度 (開始部署與優化階段)` (499ccd4)
 2. `test(middleware): 新增 Cache Control 測試 (TDD 紅燈)` (fee6828)
 3. `feat(middleware): 實作 Cache Control middleware` (0b1d6d1)
@@ -1486,7 +1486,11 @@ describe('POST /api/apps/[id]/rate', () => {
 7. `feat(security): 實作 XSS 防護與安全強化` (bfd57b9)
 8. `docs: 完善環境配置與部署指南` (4c3a623)
 9. `docs: 更新 Stage 6 進度記錄` (572bf7e)
-10. `feat(perf): 實作圖片 lazy loading 功能` (待提交)
+10. `test: 更新 vitest 配置以支援 Vue 組件測試` (c2b1d55)
+11. `feat(perf): 實作圖片 lazy loading 功能 (TDD)` (cfbe01a)
+12. `refactor: 整合 LazyImage 到 AppCard 組件` (a359c31)
+13. `fix(test): 添加明確的文件擴展名配置` (ad27456)
+14. `fix(test): 修復 rate limit 測試的 h3 模組解析問題` (7ad7daf)
 
 **待完成項目 (35%)**:
 - [ ] Bundle size 優化
