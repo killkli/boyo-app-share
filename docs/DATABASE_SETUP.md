@@ -134,6 +134,43 @@ DROP VIEW IF EXISTS apps_with_stats;
 - 資料庫密碼應使用安全的密碼管理方式
 - 在生產環境使用 SSL 連線 (`?sslmode=require`)
 
+## Tebi S3 設定 (選用)
+
+雖然 S3 功能在 Stage 3 才會實作，但您可以提前設定並測試：
+
+### 1. 取得 Tebi Credentials
+
+1. 前往 [Tebi.io](https://tebi.io/) 註冊/登入
+2. 建立 Bucket（例如：`boyocanvasapp`）
+3. 建立 Access Key 並記下 Access Key 和 Secret Key
+
+### 2. 更新 .env 檔案
+
+```bash
+# Tebi S3
+TEBI_ENDPOINT=https://s3.tebi.io
+TEBI_ACCESS_KEY=your-access-key
+TEBI_SECRET_KEY=your-secret-key
+TEBI_BUCKET=your-bucket-name
+
+# Public
+NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/your-bucket-name
+```
+
+### 3. 測試 S3 連線
+
+```bash
+npx tsx scripts/test-s3.ts
+```
+
+測試會執行：
+- ✅ 列出 Buckets
+- ✅ 上傳測試檔案
+- ✅ 讀取檔案內容
+- ✅ 刪除測試檔案
+
+如果所有測試通過，表示 S3 設定正確！
+
 ## 相關文件
 
 - [專案架構設計](./ARCHITECTURE_DESIGN.md)
