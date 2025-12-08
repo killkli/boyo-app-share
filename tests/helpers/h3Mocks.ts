@@ -9,13 +9,15 @@ export function createMockEvent(options: {
   method?: string
   path?: string
   context?: Record<string, any>
+  query?: Record<string, any>
 } = {}) {
   const {
     body = {},
     headers = {},
     method = 'POST',
     path = '/',
-    context = {}
+    context = {},
+    query = {}
   } = options
 
   return {
@@ -34,7 +36,8 @@ export function createMockEvent(options: {
     context,
     _method: method,
     _path: path,
-    _body: body
+    _body: body,
+    _query: query
   } as any
 }
 
@@ -68,6 +71,13 @@ export function mockGetHeader(event: any, name: string) {
 }
 
 /**
+ * 模擬 getQuery 函數
+ */
+export function mockGetQuery(event: any) {
+  return event._query || {}
+}
+
+/**
  * 設置全局 mock
  */
 export function setupH3Mocks() {
@@ -79,4 +89,6 @@ export function setupH3Mocks() {
   global.defineEventHandler = (handler: any) => handler
   // @ts-ignore
   global.getHeader = mockGetHeader
+  // @ts-ignore
+  global.getQuery = mockGetQuery
 }
