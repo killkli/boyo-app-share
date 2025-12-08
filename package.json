@@ -11,6 +11,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "nuxt typecheck"
@@ -35,6 +38,7 @@
   "devDependencies": {
     "@nuxt/test-utils": "^3.11.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
+    "@playwright/test": "^1.57.0",
     "@types/adm-zip": "^0.5.5",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.6",
@@ -47,6 +51,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
     "happy-dom": "^13.6.2",
+    "playwright": "^1.57.0",
     "playwright-core": "^1.42.1",
     "shadcn-nuxt": "^0.10.0",
     "tailwind-merge": "^3.4.0",
