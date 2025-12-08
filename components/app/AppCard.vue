@@ -52,6 +52,16 @@
         </Badge>
       </div>
 
+      <!-- 評分 -->
+      <div v-if="app.avg_rating && app.avg_rating > 0" class="mb-3">
+        <Rating
+          :rating="app.avg_rating"
+          :count="app.rating_count"
+          size="sm"
+          show-value
+        />
+      </div>
+
       <!-- 作者資訊與統計 -->
       <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
         <div class="flex items-center gap-2">
@@ -76,12 +86,20 @@
             <span>{{ formatCount(app.view_count) }}</span>
           </div>
 
-          <!-- 按讚次數 -->
-          <div class="flex items-center gap-1">
+          <!-- 評論數 -->
+          <div v-if="app.comment_count" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span>{{ formatCount(app.comment_count) }}</span>
+          </div>
+
+          <!-- 收藏次數 -->
+          <div v-if="app.favorite_count" class="flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <span>{{ formatCount(app.like_count) }}</span>
+            <span>{{ formatCount(app.favorite_count) }}</span>
           </div>
         </div>
       </div>
@@ -93,6 +111,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import Rating from '@/components/common/Rating.vue'
 
 interface App {
   id: string
@@ -103,6 +122,10 @@ interface App {
   thumbnail_s3_key: string | null
   view_count: number
   like_count: number
+  avg_rating?: number
+  rating_count?: number
+  comment_count?: number
+  favorite_count?: number
   author_username: string
   author_avatar?: string | null
 }
