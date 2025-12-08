@@ -8,14 +8,24 @@ let pool: Pool | null = null
  */
 export const getDb = (): Pool => {
   if (!pool) {
-    const config = useRuntimeConfig()
+    // 在測試環境中，直接從 process.env 讀取
+    // 在 Nuxt 環境中，使用 useRuntimeConfig
+    let databaseUrl: string | undefined
 
-    if (!config.databaseUrl) {
+    try {
+      const config = useRuntimeConfig()
+      databaseUrl = config.databaseUrl
+    } catch {
+      // 測試環境或非 Nuxt 環境
+      databaseUrl = process.env.DATABASE_URL
+    }
+
+    if (!databaseUrl) {
       throw new Error('DATABASE_URL 環境變數未設定')
     }
 
     pool = new Pool({
-      connectionString: config.databaseUrl,
+      connectionString: databaseUrl,
       max: 10, // 最大連接數
       idleTimeoutMillis: 30000, // 閒置連接超時時間
       connectionTimeoutMillis: 2000, // 連接超時時間

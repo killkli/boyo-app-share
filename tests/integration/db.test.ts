@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { getDb, query, closeDb } from '~/server/utils/db'
 
-describe('資料庫連接測試', () => {
+// 只在有 DATABASE_URL 時執行整合測試
+describe.skipIf(!process.env.DATABASE_URL)('資料庫連接測試', () => {
   beforeAll(async () => {
-    // 確保測試環境有 DATABASE_URL
-    if (!process.env.DATABASE_URL) {
-      console.warn('警告：未設定 DATABASE_URL 環境變數')
-    }
+    console.log('執行資料庫整合測試 (需要 DATABASE_URL)')
   })
 
   afterAll(async () => {
@@ -37,5 +35,24 @@ describe('資料庫連接測試', () => {
     await expect(
       query('SELECT * FROM non_existent_table')
     ).rejects.toThrow()
+  })
+})
+
+// 單元測試：不需要實際資料庫連接
+describe('資料庫工具函數單元測試', () => {
+  it('應該在沒有 DATABASE_URL 時拋出錯誤', () => {
+    // 保存原始環境變數
+    const originalUrl = process.env.DATABASE_URL
+    delete process.env.DATABASE_URL
+
+    // 重置 pool
+    closeDb()
+
+    expect(() => getDb()).toThrow('DATABASE_URL 環境變數未設定')
+
+    // 恢復環境變數
+    if (originalUrl) {
+      process.env.DATABASE_URL = originalUrl
+    }
   })
 })
