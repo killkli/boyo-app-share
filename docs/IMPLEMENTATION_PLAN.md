@@ -13,7 +13,7 @@
 | Stage 2: 認證系統 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 5: 社群互動功能 | ⏳ Not Started | - | - | 0% |
+| Stage 5: 社群互動功能 | 🚧 In Progress | 2024-12-09 | - | 40% |
 | Stage 6: 部署與優化 | ⏳ Not Started | - | - | 0% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
@@ -1216,19 +1216,21 @@ describe('GET /api/apps', () => {
 - [ ] 統計資料正確更新與顯示
 - [ ] 測試覆蓋率 ≥ 85%
 
-**狀態**: ⏳ Not Started
+**狀態**: 🚧 In Progress
+**完成度**: 40%
 **預估工時**: 12-16 小時
+**開始日期**: 2024-12-09
 **依賴**: Stage 4
 
 ### 📋 Tasks
 
-#### 5.1 建立互動資料表
-- [ ] 確認 Schema: `ratings`, `comments`, `favorites`
-- [ ] 建立 View: `apps_with_stats`
-- [ ] 執行遷移
+#### 5.1 建立互動資料表 ✅
+- [x] 確認 Schema: `ratings`, `comments`, `favorites`
+- [x] 建立 View: `apps_with_stats`
+- [x] 執行遷移
 
-#### 5.2 評分 API (TDD)
-- [ ] **TDD - 評分測試**: `tests/integration/api/apps/rate.test.ts`
+#### 5.2 評分 API (TDD) ✅
+- [x] **TDD - 評分測試**: `tests/integration/api/apps/[id]/rate.test.ts`
 ```typescript
 describe('POST /api/apps/[id]/rate', () => {
   it('應該成功評分', async () => {
@@ -1269,7 +1271,13 @@ describe('POST /api/apps/[id]/rate', () => {
   })
 })
 ```
-- [ ] 實作 `server/api/apps/[id]/rate.post.ts`
+- [x] 實作 `server/api/apps/[id]/rate.post.ts`
+
+**測試結果**: ✅ 7 個測試全數通過
+**Commits**:
+1. `feat(validation): 新增評分驗證 schema` (1e47be0)
+2. `test(api): 新增評分 API 測試 (TDD)` (d0ccdfe)
+3. `feat(api): 實作評分 API (POST /api/apps/[id]/rate)` (55955ef)
 
 #### 5.3 評論 API (TDD)
 - [ ] **TDD - 評論測試**: `tests/integration/api/apps/comment.test.ts`
