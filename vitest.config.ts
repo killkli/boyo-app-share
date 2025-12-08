@@ -12,7 +12,8 @@ export default defineConfig({
     alias: {
       '~': resolve(__dirname, './'),
       '@': resolve(__dirname, './')
-    }
+    },
+    extensions: ['.js', '.json', '.jsx', '.ts', '.tsx', '.vue']
   },
   test: {
     environment: 'happy-dom',
