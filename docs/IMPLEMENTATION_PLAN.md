@@ -10,7 +10,7 @@
 | 階段 | 狀態 | 開始日期 | 完成日期 | 完成度 |
 |------|------|----------|----------|--------|
 | Stage 1: 專案初始化與基礎建設 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
-| Stage 2: 認證系統 | ⏳ Not Started | - | - | 0% |
+| Stage 2: 認證系統 | 🚧 In Progress | 2024-12-08 | - | 40% |
 | Stage 3: S3 儲存與基礎上傳 | ⏳ Not Started | - | - | 0% |
 | Stage 4: App 核心功能與 ZIP 支援 | ⏳ Not Started | - | - | 0% |
 | Stage 5: 社群互動功能 | ⏳ Not Started | - | - | 0% |
@@ -252,27 +252,28 @@ export default defineNuxtConfig({
 **目標 (Goal)**: 實作完整的使用者註冊、登入與 JWT 認證機制。
 
 **成功標準 (Success Criteria)**:
-- [ ] 使用者可以註冊新帳號 (email 驗證、密碼加密)
+- [x] 使用者可以註冊新帳號 (email 驗證、密碼加密)
 - [ ] 使用者可以登入並獲得 JWT token
 - [ ] API 受 JWT 保護，未認證請求返回 401
 - [ ] 前端可獲取當前使用者資訊
 - [ ] 測試覆蓋率 ≥ 90%
 
-**狀態**: ⏳ Not Started
+**狀態**: 🚧 In Progress
 **預估工時**: 12-16 小時
+**開始日期**: 2024-12-08
 **依賴**: Stage 1
 
 ### 📋 Tasks
 
 #### 2.1 建立 Users 資料表
-- [ ] 確認 `users` table schema (從 Stage 1 schema.sql)
-- [ ] 建立索引:
+- [x] 確認 `users` table schema (從 Stage 1 schema.sql)
+- [x] 建立索引:
   - `CREATE INDEX idx_users_email ON users(email)`
   - `CREATE INDEX idx_users_username ON users(username)`
-- [ ] 驗證遷移成功
+- [x] 驗證遷移成功
 
 #### 2.2 後端工具函數 (TDD)
-- [ ] **TDD - JWT 工具**: `tests/unit/utils/jwt.test.ts`
+- [x] **TDD - JWT 工具**: `tests/unit/utils/jwt.test.ts`
 ```typescript
 import { describe, it, expect } from 'vitest'
 import { generateToken, verifyToken } from '~/server/utils/jwt'
@@ -296,28 +297,13 @@ describe('JWT 工具函數', () => {
   })
 })
 ```
-- [ ] 實作 `server/utils/jwt.ts`:
-```typescript
-import jwt from 'jsonwebtoken'
-
-export const generateToken = (userId: string) => {
-  const config = useRuntimeConfig()
-  return jwt.sign({ userId }, config.jwtSecret, {
-    expiresIn: '7d'
-  })
-}
-
-export const verifyToken = (token: string) => {
-  const config = useRuntimeConfig()
-  return jwt.verify(token, config.jwtSecret) as { userId: string }
-}
-```
-- [ ] 安裝依賴: `pnpm add jsonwebtoken bcrypt`
-- [ ] 安裝類型: `pnpm add -D @types/jsonwebtoken @types/bcrypt`
+- [x] 實作 `server/utils/jwt.ts` (已實作，支援依賴注入)
+- [x] 安裝依賴: `pnpm add jsonwebtoken bcrypt`
+- [x] 安裝類型: `pnpm add -D @types/jsonwebtoken @types/bcrypt`
 
 #### 2.3 Validation Schemas (Zod)
-- [ ] 安裝 Zod: `pnpm add zod`
-- [ ] 建立 `server/utils/validation.ts`:
+- [x] 安裝 Zod: `pnpm add zod`
+- [x] 建立 `server/utils/validation.ts`
 ```typescript
 import { z } from 'zod'
 
@@ -334,7 +320,7 @@ export const loginSchema = z.object({
 ```
 
 #### 2.4 註冊 API (TDD)
-- [ ] **TDD - 註冊測試**: `tests/integration/api/auth/register.test.ts`
+- [x] **TDD - 註冊測試**: `tests/integration/api/auth/register.test.ts` (7 測試案例)
 ```typescript
 import { describe, it, expect, beforeEach } from 'vitest'
 import { $fetch } from '@nuxt/test-utils'
@@ -407,7 +393,7 @@ describe('POST /api/auth/register', () => {
   })
 })
 ```
-- [ ] 實作 `server/api/auth/register.post.ts`:
+- [x] 實作 `server/api/auth/register.post.ts` (已完成，包含完整錯誤處理):
 ```typescript
 import bcrypt from 'bcrypt'
 import { registerSchema } from '~/server/utils/validation'
