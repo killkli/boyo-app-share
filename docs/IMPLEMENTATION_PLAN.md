@@ -13,7 +13,7 @@
 | Stage 2: 認證系統 | ✅ Complete | 2024-12-08 | 2024-12-08 | 100% |
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 5: 社群互動功能 | 🚧 In Progress | 2024-12-09 | - | 40% |
+| Stage 5: 社群互動功能 | 🚧 In Progress | 2024-12-09 | - | 60% |
 | Stage 6: 部署與優化 | ⏳ Not Started | - | - | 0% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
@@ -1217,7 +1217,7 @@ describe('GET /api/apps', () => {
 - [ ] 測試覆蓋率 ≥ 85%
 
 **狀態**: 🚧 In Progress
-**完成度**: 40%
+**完成度**: 60%
 **預估工時**: 12-16 小時
 **開始日期**: 2024-12-09
 **依賴**: Stage 4
@@ -1279,15 +1279,27 @@ describe('POST /api/apps/[id]/rate', () => {
 2. `test(api): 新增評分 API 測試 (TDD)` (d0ccdfe)
 3. `feat(api): 實作評分 API (POST /api/apps/[id]/rate)` (55955ef)
 
-#### 5.3 評論 API (TDD)
-- [ ] **TDD - 評論測試**: `tests/integration/api/apps/comment.test.ts`
-- [ ] 實作 `server/api/apps/[id]/comment.post.ts`
-- [ ] 實作評論列表 API
+#### 5.3 評論 API (TDD) ✅
+- [x] **TDD - 評論測試**: `tests/integration/api/apps/[id]/comment.test.ts`
+- [x] 實作 `server/api/apps/[id]/comments.post.ts`
+- [x] 實作評論列表 API `server/api/apps/[id]/comments.get.ts`
 
-#### 5.4 收藏 API (TDD)
-- [ ] **TDD - 收藏測試**: `tests/integration/api/apps/favorite.test.ts`
-- [ ] 實作 `server/api/apps/[id]/favorite.post.ts` (toggle)
-- [ ] 實作使用者收藏列表 API
+**測試結果**: ✅ 9 個測試全數通過
+**Commits**:
+1. `feat(validation): 新增評論驗證 schema` (1ee9012)
+2. `test(api): 新增評論 API 測試 (TDD)` (a4b2da4)
+3. `feat(api): 實作評論 API` (e973a7d)
+
+#### 5.4 收藏 API (TDD) ✅
+- [x] **TDD - 收藏測試**: `tests/integration/api/apps/[id]/favorite.test.ts`
+- [x] 實作 `server/api/apps/[id]/favorite.post.ts` (toggle)
+
+**測試結果**: ✅ 6 個測試全數通過
+**Commits**:
+1. `test(api): 新增收藏 API 測試 (TDD)` (8773d4d)
+2. `feat(api): 實作收藏 API (POST /api/apps/[id]/favorite)` (e58b9ce)
+
+**備註**: 使用者收藏列表 API 將在 Task 5.7 (使用者個人頁面) 一併實作
 
 #### 5.5 前端互動組件
 - [ ] 建立 `components/common/Rating.vue`
