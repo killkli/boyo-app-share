@@ -914,12 +914,13 @@ describe('POST /api/apps - 剪貼簿上傳', () => {
 
 ### ✅ 已完成任務 (2024-12-09)
 
-**Task 4.1-4.5 完成總結**:
+**Task 4.1-4.6 完成總結**:
 - ✅ Task 4.1: MIME Type 工具建立完成（7 個測試通過）
 - ✅ Task 4.2: ZIP 處理工具建立完成（9 個測試通過）
 - ✅ Task 4.3: ZIP 上傳 API 實作完成（7 個測試通過）
 - ✅ Task 4.4: App 列表 API 實作完成（14 個測試通過）
 - ✅ Task 4.5: App 詳情 API 實作完成（6 個測試通過）
+- ✅ Task 4.6: App 更新與刪除 API 實作完成（8 + 7 個測試通過）
 
 **Commits**:
 1. `test(utils): 新增 MIME Type 工具測試` (27f2932)
@@ -931,8 +932,11 @@ describe('POST /api/apps - 剪貼簿上傳', () => {
 7. `test(api): 新增 App 列表 API 測試 (TDD)` (f50a7b7)
 8. `feat(api): 實作 App 列表 API (GET /api/apps)` (907ebe2)
 9. `feat(api): 實作 App 詳情 API (GET /api/apps/[id])` (454e86a)
+10. `feat(validation): 新增 App 更新驗證 schema` (804e7ac)
+11. `test(api): 新增 App 刪除 API 測試 (TDD)` (61d1ea6)
+12. `fix(tests): 修正測試資料隔離問題` (4aaa3f6)
 
-**測試結果**: 所有 43 個測試通過 ✅（23 + 14 + 6）
+**測試結果**: 所有 129 個測試通過 ✅
 
 ### 📋 Tasks
 
@@ -1146,12 +1150,12 @@ describe('GET /api/apps', () => {
 - [x] 實作 `server/api/apps/[id].get.ts`
 - [x] 增加瀏覽次數
 
-#### 4.6 App 更新與刪除 API (TDD)
-- [ ] **TDD - 更新測試**: `tests/integration/api/apps/[id].put.test.ts`
-- [ ] **TDD - 刪除測試**: `tests/integration/api/apps/[id].delete.test.ts`
-- [ ] 實作 `server/api/apps/[id].put.ts`
-- [ ] 實作 `server/api/apps/[id].delete.ts`
-- [ ] 刪除時同步刪除 S3 檔案
+#### 4.6 App 更新與刪除 API (TDD) ✅
+- [x] **TDD - 更新測試**: `tests/integration/api/apps/[id].put.test.ts`
+- [x] **TDD - 刪除測試**: `tests/integration/api/apps/[id].delete.test.ts`
+- [x] 實作 `server/api/apps/[id].put.ts`
+- [x] 實作 `server/api/apps/[id].delete.ts`
+- [x] 刪除時同步刪除 S3 檔案
 
 #### 4.7 前端 App 卡片組件
 - [ ] 建立 `components/app/AppCard.vue`
