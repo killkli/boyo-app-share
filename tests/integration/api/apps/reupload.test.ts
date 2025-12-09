@@ -315,4 +315,54 @@ describe.skipIf(skipIfNoDb)('PUT /api/apps/[id]/reupload', () => {
     )
     expect(result.rows[0].html_s3_key).toBe('apps/original/index.html')
   })
+
+  it('當新舊S3 key相同時不應該執行清理（避免刪除剛上傳的檔案）', async () => {
+    // 創建一個 app，其 S3 key 格式與重新上傳後相同
+    const sameKeyAppResult = await query(
+      `INSERT INTO apps (
+        user_id, title, upload_type, html_s3_key, is_public
+      ) VALUES ($1, $2, $3, $4, $5)
+      RETURNING id`,
+      [
+        testUserId,
+        'Same Key App',
+        'paste',
+        `apps/${testAppId}/index.html`, // 使用與重新上傳後相同的格式（但這裡使用 testAppId）
+        true
+      ]
+    )
+    const sameKeyAppId = sameKeyAppResult.rows[0].id
+
+    // 修正：使用正確的 S3 key 格式
+    await query(
+      `UPDATE apps SET html_s3_key = $1 WHERE id = $2`,
+      [`apps/${sameKeyAppId}/index.html`, sameKeyAppId]
+    )
+
+    const newHtml = '<html><body>New Content - Same Key</body></html>'
+
+    const event = createMockEvent({
+      method: 'PUT',
+      context: {
+        userId: testUserId,
+        params: { id: sameKeyAppId }
+      },
+      body: { htmlContent: newHtml }
+    })
+
+    // 清除 mock 調用歷史
+    vi.clearAllMocks()
+
+    const response = await reuploadHandler(event)
+
+    // 驗證 S3 上傳被調用
+    expect(vi.mocked(s3.uploadToS3)).toHaveBeenCalled()
+
+    // 驗證清理函數不應該被調用（因為新舊 key 相同）
+    expect(vi.mocked(s3Cleanup.cleanupAppS3Files)).not.toHaveBeenCalled()
+
+    // 驗證返回結果正確
+    expect(response).toHaveProperty('app')
+    expect(response.app.html_s3_key).toBe(`apps/${sameKeyAppId}/index.html`)
+  })
 })

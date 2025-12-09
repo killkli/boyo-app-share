@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import AppPreview from '@/components/app/AppPreview.vue'
@@ -556,6 +556,20 @@ const handleToggleFavorite = async () => {
 onMounted(async () => {
   await fetchApp()
   await fetchComments()
+})
+
+// 當頁面重新激活時（例如從編輯頁面返回），重新載入資料
+onActivated(async () => {
+  await fetchApp()
+  await fetchComments()
+})
+
+// 監聽路由參數變化，重新載入資料
+watch(() => route.params.id, async (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    await fetchApp()
+    await fetchComments()
+  }
 })
 </script>
 

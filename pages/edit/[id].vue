@@ -118,30 +118,30 @@
                     重新上傳 HTML
                   </Button>
                 </DialogTrigger>
-                <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto !bg-white !text-black dark:!bg-white dark:!text-black">
                   <DialogHeader>
-                    <DialogTitle class="text-2xl font-bold">重新上傳 HTML</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle class="text-2xl font-bold !text-black">重新上傳 HTML</DialogTitle>
+                    <DialogDescription class="!text-gray-600">
                       上傳新的 HTML 內容將會替換現有的應用內容
                     </DialogDescription>
                   </DialogHeader>
 
                   <Tabs v-model="reuploadType" class="w-full mt-4">
-                    <TabsList class="grid w-full grid-cols-2 bg-muted">
-                      <TabsTrigger value="paste">剪貼簿</TabsTrigger>
-                      <TabsTrigger value="file">上傳檔案</TabsTrigger>
+                    <TabsList class="grid w-full grid-cols-2 !bg-gray-100 !text-gray-700">
+                      <TabsTrigger value="paste" class="data-[state=active]:!bg-white data-[state=active]:!text-black">剪貼簿</TabsTrigger>
+                      <TabsTrigger value="file" class="data-[state=active]:!bg-white data-[state=active]:!text-black">上傳檔案</TabsTrigger>
                     </TabsList>
 
                     <!-- Paste upload -->
                     <TabsContent value="paste" class="space-y-4 mt-4">
                       <div class="space-y-2">
-                        <Label for="reuploadHtmlContent">HTML 內容 *</Label>
+                        <Label for="reuploadHtmlContent" class="!text-black">HTML 內容 *</Label>
                         <Textarea
                           id="reuploadHtmlContent"
                           v-model="reuploadForm.htmlContent"
                           placeholder="<html>&#10;  <body>&#10;    <h1>Hello World!</h1>&#10;  </body>&#10;</html>"
                           rows="12"
-                          class="font-mono text-sm"
+                          class="font-mono text-sm !bg-white !text-black !border-gray-300"
                         />
                       </div>
                     </TabsContent>
@@ -149,37 +149,38 @@
                     <!-- File upload -->
                     <TabsContent value="file" class="space-y-4 mt-4">
                       <div class="space-y-2">
-                        <Label for="reuploadFileInput">選擇 HTML 檔案 *</Label>
+                        <Label for="reuploadFileInput" class="!text-black">選擇 HTML 檔案 *</Label>
                         <Input
                           id="reuploadFileInput"
                           type="file"
                           accept=".html,.htm"
+                          class="!bg-white !text-black !border-gray-300"
                           @change="handleReuploadFileChange"
                         />
-                        <p v-if="selectedFile" class="text-sm text-muted-foreground">
+                        <p v-if="selectedFile" class="text-sm !text-gray-600">
                           已選擇: {{ selectedFile.name }}
                         </p>
                       </div>
                     </TabsContent>
                   </Tabs>
 
-                  <div class="flex items-center space-x-2 pt-4 border-t">
+                  <div class="flex items-center space-x-2 pt-4 border-t !border-gray-300">
                     <input
                       id="regenerateThumbnail"
                       type="checkbox"
                       v-model="reuploadForm.regenerateThumbnail"
-                      class="rounded border-gray-300"
+                      class="rounded !border-gray-300"
                     />
-                    <Label for="regenerateThumbnail" class="cursor-pointer">
+                    <Label for="regenerateThumbnail" class="cursor-pointer !text-black">
                       重新生成縮圖
                     </Label>
                   </div>
 
                   <DialogFooter class="flex gap-2">
-                    <Button variant="outline" @click="showReuploadDialog = false">
+                    <Button variant="outline" class="!border-gray-300 !text-black hover:!bg-gray-100" @click="showReuploadDialog = false">
                       取消
                     </Button>
-                    <Button @click="handleReupload" :disabled="reuploading">
+                    <Button class="!bg-blue-600 !text-white hover:!bg-blue-700" @click="handleReupload" :disabled="reuploading">
                       {{ reuploading ? '上傳中...' : '確認上傳' }}
                     </Button>
                   </DialogFooter>
@@ -463,7 +464,6 @@ const handleReupload = async () => {
         Authorization: `Bearer ${token.value}`
       },
       body: {
-        uploadType: reuploadType.value,
         htmlContent: reuploadForm.value.htmlContent,
         regenerateThumbnail: reuploadForm.value.regenerateThumbnail
       }
@@ -477,9 +477,10 @@ const handleReupload = async () => {
     }
     selectedFile.value = null
 
-    // 顯示成功訊息並重新整理頁面
+    // 顯示成功訊息並導航到檢視頁面
     alert('HTML 內容已成功更新！')
-    await fetchApp()
+    // 導航到檢視頁面，強制重新載入資料
+    router.push(`/app/${appId}?t=${Date.now()}`)
   } catch (err: any) {
     console.error('Failed to reupload:', err)
     alert(err.data?.message || '重新上傳失敗，請稍後再試')

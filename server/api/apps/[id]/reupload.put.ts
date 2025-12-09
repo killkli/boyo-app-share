@@ -152,8 +152,10 @@ export default defineEventHandler(async (event) => {
 
     newHtmlS3Key = `apps/${appId}/${mainHtmlPath}`
 
-    // 清理舊的 S3 檔案
-    await cleanupAppS3Files(oldHtmlS3Key, oldFileManifest ? `apps/${appId}/` : null)
+    // 清理舊的 S3 檔案（只有當舊檔案與新檔案的 key 不同時才清理）
+    if (oldHtmlS3Key !== newHtmlS3Key) {
+      await cleanupAppS3Files(oldHtmlS3Key, oldFileManifest ? `apps/${appId}/` : null)
+    }
   } else if (validated.htmlContent) {
     // paste 或 file 重新上傳
     newHtmlS3Key = `apps/${appId}/index.html`
@@ -165,8 +167,10 @@ export default defineEventHandler(async (event) => {
       { cacheControl: 'public, max-age=31536000' }
     )
 
-    // 清理舊的 S3 檔案
-    await cleanupAppS3Files(oldHtmlS3Key, null)
+    // 清理舊的 S3 檔案（只有當舊檔案與新檔案的 key 不同時才清理）
+    if (oldHtmlS3Key !== newHtmlS3Key) {
+      await cleanupAppS3Files(oldHtmlS3Key, null)
+    }
   } else {
     throw createError({
       statusCode: 400,
