@@ -1,5 +1,5 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+/* Import Google Fonts - Neo-Brutalist Typography */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,78 +7,84 @@
 
 @layer base {
   :root {
-    /* Bold, vibrant color palette */
-    --background: 45 100% 96%;  /* Soft cream yellow */
-    --foreground: 280 8% 20%;   /* Deep charcoal */
+    /* Neo-Brutalist Color Palette - High Contrast */
+    --background: 0 0% 100%;        /* Pure white */
+    --foreground: 0 0% 0%;          /* Pure black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 280 8% 20%;
+    --card: 0 0% 100%;              /* White */
+    --card-foreground: 0 0% 0%;     /* Black */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 280 8% 20%;
+    --popover: 0 0% 100%;           /* White */
+    --popover-foreground: 0 0% 0%;  /* Black */
 
-    /* Primary: Vibrant teal/cyan */
-    --primary: 174 72% 56%;
+    /* Primary: Electric Blue */
+    --primary: 217 100% 50%;        /* #0066FF */
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Warm coral/pink */
-    --secondary: 11 92% 70%;
+    /* Secondary: Hot Pink */
+    --secondary: 346 100% 60%;      /* #FF3366 */
     --secondary-foreground: 0 0% 100%;
 
-    /* Accent: Sunny yellow */
-    --accent: 45 100% 62%;
-    --accent-foreground: 280 8% 20%;
+    /* Accent: Lime Green */
+    --accent: 74 100% 40%;          /* #CCFF00 */
+    --accent-foreground: 0 0% 0%;
 
-    /* Muted: Soft purple */
-    --muted: 260 30% 90%;
-    --muted-foreground: 280 8% 45%;
+    /* Muted: Light Gray */
+    --muted: 0 0% 96%;              /* #F5F5F5 */
+    --muted-foreground: 0 0% 40%;   /* #666666 */
 
-    --destructive: 0 84.2% 60.2%;
+    /* Destructive: Bright Red */
+    --destructive: 0 100% 60%;      /* #FF3333 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 280 8% 85%;
-    --input: 280 8% 85%;
-    --ring: 174 72% 56%;
+    /* Borders and Inputs - Always Black */
+    --border: 0 0% 0%;              /* Black */
+    --border-subtle: 0 0% 80%;      /* Light gray */
+    --input: 0 0% 0%;               /* Black */
+    --ring: 217 100% 50%;           /* Electric blue */
 
-    --radius: 1.25rem;
+    --radius: 0rem;                 /* No border radius - sharp edges */
 
-    /* Custom brand colors */
-    --color-sunshine: 45 100% 62%;
-    --color-ocean: 200 95% 45%;
-    --color-coral: 11 92% 70%;
-    --color-lavender: 260 60% 75%;
-    --color-mint: 150 70% 65%;
-    --color-peach: 25 100% 75%;
+    /* Additional Accent Colors */
+    --accent-purple: 270 100% 60%;  /* #9933FF */
+    --accent-orange: 30 100% 50%;   /* #FFAA00 */
+    --accent-cyan: 180 100% 50%;    /* #00FFFF */
+
+    /* Semantic Colors */
+    --success: 142 71% 45%;         /* #00CC66 */
+    --warning: 38 100% 50%;         /* #FFAA00 */
+    --info: 217 100% 50%;           /* #0066FF */
   }
 
   .dark {
-    --background: 280 8% 12%;
-    --foreground: 45 40% 95%;
+    --background: 0 0% 7%;          /* Near black */
+    --foreground: 0 0% 98%;         /* Near white */
 
-    --card: 280 8% 15%;
-    --card-foreground: 45 40% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 280 8% 15%;
-    --popover-foreground: 45 40% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 174 72% 56%;
+    --primary: 217 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 11 92% 70%;
+    --secondary: 346 100% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 45 100% 62%;
-    --accent-foreground: 280 8% 12%;
+    --accent: 74 100% 40%;
+    --accent-foreground: 0 0% 0%;
 
-    --muted: 280 8% 20%;
-    --muted-foreground: 280 8% 70%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 100% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 280 8% 25%;
-    --input: 280 8% 25%;
-    --ring: 174 72% 56%;
+    --border: 0 0% 20%;
+    --border-subtle: 0 0% 25%;
+    --input: 0 0% 20%;
+    --ring: 217 100% 50%;
   }
 }
 
@@ -89,51 +95,182 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fredoka', 'DM Sans', sans-serif;
-    font-weight: 600;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
   }
 }
 
-/* Custom animations */
+/* Neo-Brutalist Utilities */
 @layer utilities {
-  @keyframes bounce-gentle {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-8px);
-    }
+  /* Brutalist Hard Shadows - No Blur */
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0px hsl(var(--foreground));
   }
 
-  @keyframes wiggle {
-    0%, 100% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(-3deg);
-    }
-    75% {
-      transform: rotate(3deg);
-    }
+  .shadow-brutal {
+    box-shadow: 4px 4px 0px hsl(var(--foreground));
   }
 
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+  .shadow-brutal-md {
+    box-shadow: 6px 6px 0px hsl(var(--foreground));
   }
 
-  @keyframes slide-up-fade {
+  .shadow-brutal-lg {
+    box-shadow: 8px 8px 0px hsl(var(--foreground));
+  }
+
+  .shadow-brutal-xl {
+    box-shadow: 12px 12px 0px hsl(var(--foreground));
+  }
+
+  /* Colored Hard Shadows */
+  .shadow-brutal-primary {
+    box-shadow: 4px 4px 0px hsl(var(--primary));
+  }
+
+  .shadow-brutal-secondary {
+    box-shadow: 4px 4px 0px hsl(var(--secondary));
+  }
+
+  .shadow-brutal-accent {
+    box-shadow: 4px 4px 0px hsl(var(--accent));
+  }
+
+  /* Hover Effects - Brutalist Movement */
+  .hover-lift {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translate(-2px, -2px);
+  }
+
+  .hover-lift:active {
+    transform: translate(1px, 1px);
+  }
+
+  /* Border Utilities */
+  .border-brutal {
+    border: 3px solid hsl(var(--foreground));
+  }
+
+  .border-brutal-2 {
+    border: 2px solid hsl(var(--foreground));
+  }
+
+  .border-brutal-4 {
+    border: 4px solid hsl(var(--foreground));
+  }
+
+  /* Background Patterns */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .bg-diagonal-lines {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      hsl(var(--foreground) / 0.03) 10px,
+      hsl(var(--foreground) / 0.03) 20px
+    );
+  }
+
+  /* Typography Utilities */
+  .font-heading {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Brutalist Button Base */
+  .btn-brutal {
+    @apply border-brutal font-bold uppercase tracking-wide;
+    @apply transition-all duration-150 ease-out;
+    @apply shadow-brutal hover:shadow-brutal-lg;
+    @apply hover:-translate-x-1 hover:-translate-y-1;
+    @apply active:translate-x-1 active:translate-y-1 active:shadow-brutal-sm;
+  }
+
+  /* Brutalist Card */
+  .card-brutal {
+    @apply border-brutal bg-card;
+    @apply shadow-brutal;
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .card-brutal:hover {
+    @apply -translate-x-1 -translate-y-1;
+    @apply shadow-brutal-md;
+  }
+
+  /* Brutalist Input */
+  .input-brutal {
+    @apply border-brutal-2 bg-background;
+    @apply transition-all duration-150;
+    @apply focus:outline-none focus:ring-4 focus:ring-primary/20;
+  }
+
+  /* Text Selection */
+  ::selection {
+    background: hsl(var(--accent) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  /* Focus Visible - Strong Focus Indicators */
+  *:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+/* Simple Page Transitions - Minimal */
+@layer utilities {
+  @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
     }
     to {
       opacity: 1;
@@ -141,116 +278,60 @@
     }
   }
 
-  @keyframes tilt-shaking {
-    0%, 100% {
-      transform: rotate(0deg);
-    }
-    20% {
-      transform: rotate(-2deg);
-    }
-    40% {
-      transform: rotate(2deg);
-    }
-    60% {
-      transform: rotate(-2deg);
-    }
-    80% {
-      transform: rotate(2deg);
-    }
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
   }
 
-  .animate-bounce-gentle {
-    animation: bounce-gentle 2s ease-in-out infinite;
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
   }
 
-  .animate-wiggle {
-    animation: wiggle 1s ease-in-out;
+  /* Stagger delays for sequential animations */
+  .delay-75 {
+    animation-delay: 75ms;
   }
 
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
+  .delay-100 {
+    animation-delay: 100ms;
   }
 
-  .animate-slide-up-fade {
-    animation: slide-up-fade 0.6s ease-out;
+  .delay-150 {
+    animation-delay: 150ms;
   }
 
-  .animate-tilt-shaking {
-    animation: tilt-shaking 0.3s;
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+}
+
+/* Remove all old playful animations */
+/* No bounce, wiggle, float, or tilt-shaking */
+/* Keep animations minimal and functional only */
+
+/* Accessibility - Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .shadow-brutal,
+  .shadow-brutal-sm,
+  .shadow-brutal-md,
+  .shadow-brutal-lg,
+  .shadow-brutal-xl {
+    box-shadow: none;
   }
 
-  /* Hover effects for cards */
-  .card-tilt {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-tilt:hover {
-    transform: translateY(-8px) rotate(-1deg);
-    box-shadow:
-      8px 12px 0px -2px rgba(0, 0, 0, 0.1),
-      12px 18px 24px -8px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Playful shadows */
-  .shadow-playful {
-    box-shadow:
-      4px 4px 0px 0px rgba(0, 0, 0, 0.1),
-      6px 6px 12px -2px rgba(0, 0, 0, 0.15);
-  }
-
-  .shadow-playful-lg {
-    box-shadow:
-      8px 8px 0px 0px rgba(0, 0, 0, 0.1),
-      12px 12px 24px -4px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Paper texture background */
-  .bg-paper {
-    background-color: hsl(var(--background));
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.01) 2px,
-        rgba(0, 0, 0, 0.01) 4px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.01) 2px,
-        rgba(0, 0, 0, 0.01) 4px
-      );
-  }
-
-  /* Dotted background pattern */
-  .bg-dots {
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
-  /* Grid background pattern */
-  .bg-grid {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-
-  /* Sticker-like badges */
-  .badge-sticker {
-    position: relative;
-    transform: rotate(-3deg);
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  .badge-sticker::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: inherit;
-    z-index: -1;
+  .border-brutal,
+  .border-brutal-2,
+  .border-brutal-4 {
+    border-color: black;
   }
 }
