@@ -271,6 +271,7 @@ interface App {
   rating_count?: number
   comment_count?: number
   favorite_count?: number
+  user_rating?: number | null
   created_at: string
   author_username: string
   author_email: string
@@ -381,6 +382,11 @@ const fetchApp = async () => {
     const appId = route.params.id as string
     const response = await $fetch<{ app: App }>(`/api/apps/${appId}`)
     app.value = response.app
+
+    // 初始化用戶評分（如果有的話）
+    if (app.value.user_rating) {
+      userRating.value = app.value.user_rating
+    }
 
     // 載入 HTML 內容
     await fetchHtmlContent()

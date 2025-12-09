@@ -11,7 +11,7 @@
 
       <!-- Filter and search section - Brutalist Style -->
       <div class="bg-card border-3 border-foreground shadow-brutal p-6 md:p-8 mb-10">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
           <!-- Search input -->
           <div class="md:col-span-2">
             <Label for="search" class="text-sm font-bold uppercase tracking-wide mb-2 block">搜尋</Label>
@@ -45,6 +45,23 @@
             </Select>
           </div>
 
+          <!-- Min Rating filter -->
+          <div>
+            <Label for="minRating" class="text-sm font-bold uppercase tracking-wide mb-2 block">最低評分</Label>
+            <Select v-model="filters.minRating" @update:model-value="applyFilters">
+              <SelectTrigger id="minRating">
+                <SelectValue placeholder="不限" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">不限</SelectItem>
+                <SelectItem value="4">4 星以上</SelectItem>
+                <SelectItem value="3">3 星以上</SelectItem>
+                <SelectItem value="2">2 星以上</SelectItem>
+                <SelectItem value="1">1 星以上</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <!-- Sort -->
           <div>
             <Label for="sort" class="text-sm font-bold uppercase tracking-wide mb-2 block">排序</Label>
@@ -55,6 +72,7 @@
               <SelectContent>
                 <SelectItem value="latest">最新</SelectItem>
                 <SelectItem value="popular">熱門</SelectItem>
+                <SelectItem value="rating">評分最高</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -124,6 +142,9 @@ interface App {
   thumbnail_s3_key: string | null
   view_count: number
   like_count: number
+  avg_rating: number
+  rating_count: number
+  comment_count: number
   author_username: string
   author_avatar?: string | null
 }
@@ -140,14 +161,16 @@ const totalPages = ref(1)
 const filters = ref({
   search: (route.query.search as string) || '',
   category: (route.query.category as string) || 'all',
-  sort: (route.query.sort as string) || 'latest'
+  sort: (route.query.sort as string) || 'latest',
+  minRating: (route.query.minRating as string) || '0'
 })
 
 // 檢查是否有啟用的篩選條件
 const hasActiveFilters = computed(() => {
   return filters.value.search !== '' ||
          filters.value.category !== 'all' ||
-         filters.value.sort !== 'latest'
+         filters.value.sort !== 'latest' ||
+         filters.value.minRating !== '0'
 })
 
 // 搜尋防抖
@@ -171,7 +194,8 @@ const clearFilters = () => {
   filters.value = {
     search: '',
     category: 'all',
-    sort: 'latest'
+    sort: 'latest',
+    minRating: '0'
   }
   applyFilters()
 }
@@ -192,6 +216,7 @@ const updateQueryParams = () => {
   if (filters.value.search) query.search = filters.value.search
   if (filters.value.category && filters.value.category !== 'all') query.category = filters.value.category
   if (filters.value.sort !== 'latest') query.sort = filters.value.sort
+  if (filters.value.minRating !== '0') query.minRating = filters.value.minRating
   if (currentPage.value > 1) query.page = currentPage.value.toString()
 
   router.replace({ query })
@@ -210,6 +235,7 @@ const fetchApps = async () => {
 
     if (filters.value.search) params.search = filters.value.search
     if (filters.value.category && filters.value.category !== 'all') params.category = filters.value.category
+    if (filters.value.minRating !== '0') params.minRating = filters.value.minRating
 
     const response = await $fetch<{
       apps: App[]
@@ -235,6 +261,7 @@ watch(() => route.query, (newQuery) => {
   filters.value.search = (newQuery.search as string) || ''
   filters.value.category = (newQuery.category as string) || 'all'
   filters.value.sort = (newQuery.sort as string) || 'latest'
+  filters.value.minRating = (newQuery.minRating as string) || '0'
   fetchApps()
 }, { deep: true })
 

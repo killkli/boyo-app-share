@@ -11,7 +11,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // 查詢 App 詳情（包含作者資訊）
+  // 獲取當前用戶 ID（如果已登入）
+  const currentUserId = event.context.userId
+
+  // 查詢 App 詳情（包含作者資訊和統計數據）
   const result = await query(
     `SELECT
       a.id,
@@ -26,10 +29,16 @@ export default defineEventHandler(async (event) => {
       a.view_count,
       a.created_at,
       a.updated_at,
-      u.username as author_username
+      u.username as author_username,
+      COALESCE(AVG(r.rating), 0) as avg_rating,
+      COUNT(DISTINCT r.id)::integer as rating_count,
+      COUNT(DISTINCT c.id)::integer as comment_count
     FROM apps a
     LEFT JOIN users u ON a.user_id = u.id
-    WHERE a.id = $1`,
+    LEFT JOIN ratings r ON a.id = r.app_id
+    LEFT JOIN comments c ON a.id = c.app_id
+    WHERE a.id = $1
+    GROUP BY a.id, u.username`,
     [id]
   )
 
@@ -42,6 +51,18 @@ export default defineEventHandler(async (event) => {
 
   const app = result.rows[0]
 
+  // 如果用戶已登入，獲取該用戶對此 App 的評分
+  let userRating = null
+  if (currentUserId) {
+    const userRatingResult = await query(
+      'SELECT rating FROM ratings WHERE app_id = $1 AND user_id = $2',
+      [id, currentUserId]
+    )
+    if (userRatingResult.rows.length > 0) {
+      userRating = userRatingResult.rows[0].rating
+    }
+  }
+
   // 增加瀏覽次數
   await query(
     'UPDATE apps SET view_count = view_count + 1 WHERE id = $1',
@@ -49,6 +70,10 @@ export default defineEventHandler(async (event) => {
   )
 
   return {
-    app
+    app: {
+      ...app,
+      avg_rating: Number(app.avg_rating),
+      user_rating: userRating
+    }
   }
 })
