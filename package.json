@@ -25,6 +25,7 @@
     "adm-zip": "^0.5.10",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
+    "html2canvas": "^1.4.1",
     "isomorphic-dompurify": "^2.11.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-vue-next": "^0.556.0",

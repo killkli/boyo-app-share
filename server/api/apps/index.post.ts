@@ -44,8 +44,27 @@ export default defineEventHandler(async (event) => {
   const appId = randomUUID()
 
   let htmlS3Key: string
+  let thumbnailS3Key: string | null = null
   let fileManifest: Record<string, string> | null = null
   let urls: Record<string, string> = {}
+
+  // 處理縮圖上傳
+  if (validated.thumbnailBase64) {
+    try {
+      const thumbnailBuffer = Buffer.from(validated.thumbnailBase64, 'base64')
+      thumbnailS3Key = `thumbnails/${appId}.png`
+      await uploadToS3(
+        thumbnailS3Key,
+        thumbnailBuffer,
+        'image/png',
+        { cacheControl: 'public, max-age=31536000' }
+      )
+    } catch (error) {
+      console.warn('縮圖上傳失敗:', error)
+      // 縮圖上傳失敗不應該阻止整個上傳過程
+      thumbnailS3Key = null
+    }
+  }
 
   if (uploadType === 'zip') {
     // ZIP 上傳處理
@@ -131,8 +150,9 @@ export default defineEventHandler(async (event) => {
       tags,
       upload_type,
       html_s3_key,
-      file_manifest
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      file_manifest,
+      thumbnail_s3_key
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *`,
     [
       appId,
@@ -143,7 +163,8 @@ export default defineEventHandler(async (event) => {
       validated.tags || null,
       uploadType,
       htmlS3Key,
-      fileManifest ? JSON.stringify(fileManifest) : null
+      fileManifest ? JSON.stringify(fileManifest) : null,
+      thumbnailS3Key
     ]
   )
 

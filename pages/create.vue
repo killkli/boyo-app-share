@@ -179,6 +179,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRouter } from 'vue-router'
+import { useThumbnail } from '~/composables/useThumbnail'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
@@ -212,6 +213,7 @@ definePageMeta({
 
 const { token } = useAuth()
 const router = useRouter()
+const { generateThumbnail, blobToBase64 } = useThumbnail()
 
 // 上傳方式
 const uploadType = ref<'paste' | 'file'>('paste')
@@ -322,6 +324,19 @@ const handleSubmit = async () => {
   uploadSuccess.value = false
 
   try {
+    // 生成縮圖
+    let thumbnailBase64: string | undefined
+    try {
+      const thumbnailBlob = await generateThumbnail(form.value.htmlContent, {
+        width: 1200,
+        height: 630
+      })
+      thumbnailBase64 = await blobToBase64(thumbnailBlob)
+    } catch (error) {
+      console.warn('縮圖生成失敗，將繼續上傳:', error)
+      // 縮圖生成失敗不應阻止上傳
+    }
+
     const response = await $fetch<{ app: any; url: string }>('/api/apps', {
       method: 'POST',
       headers: {
@@ -333,7 +348,8 @@ const handleSubmit = async () => {
         description: form.value.description || undefined,
         category: form.value.category || undefined,
         tags: form.value.tags.length > 0 ? form.value.tags : undefined,
-        htmlContent: form.value.htmlContent
+        htmlContent: form.value.htmlContent,
+        thumbnailBase64: thumbnailBase64
       }
     })
 

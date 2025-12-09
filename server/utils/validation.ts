@@ -43,7 +43,8 @@ export const uploadPasteSchema = z.object({
   description: z.string().max(2000, '描述最多 2000 個字元').optional(),
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
-  htmlContent: z.string().min(1, 'HTML 內容不能為空')
+  htmlContent: z.string().min(1, 'HTML 內容不能為空'),
+  thumbnailBase64: z.string().optional()
 })
 
 /**
@@ -54,7 +55,8 @@ export const uploadFileSchema = z.object({
   title: z.string().min(1, '標題不能為空').max(255, '標題最多 255 個字元'),
   description: z.string().max(2000, '描述最多 2000 個字元').optional(),
   category: z.string().max(50, '分類最多 50 個字元').optional(),
-  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional()
+  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
+  thumbnailBase64: z.string().optional()
 })
 
 /**
