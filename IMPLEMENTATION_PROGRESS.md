@@ -12,7 +12,7 @@
 - [x] Phase 1: 基础设施重构 (3/3) ✅
 - [x] Phase 2: Layout 与导航重设计 (2/2) ✅
 - [x] Phase 3: 首页重设计 (2/2) ✅
-- [ ] Phase 4: AppCard 重设计 (0/1)
+- [x] Phase 4: AppCard 重设计 (1/1) ✅
 - [ ] Phase 5: 探索页重设计 (0/1)
 - [ ] Phase 6: 创建页重设计 (0/2)
 - [ ] Phase 7: 应用详情页重设计 (0/3)
@@ -20,7 +20,7 @@
 - [ ] Phase 9: 细节优化与抛光 (0/4)
 - [ ] Phase 10: 测试与部署 (0/4)
 
-**总进度**: 5/23 (22%)
+**总进度**: 6/23 (26%)
 
 ---
 
@@ -111,18 +111,18 @@
 ## Phase 4: AppCard 重设计
 
 ### 4.1 完全重构 AppCard 组件
-- [ ] 移除卡片倾斜效果
-- [ ] 更新缩略图样式
-- [ ] 简化 Category Badge
-- [ ] 移除 emoji,更新图标
-- [ ] 更新 Tags 样式 (monospace)
-- [ ] 更新 Avatar 为方形
-- [ ] 更新统计数据样式
-- [ ] Git Commit
+- [x] 移除卡片倾斜效果
+- [x] 更新缩略图样式
+- [x] 简化 Category Badge
+- [x] 移除 emoji,更新图标
+- [x] 更新 Tags 样式 (monospace)
+- [x] 更新 Avatar 为方形
+- [x] 更新统计数据样式
+- [x] Git Commit
 
-**状态**: ⏸️ 未开始
-**预计耗时**: 2-3 小时
-**Git Commit**: -
+**状态**: ✅ 已完成
+**实际耗时**: 1 小时
+**Git Commit**: 84a98af
 
 ---
 
@@ -346,7 +346,14 @@
   - Section: 4px 粗边框分隔 + 小标签设计
   - Loading: 旋转边框 spinner + 大写文字
   - 移除所有 emoji 和波浪分隔线
-- ⏳ 进行中: Phase 4 - AppCard 重设计
+- ✅ **Phase 4 完成**: AppCard 重设计 (Commit: 84a98af)
+  - 移除卡片倾斜/旋转效果
+  - 纯色缩略图背景 (根据类别)
+  - Category Badge: 移除 emoji + 2px 边框
+  - Tags: monospace 字体 + 简洁边框
+  - Avatar: 方形 + 2px 边框
+  - 统计数据: monospace 样式
+- ⏳ 进行中: Phase 5 - 探索页重设计
 
 ---
 
