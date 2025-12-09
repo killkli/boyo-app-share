@@ -1,28 +1,30 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-    <Card class="w-full max-w-md">
-      <CardHeader>
-        <CardTitle class="text-2xl text-center">註冊</CardTitle>
-        <CardDescription class="text-center">
+  <div class="min-h-screen bg-background relative flex items-center justify-center px-4 py-12">
+    <div class="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+    <Card class="w-full max-w-md relative z-10">
+      <CardHeader class="space-y-2">
+        <CardTitle class="text-3xl text-center uppercase font-black tracking-tight">註冊</CardTitle>
+        <CardDescription class="text-center font-mono text-xs uppercase tracking-wide">
           建立您的帳號以開始分享應用
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form @submit.prevent="handleRegister" class="space-y-4">
+        <form @submit.prevent="handleRegister" class="space-y-6">
           <div class="space-y-2">
-            <label for="email" class="text-sm font-medium">Email</label>
+            <label for="email" class="text-xs font-bold uppercase tracking-wide">Email</label>
             <Input
               id="email"
               v-model="email"
               type="email"
-              placeholder="your@email.com"
+              placeholder="YOUR@EMAIL.COM"
               required
               :disabled="loading"
+              class="font-mono"
             />
           </div>
 
           <div class="space-y-2">
-            <label for="username" class="text-sm font-medium">使用者名稱</label>
+            <label for="username" class="text-xs font-bold uppercase tracking-wide">使用者名稱</label>
             <Input
               id="username"
               v-model="username"
@@ -32,11 +34,12 @@
               minlength="3"
               maxlength="50"
               :disabled="loading"
+              class="font-mono"
             />
           </div>
 
           <div class="space-y-2">
-            <label for="password" class="text-sm font-medium">密碼</label>
+            <label for="password" class="text-xs font-bold uppercase tracking-wide">密碼</label>
             <Input
               id="password"
               v-model="password"
@@ -45,11 +48,12 @@
               required
               minlength="8"
               :disabled="loading"
+              class="font-mono"
             />
           </div>
 
           <div class="space-y-2">
-            <label for="confirmPassword" class="text-sm font-medium">確認密碼</label>
+            <label for="confirmPassword" class="text-xs font-bold uppercase tracking-wide">確認密碼</label>
             <Input
               id="confirmPassword"
               v-model="confirmPassword"
@@ -57,22 +61,23 @@
               placeholder="再次輸入密碼"
               required
               :disabled="loading"
+              class="font-mono"
             />
           </div>
 
-          <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-md">
-            <p class="text-sm text-red-600">{{ error }}</p>
+          <div v-if="error" class="p-4 bg-red-100 border-2 border-red-500">
+            <p class="text-sm font-bold font-mono text-red-600 uppercase">{{ error }}</p>
           </div>
 
-          <Button type="submit" class="w-full" :disabled="loading">
+          <Button type="submit" class="w-full font-bold uppercase tracking-wide text-lg py-6" :disabled="loading">
             {{ loading ? '註冊中...' : '註冊' }}
           </Button>
         </form>
       </CardContent>
-      <CardFooter class="flex flex-col space-y-2">
-        <p class="text-sm text-gray-600 text-center">
+      <CardFooter class="flex flex-col space-y-4 pt-4 border-t-2 border-muted mt-2">
+        <p class="text-sm font-mono text-muted-foreground text-center">
           已經有帳號？
-          <NuxtLink to="/login" class="text-blue-600 hover:underline">
+          <NuxtLink to="/login" class="font-bold text-primary uppercase decoration-2 hover:underline underline-offset-4 ml-1">
             立即登入
           </NuxtLink>
         </p>
