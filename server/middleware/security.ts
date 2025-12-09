@@ -11,7 +11,7 @@ export default defineEventHandler((event) => {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:", // Nuxt 需要 unsafe-inline
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.tailwindcss.com https://unpkg.com", // Nuxt 需要 unsafe-inline
       "style-src 'self' 'unsafe-inline' blob:",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
