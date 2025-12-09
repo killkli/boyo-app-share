@@ -1,47 +1,48 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- 載入狀態 -->
+  <div class="min-h-screen bg-background">
+    <!-- 載入狀態 - Brutalist -->
     <div v-if="loading" class="container mx-auto px-4 py-16 text-center">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      <p class="mt-4 text-gray-600">載入中...</p>
+      <div class="inline-block mb-4">
+        <div class="w-12 h-12 border-4 border-foreground border-t-transparent animate-spin"></div>
+      </div>
+      <p class="text-sm font-bold uppercase tracking-wide text-muted-foreground">載入中</p>
     </div>
 
-    <!-- 錯誤狀態 -->
+    <!-- 錯誤狀態 - Brutalist -->
     <div v-else-if="error" class="container mx-auto px-4 py-16 text-center">
-      <div class="max-w-md mx-auto">
-        <svg class="w-24 h-24 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">找不到應用</h2>
-        <p class="text-gray-600 mb-6">此應用可能已被刪除或不存在</p>
+      <div class="max-w-md mx-auto border-3 border-red-500 bg-red-50 p-8 shadow-brutal">
+        <div class="w-16 h-16 border-3 border-red-500 bg-red-100 mx-auto mb-4"></div>
+        <h2 class="text-2xl font-bold mb-2 uppercase tracking-wide">找不到應用</h2>
+        <p class="text-muted-foreground mb-6">此應用可能已被刪除或不存在</p>
         <Button as-child>
           <NuxtLink to="/explore">探索其他應用</NuxtLink>
         </Button>
       </div>
     </div>
 
-    <!-- 應用詳情 -->
+    <!-- 應用詳情 - Brutalist -->
     <div v-else-if="app" class="container mx-auto px-4 py-8">
       <!-- 返回按鈕 -->
-      <Button variant="ghost" class="mb-4" @click="$router.back()">
+      <Button variant="ghost" class="mb-4 font-bold uppercase tracking-wide" @click="$router.back()">
         ← 返回
       </Button>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- 左側：應用預覽 -->
         <div class="lg:col-span-2">
-          <Card class="overflow-hidden">
-            <CardHeader>
-              <div class="flex items-start justify-between">
+          <Card class="border-3 border-foreground shadow-brutal-lg">
+            <!-- 7.1: 頂部信息區 -->
+            <CardHeader class="bg-muted border-b-3 border-foreground">
+              <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                  <CardTitle class="text-3xl mb-2">{{ app.title }}</CardTitle>
+                  <CardTitle class="text-3xl font-bold mb-3">{{ app.title }}</CardTitle>
                   <CardDescription class="text-base">
                     {{ app.description || '暫無描述' }}
                   </CardDescription>
                 </div>
 
                 <!-- 操作按鈕 -->
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-shrink-0">
                   <!-- 收藏按鈕 -->
                   <FavoriteButton
                     :is-favorited="isFavorited"
@@ -57,6 +58,7 @@
                     v-if="canEdit"
                     variant="outline"
                     size="sm"
+                    class="font-bold uppercase tracking-wide"
                     as-child
                   >
                     <NuxtLink :to="`/edit/${app.id}`">
@@ -65,16 +67,36 @@
                   </Button>
                 </div>
               </div>
+
+              <!-- Meta 信息 -->
+              <div class="flex items-center gap-6 text-sm font-mono border-t-2 border-foreground pt-4 mt-4">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold">{{ app.view_count }}</span>
+                  <span class="text-muted-foreground">次瀏覽</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-muted-foreground">{{ formatDate(app.created_at) }}</span>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent>
-              <!-- App 預覽 -->
-              <div class="mb-6">
+            <CardContent class="p-0">
+              <!-- 7.2: 預覽區域 -->
+              <div class="relative border-b-3 border-foreground">
                 <AppPreview :html-content="htmlContent" />
+                <!-- 全屏按鈕 -->
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="absolute top-4 right-4 font-bold uppercase tracking-wide z-10"
+                  @click="toggleFullscreen"
+                >
+                  {{ isFullscreen ? '退出全屏' : '全屏' }}
+                </Button>
               </div>
 
               <!-- 分類與標籤 -->
-              <div class="flex flex-wrap gap-2 mb-6">
+              <div class="flex flex-wrap gap-2 p-6 border-b-3 border-foreground">
                 <Badge v-if="app.category" variant="default">
                   {{ getCategoryLabel(app.category) }}
                 </Badge>
@@ -88,9 +110,9 @@
               </div>
 
               <!-- 評分區域 -->
-              <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="font-semibold text-lg">為這個 App 評分</h3>
+              <div class="p-6 bg-muted border-b-3 border-foreground">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-bold text-lg uppercase tracking-wide">評分</h3>
                   <Rating
                     v-if="app.avg_rating && app.avg_rating > 0"
                     :rating="app.avg_rating"
@@ -104,37 +126,21 @@
                   size="lg"
                   @rate="handleRate"
                 />
-                <p v-if="!isAuthenticated" class="text-sm text-gray-500 mt-2">
+                <p v-if="!isAuthenticated" class="text-sm text-muted-foreground mt-2 font-mono">
                   請登入後評分
                 </p>
               </div>
 
-              <!-- 統計資訊 -->
-              <div class="flex items-center gap-6 text-sm text-gray-600 mb-6">
-                <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span>{{ app.view_count }} 次瀏覽</span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{{ formatDate(app.created_at) }}</span>
-                </div>
+              <!-- 7.3: 評論區域 - 使用分隔線而非卡片邊框 -->
+              <div class="p-6">
+                <Comments
+                  :comments="comments"
+                  :loading="commentsLoading"
+                  :is-authenticated="isAuthenticated"
+                  :total-count="app.comment_count || 0"
+                  @submit="handleSubmitComment"
+                />
               </div>
-
-              <!-- 評論區域 -->
-              <Comments
-                :comments="comments"
-                :loading="commentsLoading"
-                :is-authenticated="isAuthenticated"
-                :total-count="app.comment_count || 0"
-                @submit="handleSubmitComment"
-              />
             </CardContent>
           </Card>
         </div>
@@ -142,54 +148,50 @@
         <!-- 右側：作者資訊與操作 -->
         <div class="lg:col-span-1 space-y-6">
           <!-- 作者資訊 -->
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-lg">作者</CardTitle>
+          <Card class="border-3 border-foreground shadow-brutal">
+            <CardHeader class="bg-muted border-b-3 border-foreground">
+              <CardTitle class="text-lg font-bold uppercase tracking-wide">作者</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent class="pt-6">
               <div class="flex items-center gap-3">
-                <Avatar class="w-12 h-12">
-                  <AvatarImage
-                    v-if="app.author_avatar"
-                    :src="app.author_avatar"
-                    :alt="app.author_username"
-                  />
-                  <AvatarFallback>{{ getInitials(app.author_username) }}</AvatarFallback>
-                </Avatar>
+                <!-- 方形頭像 -->
+                <div class="w-12 h-12 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase">
+                  {{ getInitials(app.author_username) }}
+                </div>
                 <div>
-                  <p class="font-semibold">{{ app.author_username }}</p>
-                  <p class="text-sm text-gray-600">{{ app.author_email }}</p>
+                  <p class="font-bold">{{ app.author_username }}</p>
+                  <p class="text-sm text-muted-foreground font-mono">{{ app.author_email }}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <!-- 檔案資訊 -->
-          <Card v-if="app.file_manifest">
-            <CardHeader>
-              <CardTitle class="text-lg">檔案列表</CardTitle>
+          <Card v-if="app.file_manifest" class="border-3 border-foreground shadow-brutal">
+            <CardHeader class="bg-muted border-b-3 border-foreground">
+              <CardTitle class="text-lg font-bold uppercase tracking-wide">檔案列表</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div class="space-y-2 text-sm">
+            <CardContent class="pt-6">
+              <div class="space-y-2 text-sm font-mono">
                 <div
                   v-for="file in app.file_manifest.files"
                   :key="file.path"
-                  class="flex items-center justify-between py-2 border-b last:border-0"
+                  class="flex items-center justify-between py-2 border-b-2 border-foreground last:border-0"
                 >
                   <span class="truncate flex-1 mr-2">{{ file.path }}</span>
-                  <span class="text-gray-500 text-xs">{{ formatFileSize(file.size) }}</span>
+                  <span class="text-muted-foreground text-xs">{{ formatFileSize(file.size) }}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <!-- 上傳類型 -->
-          <Card>
-            <CardHeader>
-              <CardTitle class="text-lg">上傳方式</CardTitle>
+          <Card class="border-3 border-foreground shadow-brutal">
+            <CardHeader class="bg-muted border-b-3 border-foreground">
+              <CardTitle class="text-lg font-bold uppercase tracking-wide">上傳方式</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Badge variant="outline">
+            <CardContent class="pt-6">
+              <Badge variant="outline" class="font-mono">
                 {{ getUploadTypeLabel(app.upload_type) }}
               </Badge>
             </CardContent>
@@ -210,7 +212,6 @@ import FavoriteButton from '@/components/common/FavoriteButton.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 definePageMeta({
   layout: 'default'
@@ -268,6 +269,7 @@ const userRating = ref<number>(0)
 const isFavorited = ref(false)
 const ratingSubmitting = ref(false)
 const favoriteSubmitting = ref(false)
+const isFullscreen = ref(false)
 
 // 獲取目前使用者 (用於判斷是否可編輯)
 const { user, token } = useAuth()
@@ -280,6 +282,24 @@ const canEdit = computed(() => {
   if (!user.value || !app.value) return false
   return user.value.id === app.value.user_id
 })
+
+// 切換全屏
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value
+  // 這裡可以加入實際全屏邏輯
+  if (isFullscreen.value) {
+    // 進入全屏
+    const elem = document.documentElement
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen()
+    }
+  } else {
+    // 退出全屏
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+    }
+  }
+}
 
 // 獲取 App 詳情
 const fetchApp = async () => {
@@ -326,6 +346,8 @@ const getCategoryLabel = (category: string) => {
     tool: '工具',
     art: '藝術',
     education: '教育',
+    demo: '展示',
+    experiment: '實驗',
     other: '其他'
   }
   return labels[category] || category
@@ -459,3 +481,16 @@ onMounted(async () => {
   await fetchComments()
 })
 </script>
+
+<style scoped>
+/* Add spin animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
