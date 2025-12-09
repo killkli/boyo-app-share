@@ -14,7 +14,7 @@
 | Stage 3: S3 儲存與基礎上傳 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 4: App 核心功能與 ZIP 支援 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
 | Stage 5: 社群互動功能 | ✅ Complete | 2024-12-09 | 2024-12-09 | 100% |
-| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 88% |
+| Stage 6: 部署與優化 | 🚧 In Progress | 2024-12-09 | - | 93% |
 
 **狀態圖例**: ⏳ Not Started | 🚧 In Progress | ✅ Complete | ⚠️ Blocked
 
@@ -1377,8 +1377,8 @@ describe('POST /api/apps/[id]/rate', () => {
 - [ ] 所有 E2E 測試通過
 
 **狀態**: 🚧 In Progress
-**完成度**: 88%
-**實際工時**: 約 7 小時
+**完成度**: 93%
+**實際工時**: 約 8 小時
 **開始日期**: 2024-12-09
 **依賴**: Stage 5
 
@@ -1447,21 +1447,21 @@ describe('POST /api/apps/[id]/rate', () => {
 - [ ] 設定錯誤追蹤
 - [x] 建立健康檢查 endpoint
 
-#### 6.8 文檔完善
+#### 6.8 文檔完善 ✅
 - [x] 撰寫部署指南 (DEPLOYMENT.md)
-- [ ] 更新 README.md
-- [ ] 撰寫 API 文檔
-- [ ] 撰寫貢獻指南
+- [x] 更新 README.md
+- [x] 撰寫 API 文檔 (docs/API.md)
+- [x] 撰寫貢獻指南 (CONTRIBUTING.md)
 
 **完成標準**:
 - ⏳ 網站成功上線
-- ✅ 所有測試通過 (187 個測試)
+- ✅ 所有測試通過 (221 個測試)
 - ⏳ Lighthouse 分數良好
-- 🚧 文檔完整 (部署指南已完成)
+- ✅ 文檔完整
 
 ### 📊 Stage 6 階段性總結 (2024-12-09)
 
-**已完成項目 (88%)**:
+**已完成項目 (93%)**:
 1. ✅ Cache Control Middleware (7 個測試)
 2. ✅ 資料庫效能優化 (9 個索引 + 物化視圖 + 觸發器)
 3. ✅ LazyImage 圖片延遲載入組件 (6 個測試)
@@ -1477,6 +1477,9 @@ describe('POST /api/apps/[id]/rate', () => {
     - upload.spec.ts: 上傳流程測試 (5 個測試)
     - interaction.spec.ts: 互動流程測試 (11 個測試)
 12. ✅ Health Check Endpoint (5 個測試)
+13. ✅ README.md 完善（專案狀態、測試統計、安全與效能特性）
+14. ✅ API 文檔（docs/API.md - 完整 RESTful API 規格）
+15. ✅ 貢獻指南（CONTRIBUTING.md - TDD 開發流程與規範）
 
 **測試結果**:
 - 單元測試與整合測試：26 個測試文件，198 個測試案例 ✅
@@ -1484,7 +1487,7 @@ describe('POST /api/apps/[id]/rate', () => {
 - 總測試覆蓋：221 個測試案例
 - 測試執行時間：單元測試 ~20s，E2E 測試 ~2-3min
 
-**Commits** (17 個):
+**Commits** (21 個):
 1. `docs: 更新 Stage 6 進度 (開始部署與優化階段)` (499ccd4)
 2. `test(middleware): 新增 Cache Control 測試 (TDD 紅燈)` (fee6828)
 3. `feat(middleware): 實作 Cache Control middleware` (0b1d6d1)
@@ -1502,13 +1505,15 @@ describe('POST /api/apps/[id]/rate', () => {
 15. `test(e2e): 建立 Playwright E2E 測試框架與認證流程測試` (d5c58e7)
 16. `test(e2e): 新增上傳與互動流程 E2E 測試` (2780db3)
 17. `chore(ci): 新增 E2E 測試到 CI/CD 工作流程` (4bc01bf)
+18. `feat(api): 建立健康檢查 endpoint (TDD)` (cbad904)
+19. `docs: 更新 README.md 完善專案說明` (c8b82a1)
+20. `docs: 建立 API 文檔 (docs/API.md)` (e5eac4f)
+21. `docs: 建立貢獻指南 (CONTRIBUTING.md)` (0412c78)
 
-**待完成項目 (12%)**:
+**待完成項目 (7%)**:
 - [ ] Bundle size 優化
 - [ ] 實際部署到生產環境
 - [ ] 監控與錯誤追蹤設定
-- [ ] API 文檔與貢獻指南
-- [ ] 更新 README.md
 
 **下一步**:
 - Task 6.6: 生產環境部署
