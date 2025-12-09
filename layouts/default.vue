@@ -1,38 +1,66 @@
 <template>
-  <div class="min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm">
+  <div class="min-h-screen flex flex-col bg-background">
+    <!-- Header with Brutalist design -->
+    <header class="border-b-4 border-foreground bg-background">
       <nav class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
-          <NuxtLink to="/" class="text-xl font-bold text-gray-900">
+          <!-- Logo - Monospace, bold, uppercase -->
+          <NuxtLink
+            to="/"
+            class="text-2xl font-mono font-bold uppercase tracking-tight hover:text-primary transition-colors"
+          >
             {{ config.public.appName }}
           </NuxtLink>
-          <div class="flex gap-4 items-center">
-            <NuxtLink to="/explore" class="text-gray-700 hover:text-gray-900">
+
+          <!-- Navigation -->
+          <div class="flex gap-3 items-center">
+            <!-- Nav Links -->
+            <NuxtLink
+              to="/explore"
+              class="px-4 py-2 font-bold uppercase text-sm tracking-wide hover:bg-muted transition-colors"
+            >
               探索
             </NuxtLink>
-            <NuxtLink to="/create" class="text-gray-700 hover:text-gray-900">
+            <NuxtLink
+              to="/create"
+              class="px-4 py-2 font-bold uppercase text-sm tracking-wide hover:bg-muted transition-colors"
+            >
               建立
             </NuxtLink>
 
-            <!-- 未登入狀態 -->
+            <!-- Unauthenticated State -->
             <template v-if="!user">
-              <NuxtLink to="/login" class="text-gray-700 hover:text-gray-900">
+              <NuxtLink
+                to="/login"
+                class="px-4 py-2 font-bold uppercase text-sm tracking-wide hover:bg-muted transition-colors"
+              >
                 登入
               </NuxtLink>
-              <NuxtLink to="/register" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+              <NuxtLink
+                to="/register"
+                class="px-4 py-2 bg-primary text-primary-foreground border-3 border-foreground font-bold uppercase text-sm tracking-wide shadow-brutal hover:shadow-brutal-lg hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-brutal-sm transition-all duration-150"
+              >
                 註冊
               </NuxtLink>
             </template>
 
-            <!-- 已登入狀態 -->
+            <!-- Authenticated State -->
             <template v-else>
               <div class="flex items-center gap-3">
-                <span class="text-gray-700">
-                  {{ user.username }}
-                </span>
+                <!-- User Avatar - Square with border -->
+                <div class="flex items-center gap-2 px-3 py-2 border-2 border-foreground bg-muted">
+                  <div class="w-8 h-8 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase">
+                    {{ getUserInitials(user.username) }}
+                  </div>
+                  <span class="font-bold text-sm">
+                    {{ user.username }}
+                  </span>
+                </div>
+
+                <!-- Logout Button -->
                 <button
                   @click="handleLogout"
-                  class="px-4 py-2 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition"
+                  class="px-4 py-2 border-3 border-foreground bg-background hover:bg-muted font-bold uppercase text-sm tracking-wide shadow-brutal hover:shadow-brutal-lg hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-brutal-sm transition-all duration-150"
                 >
                   登出
                 </button>
@@ -43,13 +71,28 @@
       </nav>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-1">
       <slot />
     </main>
 
-    <footer class="bg-gray-100 py-6">
-      <div class="container mx-auto px-4 text-center text-gray-600">
-        <p>&copy; 2024 {{ config.public.appName }}. All rights reserved.</p>
+    <!-- Footer with Brutalist design -->
+    <footer class="border-t-4 border-foreground bg-background py-8">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <!-- Copyright -->
+          <div class="text-sm font-mono">
+            &copy; 2024 <span class="font-bold">{{ config.public.appName }}</span>
+          </div>
+
+          <!-- Links -->
+          <div class="flex gap-6 text-sm font-bold uppercase tracking-wide">
+            <a href="#" class="hover:text-primary transition-colors">關於</a>
+            <a href="#" class="hover:text-primary transition-colors">條款</a>
+            <a href="#" class="hover:text-primary transition-colors">隱私</a>
+            <a href="https://github.com" target="_blank" class="hover:text-primary transition-colors">GitHub</a>
+          </div>
+        </div>
       </div>
     </footer>
   </div>
@@ -60,11 +103,17 @@ const config = useRuntimeConfig()
 const { user, logout, initAuth } = useAuth()
 const router = useRouter()
 
-// 初始化認證狀態
+// Initialize auth state
 onMounted(() => {
   initAuth()
 })
 
+// Get user initials for avatar
+const getUserInitials = (username: string): string => {
+  return username.slice(0, 2).toUpperCase()
+}
+
+// Handle logout
 const handleLogout = () => {
   logout()
   router.push('/')
