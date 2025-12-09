@@ -44,7 +44,10 @@ export const uploadPasteSchema = z.object({
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
   htmlContent: z.string().min(1, 'HTML 內容不能為空'),
-  thumbnailBase64: z.string().optional()
+  thumbnailBase64: z.string().optional(),
+  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
+    .max(10, '創作者最多 10 個')
+    .optional()
 })
 
 /**
@@ -56,7 +59,10 @@ export const uploadFileSchema = z.object({
   description: z.string().max(2000, '描述最多 2000 個字元').optional(),
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
-  thumbnailBase64: z.string().optional()
+  thumbnailBase64: z.string().optional(),
+  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
+    .max(10, '創作者最多 10 個')
+    .optional()
 })
 
 /**
@@ -68,7 +74,10 @@ export const uploadZipSchema = z.object({
   description: z.string().max(2000, '描述最多 2000 個字元').optional(),
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
-  zipContent: z.string().min(1, 'ZIP 內容不能為空')
+  zipContent: z.string().min(1, 'ZIP 內容不能為空'),
+  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
+    .max(10, '創作者最多 10 個')
+    .optional()
 })
 
 /**
@@ -93,7 +102,10 @@ export const updateAppSchema = z.object({
   category: z.enum(appCategories, {
     errorMap: () => ({ message: `分類必須是以下之一: ${appCategories.join(', ')}` })
   }).optional(),
-  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional()
+  tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
+  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
+    .max(10, '創作者最多 10 個')
+    .optional()
 })
 
 /**
@@ -124,3 +136,29 @@ export const commentSchema = z.object({
  * 評論請求的類型
  */
 export type CommentInput = z.infer<typeof commentSchema>
+
+/**
+ * App 重新上傳 HTML 驗證 Schema
+ */
+export const reuploadAppSchema = z.object({
+  // 對於 paste 和 file 類型
+  htmlContent: z.string().min(1, 'HTML 內容不能為空').optional(),
+
+  // 對於 zip 類型
+  zipContent: z.string().min(1, 'ZIP 內容不能為空').optional(),
+
+  // 可選：重新生成或上傳新縮圖
+  thumbnailBase64: z.string().optional(),
+  regenerateThumbnail: z.boolean().optional()
+}).refine(
+  (data) => {
+    // 至少要提供 htmlContent 或 zipContent 其中之一
+    return !!(data.htmlContent || data.zipContent)
+  },
+  { message: '必須提供 htmlContent 或 zipContent' }
+)
+
+/**
+ * App 重新上傳請求的類型
+ */
+export type ReuploadAppInput = z.infer<typeof reuploadAppSchema>

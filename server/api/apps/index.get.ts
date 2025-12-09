@@ -1,4 +1,5 @@
 import { query } from '~/server/utils/db'
+import { getAppCreators } from '~/server/utils/creators'
 
 export default defineEventHandler(async (event) => {
   // 獲取查詢參數
@@ -152,8 +153,18 @@ export default defineEventHandler(async (event) => {
     avg_rating: Number(app.avg_rating)
   }))
 
+  // 批量獲取所有apps的創作者
+  const appIds = apps.map(app => app.id)
+  const creatorsMap = appIds.length > 0 ? await getAppCreators(appIds) : {}
+
+  // 將創作者添加到每個app
+  const appsWithCreators = apps.map(app => ({
+    ...app,
+    creators: creatorsMap[app.id] || []
+  }))
+
   return {
-    apps,
+    apps: appsWithCreators,
     total,
     page,
     limit,

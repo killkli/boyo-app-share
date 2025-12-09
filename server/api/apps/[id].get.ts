@@ -1,4 +1,5 @@
 import { query } from '~/server/utils/db'
+import { getAppCreators } from '~/server/utils/creators'
 
 export default defineEventHandler(async (event) => {
   // 獲取 App ID
@@ -69,11 +70,15 @@ export default defineEventHandler(async (event) => {
     [id]
   )
 
+  // 獲取創作者列表
+  const creators = await getAppCreators(id)
+
   return {
     app: {
       ...app,
       avg_rating: Number(app.avg_rating),
-      user_rating: userRating
+      user_rating: userRating,
+      creators
     }
   }
 })

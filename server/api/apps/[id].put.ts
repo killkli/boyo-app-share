@@ -1,5 +1,6 @@
 import { query } from '~/server/utils/db'
 import { updateAppSchema } from '~/server/utils/validation'
+import { updateAppCreators, getAppCreators } from '~/server/utils/creators'
 
 export default defineEventHandler(async (event) => {
   // 檢查認證
@@ -84,10 +85,15 @@ export default defineEventHandler(async (event) => {
     paramIndex++
   }
 
+  // 處理創作者更新（如果有提供）
+  if (validated.creators !== undefined) {
+    await updateAppCreators(appId, validated.creators)
+  }
+
   // 總是更新 updated_at
   updates.push(`updated_at = CURRENT_TIMESTAMP`)
 
-  // 如果沒有任何更新，直接返回當前 App
+  // 如果沒有任何更新（只有creators和updated_at），直接返回當前 App
   if (updates.length === 1) { // 只有 updated_at
     const currentResult = await query(
       `SELECT a.*, u.username as author_username
@@ -96,8 +102,15 @@ export default defineEventHandler(async (event) => {
        WHERE a.id = $1`,
       [appId]
     )
+
+    // 獲取創作者列表
+    const creators = await getAppCreators(appId)
+
     return {
-      app: currentResult.rows[0]
+      app: {
+        ...currentResult.rows[0],
+        creators
+      }
     }
   }
 
@@ -121,7 +134,13 @@ export default defineEventHandler(async (event) => {
     [appId]
   )
 
+  // 獲取創作者列表
+  const creators = await getAppCreators(appId)
+
   return {
-    app: appResult.rows[0]
+    app: {
+      ...appResult.rows[0],
+      creators
+    }
   }
 })

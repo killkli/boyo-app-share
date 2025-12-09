@@ -3,6 +3,7 @@ import { uploadPasteSchema, uploadFileSchema, uploadZipSchema } from '~/server/u
 import { uploadToS3 } from '~/server/utils/s3'
 import { query } from '~/server/utils/db'
 import { extractZip, findMainHtml } from '~/server/utils/zip'
+import { saveAppCreators, getAppCreators } from '~/server/utils/creators'
 
 export default defineEventHandler(async (event) => {
   // 從 context 取得 userId (由 auth middleware 設定)
@@ -170,8 +171,19 @@ export default defineEventHandler(async (event) => {
 
   const app = result.rows[0]
 
+  // 保存創作者（如果有提供）
+  if (validated.creators && validated.creators.length > 0) {
+    await saveAppCreators(appId, validated.creators)
+  }
+
+  // 獲取創作者列表以便返回
+  const creators = await getAppCreators(appId)
+
   return {
-    app,
+    app: {
+      ...app,
+      creators
+    },
     ...(uploadType === 'zip' ? { urls } : { url: urls['index.html'] })
   }
 })
