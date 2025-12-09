@@ -1,99 +1,92 @@
 <template>
-  <div class="min-h-screen bg-paper">
+  <div class="min-h-screen bg-background">
     <div class="container mx-auto px-4 py-8 md:py-12">
-      <!-- Page header with playful styling -->
-      <div class="mb-10">
-        <h1 class="text-5xl md:text-6xl font-bold mb-3">
+      <!-- Page header - Brutalist Style -->
+      <div class="mb-10 border-b-4 border-foreground pb-6">
+        <span class="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2 block">Explore</span>
+        <h1 class="text-5xl md:text-6xl font-heading font-bold">
           探索應用
         </h1>
-        <div class="h-2 w-32 bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--secondary))] to-[hsl(var(--accent))] rounded-full"></div>
       </div>
 
-      <!-- Filter and search section with colorful design -->
-      <div class="bg-white rounded-3xl shadow-playful-lg border-2 border-[hsl(var(--border))] p-6 md:p-8 mb-10 relative overflow-hidden">
-        <!-- Decorative background circles -->
-        <div class="absolute top-0 right-0 w-40 h-40 bg-[hsl(var(--primary))]/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-[hsl(var(--secondary))]/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-
-        <div class="relative z-10">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <!-- Search input with icon -->
-            <div class="md:col-span-2">
-              <Label for="search" class="text-sm font-bold mb-2 block">🔍 搜尋</Label>
-              <Input
-                id="search"
-                v-model="filters.search"
-                type="text"
-                placeholder="搜尋應用標題或描述..."
-                class="border-2 focus:border-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))]/20 rounded-xl text-base"
-                @input="handleSearch"
-              />
-            </div>
-
-            <!-- Category filter with emoji -->
-            <div>
-              <Label for="category" class="text-sm font-bold mb-2 block">🏷️ 分類</Label>
-              <Select v-model="filters.category" @update:model-value="applyFilters">
-                <SelectTrigger id="category" class="border-2 rounded-xl">
-                  <SelectValue placeholder="所有分類" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">📦 所有分類</SelectItem>
-                  <SelectItem value="game">🎮 遊戲</SelectItem>
-                  <SelectItem value="tool">🔧 工具</SelectItem>
-                  <SelectItem value="art">🎨 藝術</SelectItem>
-                  <SelectItem value="education">📚 教育</SelectItem>
-                  <SelectItem value="demo">✨ 展示</SelectItem>
-                  <SelectItem value="experiment">🧪 實驗</SelectItem>
-                  <SelectItem value="other">📦 其他</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <!-- Sort with emoji -->
-            <div>
-              <Label for="sort" class="text-sm font-bold mb-2 block">📊 排序</Label>
-              <Select v-model="filters.sort" @update:model-value="applyFilters">
-                <SelectTrigger id="sort" class="border-2 rounded-xl">
-                  <SelectValue placeholder="最新" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="latest">🆕 最新</SelectItem>
-                  <SelectItem value="popular">🔥 熱門</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <!-- Filter and search section - Brutalist Style -->
+      <div class="bg-card border-3 border-foreground shadow-brutal p-6 md:p-8 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <!-- Search input -->
+          <div class="md:col-span-2">
+            <Label for="search" class="text-sm font-bold uppercase tracking-wide mb-2 block">搜尋</Label>
+            <Input
+              id="search"
+              v-model="filters.search"
+              type="text"
+              placeholder="搜尋應用標題或描述..."
+              class="text-base"
+              @input="handleSearch"
+            />
           </div>
 
-          <!-- Clear filters button -->
-          <div v-if="hasActiveFilters" class="mt-5 flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              class="font-semibold hover:bg-[hsl(var(--primary))]/10 hover:text-[hsl(var(--primary))] rounded-xl"
-              @click="clearFilters"
-            >
-              ✕ 清除所有篩選
-            </Button>
+          <!-- Category filter -->
+          <div>
+            <Label for="category" class="text-sm font-bold uppercase tracking-wide mb-2 block">分類</Label>
+            <Select v-model="filters.category" @update:model-value="applyFilters">
+              <SelectTrigger id="category">
+                <SelectValue placeholder="所有分類" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">所有分類</SelectItem>
+                <SelectItem value="game">遊戲</SelectItem>
+                <SelectItem value="tool">工具</SelectItem>
+                <SelectItem value="art">藝術</SelectItem>
+                <SelectItem value="education">教育</SelectItem>
+                <SelectItem value="demo">展示</SelectItem>
+                <SelectItem value="experiment">實驗</SelectItem>
+                <SelectItem value="other">其他</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          <!-- Sort -->
+          <div>
+            <Label for="sort" class="text-sm font-bold uppercase tracking-wide mb-2 block">排序</Label>
+            <Select v-model="filters.sort" @update:model-value="applyFilters">
+              <SelectTrigger id="sort">
+                <SelectValue placeholder="最新" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="latest">最新</SelectItem>
+                <SelectItem value="popular">熱門</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <!-- Clear filters button -->
+        <div v-if="hasActiveFilters" class="mt-5 flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            class="font-bold uppercase tracking-wide"
+            @click="clearFilters"
+          >
+            清除篩選
+          </Button>
         </div>
       </div>
 
-      <!-- Loading state with playful animation -->
+      <!-- Loading state - Brutalist spinner -->
       <div v-if="loading" class="text-center py-20">
-        <div class="inline-block animate-bounce-gentle mb-4">
-          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--secondary))]"></div>
+        <div class="inline-block mb-4">
+          <div class="w-12 h-12 border-4 border-foreground border-t-transparent animate-spin"></div>
         </div>
-        <p class="text-xl font-semibold text-muted-foreground">載入中...</p>
+        <p class="text-sm font-bold uppercase tracking-wide text-muted-foreground">載入中</p>
       </div>
 
       <!-- Apps list -->
       <div v-else>
-        <!-- Results count with playful badge -->
-        <div class="mb-6 flex items-center gap-3">
-          <div class="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(var(--primary))]/10 to-[hsl(var(--secondary))]/10 border-2 border-[hsl(var(--primary))]/20 rounded-full px-5 py-2.5 font-bold text-lg">
-            <span class="text-2xl">🎯</span>
-            <span>找到 <span class="text-[hsl(var(--primary))]">{{ total }}</span> 個應用</span>
+        <!-- Results count - Brutalist badge -->
+        <div class="mb-6">
+          <div class="inline-flex items-center gap-2 bg-muted border-2 border-foreground px-4 py-2 font-mono text-sm">
+            找到 <span class="font-bold text-primary">{{ total }}</span> 個應用
           </div>
         </div>
 
@@ -250,3 +243,16 @@ onMounted(() => {
   fetchApps()
 })
 </script>
+
+<style scoped>
+/* Add spin animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
