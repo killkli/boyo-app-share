@@ -11,7 +11,7 @@
 - [x] 设计计划制定
 - [x] Phase 1: 基础设施重构 (3/3) ✅
 - [x] Phase 2: Layout 与导航重设计 (2/2) ✅
-- [ ] Phase 3: 首页重设计 (0/2)
+- [x] Phase 3: 首页重设计 (2/2) ✅
 - [ ] Phase 4: AppCard 重设计 (0/1)
 - [ ] Phase 5: 探索页重设计 (0/1)
 - [ ] Phase 6: 创建页重设计 (0/2)
@@ -20,7 +20,7 @@
 - [ ] Phase 9: 细节优化与抛光 (0/4)
 - [ ] Phase 10: 测试与部署 (0/4)
 
-**总进度**: 4/23 (17%)
+**总进度**: 5/23 (22%)
 
 ---
 
@@ -88,27 +88,23 @@
 
 ## Phase 3: 首页重设计
 
-### 3.1 重设计 Hero Section
-- [ ] 移除渐变背景和浮动元素
-- [ ] 更新标题排版
-- [ ] 更新 CTA 按钮样式
-- [ ] Git Commit
+### 3.1 & 3.2 Hero Section 和应用展示区 (合并完成)
+- [x] 移除渐变背景和浮动装饰元素
+- [x] 改用白色背景 + 网格图案
+- [x] 标题使用强烈排版层次 (5xl -> 7xl)
+- [x] 部分文字使用 primary 色强调
+- [x] 移除所有 emoji
+- [x] 移除波浪分隔线,改用粗黑直线
+- [x] Section headers 使用 4px 粗边框
+- [x] 添加小标签 "Latest" / "Popular"
+- [x] 移除渐变下划线
+- [x] Loading 状态使用旋转边框 spinner
+- [x] 简洁的动画效果
+- [x] Git Commit
 
-**状态**: ⏸️ 未开始
-**预计耗时**: 1-2 小时
-**Git Commit**: -
-
----
-
-### 3.2 重设计应用展示区
-- [ ] 更新 Section Headers
-- [ ] 更新 Loading 状态
-- [ ] 移除 emoji 装饰
-- [ ] Git Commit
-
-**状态**: ⏸️ 未开始
-**预计耗时**: 1 小时
-**Git Commit**: -
+**状态**: ✅ 已完成
+**实际耗时**: 1 小时
+**Git Commit**: f7ed68d
 
 ---
 
@@ -345,7 +341,12 @@
   - Header: monospace Logo + 4px 粗边框 + Brutalist 按钮
   - 用户头像: 方形 + 边框 (不再圆形)
   - Footer: 4px 粗边框 + 简化布局 + 大写链接
-- ⏳ 进行中: Phase 3 - 首页重设计
+- ✅ **Phase 3 完成**: 首页重设计 (Commit: f7ed68d)
+  - Hero: 移除渐变和装饰 + 网格背景 + 强烈排版
+  - Section: 4px 粗边框分隔 + 小标签设计
+  - Loading: 旋转边框 spinner + 大写文字
+  - 移除所有 emoji 和波浪分隔线
+- ⏳ 进行中: Phase 4 - AppCard 重设计
 
 ---
 
