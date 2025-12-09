@@ -10,7 +10,7 @@
 
 - [x] 设计计划制定
 - [x] Phase 1: 基础设施重构 (3/3) ✅
-- [ ] Phase 2: Layout 与导航重设计 (0/2)
+- [x] Phase 2: Layout 与导航重设计 (2/2) ✅
 - [ ] Phase 3: 首页重设计 (0/2)
 - [ ] Phase 4: AppCard 重设计 (0/1)
 - [ ] Phase 5: 探索页重设计 (0/1)
@@ -20,7 +20,7 @@
 - [ ] Phase 9: 细节优化与抛光 (0/4)
 - [ ] Phase 10: 测试与部署 (0/4)
 
-**总进度**: 3/23 (13%)
+**总进度**: 4/23 (17%)
 
 ---
 
@@ -68,26 +68,21 @@
 
 ## Phase 2: Layout 与导航重设计
 
-### 2.1 重设计 Header
-- [ ] 更新 Header 结构和样式
-- [ ] 更新导航按钮样式
-- [ ] 更新用户菜单样式
-- [ ] Git Commit
+### 2.1 & 2.2 重设计 Header 和 Footer (合并完成)
+- [x] Logo 改为 monospace 字体 + 粗体大写
+- [x] Header 使用 4px 粗黑底边框
+- [x] 导航链接粗体大写 + 悬停效果
+- [x] 注册按钮使用 Brutalist 样式
+- [x] 用户头像改为方形 + 边框
+- [x] 登出按钮 Brutalist 样式
+- [x] Footer 使用 4px 粗黑顶边框
+- [x] Footer 简化为双列布局
+- [x] Footer 链接粗体大写
+- [x] Git Commit
 
-**状态**: ⏸️ 未开始
-**预计耗时**: 1-2 小时
-**Git Commit**: -
-
----
-
-### 2.2 重设计 Footer
-- [ ] 简化 Footer 设计
-- [ ] 更新样式为 Brutalist 风格
-- [ ] Git Commit
-
-**状态**: ⏸️ 未开始
-**预计耗时**: 30 分钟
-**Git Commit**: -
+**状态**: ✅ 已完成
+**实际耗时**: 1 小时
+**Git Commit**: 4d9cdce
 
 ---
 
@@ -346,6 +341,11 @@
   - Input/Textarea: 移除圆角 + 粗边框 + 强化 focus 状态
   - Badge: 移除圆角 + 粗边框 + 大写
 - 🎉 **Phase 1 完成!** 基础设施重构全部完成
+- ✅ **Phase 2 完成**: Layout 与导航重设计 (Commit: 4d9cdce)
+  - Header: monospace Logo + 4px 粗边框 + Brutalist 按钮
+  - 用户头像: 方形 + 边框 (不再圆形)
+  - Footer: 4px 粗边框 + 简化布局 + 大写链接
+- ⏳ 进行中: Phase 3 - 首页重设计
 
 ---
 
