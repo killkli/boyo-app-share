@@ -1,8 +1,8 @@
-# AI App Share - 專案開發指南
+# 博幼APP分享平臺 (Boyo App Share) - 專案開發指南
 
 ## 專案概述
 
-AI App Share 是一個單頁 HTML App 快速分享平台，讓使用者可以透過剪貼簿貼上、上傳檔案或上傳壓縮檔的方式快速分享他們的 HTML 應用，並透過簡單的 metadata 進行分類和搜尋。
+博幼APP分享平臺是一個教學應用分享平台，讓使用者可以透過剪貼簿貼上、上傳檔案或上傳壓縮檔的方式快速分享他們的 HTML 應用，並透過簡單的 metadata 進行分類和搜尋。本平台專注於教育性質的互動應用分享。
 
 ## 開發方法論：Test-Driven Development (TDD)
 

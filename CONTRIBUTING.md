@@ -1,6 +1,6 @@
 # 貢獻指南 (Contributing Guide)
 
-> 感謝您對 AI App Share 專案的興趣！本文件將引導您如何參與專案開發。
+> 感謝您對 博幼APP分享平臺 專案的興趣！本文件將引導您如何參與專案開發。
 
 ## 📋 目錄
 
@@ -71,14 +71,14 @@
 2. **Clone 到本地**
 
    ```bash
-   git clone https://github.com/YOUR-USERNAME/ai-app-share.git
-   cd ai-app-share
+   git clone https://github.com/YOUR-USERNAME/boyo-app-share.git
+   cd boyo-app-share
    ```
 
 3. **新增上游遠端**
 
    ```bash
-   git remote add upstream https://github.com/original-owner/ai-app-share.git
+   git remote add upstream https://github.com/original-owner/boyo-app-share.git
    ```
 
 4. **安裝依賴**

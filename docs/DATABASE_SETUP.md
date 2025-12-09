@@ -1,6 +1,6 @@
 # 資料庫設定指南
 
-本文件說明如何設定資料庫環境以執行 AI App Share 專案。
+本文件說明如何設定資料庫環境以執行 博幼APP分享平臺 專案。
 
 ## 環境變數設定
 
@@ -19,10 +19,10 @@ JWT_SECRET=your-super-secret-key-change-in-production
 TEBI_ENDPOINT=https://s3.tebi.io
 TEBI_ACCESS_KEY=your-access-key
 TEBI_SECRET_KEY=your-secret-key
-TEBI_BUCKET=ai-app-share
+TEBI_BUCKET=boyo-app-share
 
 # Public
-NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/ai-app-share
+NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/boyo-app-share
 ```
 
 ### 2. 執行資料庫 Schema

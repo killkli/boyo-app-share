@@ -1,4 +1,4 @@
-# AI App Share - API 文檔
+# 博幼APP分享平臺 - API 文檔
 
 > RESTful API 完整規格
 

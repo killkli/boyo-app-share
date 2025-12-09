@@ -4,7 +4,7 @@
       <nav class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
           <NuxtLink to="/" class="text-xl font-bold text-gray-900">
-            AI App Share
+            {{ config.public.appName }}
           </NuxtLink>
           <div class="flex gap-4 items-center">
             <NuxtLink to="/explore" class="text-gray-700 hover:text-gray-900">
@@ -49,13 +49,14 @@
 
     <footer class="bg-gray-100 py-6">
       <div class="container mx-auto px-4 text-center text-gray-600">
-        <p>&copy; 2024 AI App Share. All rights reserved.</p>
+        <p>&copy; 2024 {{ config.public.appName }}. All rights reserved.</p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
 const { user, logout, initAuth } = useAuth()
 const router = useRouter()
 

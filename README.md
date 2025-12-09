@@ -1,12 +1,12 @@
-# AI App Share
+# 博幼APP分享平臺 (Boyo App Share)
 
-> 單頁 HTML App 快速分享平台
+> 博幼基金會教學應用分享平台
 
-[![Tests](https://github.com/your-username/ai-app-share/actions/workflows/test.yml/badge.svg)](https://github.com/your-username/ai-app-share/actions/workflows/test.yml)
+[![Tests](https://github.com/your-username/boyo-app-share/actions/workflows/test.yml/badge.svg)](https://github.com/your-username/boyo-app-share/actions/workflows/test.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](./tests)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-一個讓使用者可以快速上傳、分享、瀏覽單頁 HTML 應用的平台。使用者可以透過**剪貼簿貼上**、**上傳 HTML 檔案**或**上傳壓縮檔（含 assets）**的方式分享他們的 HTML App。
+博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用。使用者可以透過**剪貼簿貼上**、**上傳 HTML 檔案**或**上傳壓縮檔（含 assets）**的方式分享他們的 HTML App。
 
 ## 🎯 專案狀態
 
@@ -80,8 +80,8 @@
 
 ```bash
 # 克隆專案
-git clone https://github.com/your-username/ai-app-share.git
-cd ai-app-share
+git clone https://github.com/your-username/boyo-app-share.git
+cd boyo-app-share
 
 # 安裝依賴
 pnpm install
@@ -108,10 +108,16 @@ JWT_SECRET=your-super-secret-key-change-in-production
 TEBI_ENDPOINT=https://s3.tebi.io
 TEBI_ACCESS_KEY=your-access-key
 TEBI_SECRET_KEY=your-secret-key
-TEBI_BUCKET=ai-app-share
+TEBI_BUCKET=boyo-app-share
 
 # Public
-NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/ai-app-share
+NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/boyo-app-share
+
+# SEO 與應用程式資訊
+NUXT_PUBLIC_APP_NAME=博幼APP分享平臺
+NUXT_PUBLIC_APP_NAME_EN=Boyo App Share
+NUXT_PUBLIC_APP_DESCRIPTION=博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用
+NUXT_PUBLIC_APP_KEYWORDS=博幼基金會,教育,HTML App,應用分享,教學工具,互動學習
 ```
 
 ### 開發
@@ -195,7 +201,7 @@ describe('getMimeType', () => {
 ## 專案結構
 
 ```
-ai-app-share/
+boyo-app-share/
 ├── .nuxt/                    # Nuxt 建構輸出
 ├── assets/                   # 需編譯的資源
 │   └── css/

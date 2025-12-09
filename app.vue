@@ -8,10 +8,13 @@
 
 <script setup lang="ts">
 // Global app setup
+const config = useRuntimeConfig()
+
 useHead({
-  title: 'AI App Share - 單頁 HTML App 快速分享平台',
+  title: `${config.public.appName} - ${config.public.appNameEn}`,
   meta: [
-    { name: 'description', content: '快速上傳、分享、瀏覽單頁 HTML 應用' }
+    { name: 'description', content: config.public.appDescription },
+    { name: 'keywords', content: config.public.appKeywords }
   ]
 })
 </script>

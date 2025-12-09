@@ -1,6 +1,6 @@
-# AI App Share - 部署指南
+# 博幼APP分享平臺 - 部署指南
 
-本指南將協助您將 AI App Share 部署到生產環境。
+本指南將協助您將 博幼APP分享平臺 部署到生產環境。
 
 ## 目錄
 
@@ -42,7 +42,7 @@ cp .env.example .env
 DATABASE_URL=postgresql://username:password@host:port/database
 
 # 範例 (Zeabur)
-DATABASE_URL=postgresql://postgres:mypassword@db.zeabur.app:5432/ai-app-share
+DATABASE_URL=postgresql://postgres:mypassword@db.zeabur.app:5432/boyo-app-share
 ```
 
 #### JWT 密鑰 (JWT_SECRET)
@@ -59,8 +59,8 @@ JWT_SECRET=生成的密碼
 TEBI_ENDPOINT=https://s3.tebi.io
 TEBI_ACCESS_KEY=你的 Access Key
 TEBI_SECRET_KEY=你的 Secret Key
-TEBI_BUCKET=ai-app-share
-NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/ai-app-share
+TEBI_BUCKET=boyo-app-share
+NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/boyo-app-share
 ```
 
 ---
@@ -89,7 +89,7 @@ NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/ai-app-share
 docker run -d \
   --name postgres-dev \
   -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=ai-app-share \
+  -e POSTGRES_DB=boyo-app-share \
   -p 5432:5432 \
   postgres:15
 ```
@@ -134,7 +134,7 @@ psql $DATABASE_URL -c "\dt"
 
 1. 登入 Tebi Dashboard
 2. 點擊 "Create Bucket"
-3. 輸入 bucket 名稱（例如：`ai-app-share`）
+3. 輸入 bucket 名稱（例如：`boyo-app-share`）
 4. 選擇地區
 5. 設置為 **Public Read**（允許公開讀取）
 
@@ -149,17 +149,16 @@ psql $DATABASE_URL -c "\dt"
 
 在 Tebi Dashboard 中設置 CORS 規則：
 
-```json
-{
-  "CORSRules": [
-    {
-      "AllowedOrigins": ["*"],
-      "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
-      "AllowedHeaders": ["*"],
-      "MaxAgeSeconds": 3600
-    }
-  ]
-}
+```xml
+<?xml version='1.0' encoding='UTF-8'?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>PUT</AllowedMethod>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
 ```
 
 ### 使用其他 S3 服務
@@ -175,7 +174,7 @@ psql $DATABASE_URL -c "\dt"
 ### 1. 建立 GitHub Repository
 
 ```bash
-git remote add origin https://github.com/你的用戶名/ai-app-share.git
+git remote add origin https://github.com/你的用戶名/boyo-app-share.git
 git branch -M main
 git push -u origin main
 ```
@@ -249,7 +248,7 @@ vercel env add JWT_SECRET
 # ... 其他環境變數
 
 # 方式 2: 在 Vercel Dashboard 設置
-# https://vercel.com/你的用戶名/ai-app-share/settings/environment-variables
+# https://vercel.com/你的用戶名/boyo-app-share/settings/environment-variables
 ```
 
 ---
@@ -375,7 +374,7 @@ pnpm add @sentry/nuxt
 pg_dump $DATABASE_URL > backup-$(date +%Y%m%d).sql
 
 # 備份 S3（使用 AWS CLI 或 rclone）
-rclone sync tebi:ai-app-share ./backup-s3
+rclone sync tebi:boyo-app-share ./backup-s3
 ```
 
 ### 4. 更新依賴
@@ -414,7 +413,7 @@ pnpm update
 ## 聯絡支援
 
 如有問題，請：
-1. 查看 [GitHub Issues](https://github.com/你的用戶名/ai-app-share/issues)
+1. 查看 [GitHub Issues](https://github.com/你的用戶名/boyo-app-share/issues)
 2. 閱讀 [文檔](../README.md)
 3. 提交新的 Issue
 

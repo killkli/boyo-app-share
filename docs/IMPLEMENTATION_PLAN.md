@@ -39,7 +39,7 @@
 ### 📋 Tasks
 
 #### 1.1 初始化 Nuxt.js 專案
-- [ ] 使用 `npx nuxi@latest init ai-app-share` 建立專案
+- [ ] 使用 `npx nuxi@latest init boyo-app-share` 建立專案
 - [ ] 選擇 pnpm 作為套件管理器
 - [ ] 配置 TypeScript (`tsconfig.json` 嚴格模式)
 - [ ] 設置 Git 與 `.gitignore`
@@ -130,11 +130,11 @@ JWT_SECRET=your-super-secret-key-change-in-production
 TEBI_ENDPOINT=https://s3.tebi.io
 TEBI_ACCESS_KEY=your-access-key
 TEBI_SECRET_KEY=your-secret-key
-TEBI_BUCKET=ai-app-share
+TEBI_BUCKET=boyo-app-share
 
 # App
 NUXT_PUBLIC_API_BASE=/api
-NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/ai-app-share
+NUXT_PUBLIC_S3_BASE_URL=https://s3.tebi.io/boyo-app-share
 ```
 - [ ] 建立 `server/utils/db.ts`:
 ```typescript
@@ -198,7 +198,7 @@ export default defineNuxtConfig({
     // Public (client-exposed)
     public: {
       apiBase: '/api',
-      s3BaseUrl: process.env.NUXT_PUBLIC_S3_BASE_URL || 'https://s3.tebi.io/ai-app-share'
+      s3BaseUrl: process.env.NUXT_PUBLIC_S3_BASE_URL || 'https://s3.tebi.io/boyo-app-share'
     }
   },
 

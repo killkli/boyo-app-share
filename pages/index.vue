@@ -5,10 +5,10 @@
       <div class="container mx-auto px-4 py-16">
         <div class="text-center max-w-3xl mx-auto">
           <h1 class="text-5xl font-bold mb-4">
-            AI App Share
+            {{ config.public.appName }}
           </h1>
           <p class="text-xl mb-8 text-blue-100">
-            分享你的創意 HTML 應用，探索無限可能
+            {{ config.public.appDescription }}
           </p>
           <div class="flex gap-4 justify-center">
             <Button size="lg" variant="secondary" as-child>
@@ -79,6 +79,8 @@
 import { ref, onMounted } from 'vue'
 import AppGrid from '@/components/app/AppGrid.vue'
 import { Button } from '@/components/ui/button'
+
+const config = useRuntimeConfig()
 
 definePageMeta({
   layout: 'default'
