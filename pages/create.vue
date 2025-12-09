@@ -143,12 +143,12 @@
           </div>
 
           <!-- Success message -->
-          <div v-if="uploadSuccess" class="p-5 bg-green-50 border-3 border-green-500 shadow-brutal">
+          <div v-if="uploadSuccess" class="p-5 bg-green-50 border-3 border-green-500 shadow-brutal space-y-3">
             <p class="font-bold text-green-700 mb-2 uppercase tracking-wide">上傳成功！</p>
-            <a :href="uploadedUrl" target="_blank"
+            <NuxtLink :to="uploadedUrl"
               class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 hover:underline uppercase tracking-wide">
-              查看你的 APP →
-            </a>
+              查看 APP 詳情 →
+            </NuxtLink>
           </div>
         </div>
 
@@ -337,14 +337,9 @@ const handleSubmit = async () => {
       }
     })
 
-    // 上傳成功
+    // 上傳成功 - 使用應用詳情頁的URL
     uploadSuccess.value = true
-    uploadedUrl.value = response.url
-
-    // 3 秒後跳轉到首頁或 app 詳情頁
-    setTimeout(() => {
-      router.push('/')
-    }, 3000)
+    uploadedUrl.value = `/app/${response.app.id}`
   } catch (error: any) {
     console.error('上傳失敗:', error)
     uploadError.value = error.data?.message || error.message || '上傳失敗，請稍後再試'

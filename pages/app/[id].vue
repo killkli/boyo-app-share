@@ -78,6 +78,29 @@
                   <span class="text-muted-foreground">{{ formatDate(app.created_at) }}</span>
                 </div>
               </div>
+
+              <!-- 操作按鈕組 -->
+              <div class="flex flex-wrap gap-3 border-t-2 border-foreground pt-4 mt-4">
+                <!-- 開啟APP按鈕 -->
+                <Button
+                  variant="default"
+                  size="sm"
+                  class="font-bold uppercase tracking-wide flex-1 min-w-[120px]"
+                  @click="openAppInNewTab"
+                >
+                  開啟 APP ↗
+                </Button>
+
+                <!-- 分享按鈕 -->
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="font-bold uppercase tracking-wide flex-1 min-w-[120px]"
+                  @click="shareApp"
+                >
+                  {{ shareButtonText }}
+                </Button>
+              </div>
             </CardHeader>
 
             <CardContent class="p-0">
@@ -205,6 +228,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
 import AppPreview from '@/components/app/AppPreview.vue'
 import Rating from '@/components/common/Rating.vue'
 import Comments from '@/components/common/Comments.vue'
@@ -270,6 +294,7 @@ const isFavorited = ref(false)
 const ratingSubmitting = ref(false)
 const favoriteSubmitting = ref(false)
 const isFullscreen = ref(false)
+const shareButtonText = ref('分享')
 
 // 獲取目前使用者 (用於判斷是否可編輯)
 const { user, token } = useAuth()
@@ -282,6 +307,52 @@ const canEdit = computed(() => {
   if (!user.value || !app.value) return false
   return user.value.id === app.value.user_id
 })
+
+// 計算APP的S3 URL
+const appUrl = computed(() => {
+  if (!app.value) return ''
+  return `${config.public.s3BaseUrl}/${app.value.html_s3_key}`
+})
+
+// 開啟APP在新分頁
+const openAppInNewTab = () => {
+  if (appUrl.value) {
+    window.open(appUrl.value, '_blank', 'noopener,noreferrer')
+  }
+}
+
+// 分享APP
+const shareApp = async () => {
+  const shareUrl = window.location.href
+
+  try {
+    // 嘗試使用 Clipboard API
+    await navigator.clipboard.writeText(shareUrl)
+    shareButtonText.value = '已複製！'
+    setTimeout(() => {
+      shareButtonText.value = '分享'
+    }, 2000)
+  } catch (err) {
+    // 降級方案：使用傳統方法
+    const textArea = document.createElement('textarea')
+    textArea.value = shareUrl
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.select()
+    try {
+      document.execCommand('copy')
+      shareButtonText.value = '已複製！'
+      setTimeout(() => {
+        shareButtonText.value = '分享'
+      }, 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      alert('複製失敗，請手動複製連結')
+    }
+    document.body.removeChild(textArea)
+  }
+}
 
 // 切換全屏
 const toggleFullscreen = () => {
