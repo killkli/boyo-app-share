@@ -32,16 +32,17 @@ interface RequestRecord {
 const requestStore = new Map<string, RequestRecord>()
 
 /**
- * 清理過期記錄（定期執行）
+ * 清理過期記錄（懶清理，在每次檢查時執行）
+ * 避免在全局作用域使用 setInterval，以符合 Cloudflare Workers 要求
  */
-setInterval(() => {
+function cleanupExpiredRecords() {
   const now = Date.now()
   for (const [key, record] of requestStore.entries()) {
     if (now > record.resetTime) {
       requestStore.delete(key)
     }
   }
-}, 60 * 1000) // 每分鐘清理一次
+}
 
 /**
  * 檢查 rate limit
@@ -57,6 +58,9 @@ export async function checkRateLimit(
   if (RATE_LIMIT_CONFIG.WHITELIST_PATHS.some(p => path.startsWith(p))) {
     return
   }
+
+  // 清理過期記錄（懶清理）
+  cleanupExpiredRecords()
 
   // 決定使用哪個配置
   const config = userId
