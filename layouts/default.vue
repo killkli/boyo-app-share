@@ -164,15 +164,15 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 text-center md:text-left">
           <!-- Copyright -->
           <div class="text-sm font-mono">
-            &copy; 2024 <span class="font-bold">{{ config.public.appName }}</span>
+            &copy; 2025 <span class="font-bold">{{ config.public.appName }}</span> - MIT License
           </div>
 
           <!-- Links -->
           <div class="flex flex-wrap justify-center gap-6 text-sm font-bold uppercase tracking-wide">
-            <a href="#" class="hover:text-primary transition-colors">關於</a>
-            <a href="#" class="hover:text-primary transition-colors">條款</a>
-            <a href="#" class="hover:text-primary transition-colors">隱私</a>
-            <a href="https://github.com" target="_blank" class="hover:text-primary transition-colors">GitHub</a>
+            <NuxtLink to="/about" class="hover:text-primary transition-colors">關於</NuxtLink>
+            <NuxtLink to="/terms" class="hover:text-primary transition-colors">使用條款</NuxtLink>
+            <NuxtLink to="/privacy" class="hover:text-primary transition-colors">隱私政策</NuxtLink>
+            <a href="https://github.com/killkli/boyo-app-share" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">GitHub</a>
           </div>
         </div>
       </div>

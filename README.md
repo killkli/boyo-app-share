@@ -2,9 +2,10 @@
 
 > 博幼基金會教學應用分享平台
 
-[![Tests](https://github.com/your-username/boyo-app-share/actions/workflows/test.yml/badge.svg)](https://github.com/your-username/boyo-app-share/actions/workflows/test.yml)
+[![Tests](https://github.com/killkli/boyo-app-share/actions/workflows/test.yml/badge.svg)](https://github.com/killkli/boyo-app-share/actions/workflows/test.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](./tests)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/badge/GitHub-killkli%2Fboyo--app--share-blue?logo=github)](https://github.com/killkli/boyo-app-share)
 
 博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用。使用者可以透過**剪貼簿貼上**、**上傳 HTML 檔案**或**上傳壓縮檔（含 assets）**的方式分享他們的 HTML App。
 
@@ -80,7 +81,7 @@
 
 ```bash
 # 克隆專案
-git clone https://github.com/your-username/boyo-app-share.git
+git clone https://github.com/killkli/boyo-app-share.git
 cd boyo-app-share
 
 # 安裝依賴
@@ -321,9 +322,20 @@ git commit -m "feat(upload): 實現 ZIP 檔案上傳功能
 ### 貢獻指南
 - [貢獻指南](./CONTRIBUTING.md) - 如何參與專案開發（待建立）
 
-## 授權
+## 📄 授權
 
-MIT License
+本專案採用 [MIT License](./LICENSE) 授權。
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+這意味著您可以自由地：
+- ✅ 使用本專案於商業或非商業用途
+- ✅ 修改、複製和分發本專案
+- ✅ 將本專案用於私人專案
+
+唯一的要求是在您的專案中保留原始的版權聲明和授權聲明。
+
+詳細授權條款請參閱 [LICENSE](./LICENSE) 文件。
 
 ## 🤝 貢獻
 
