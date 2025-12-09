@@ -1,5 +1,5 @@
 <template>
-  <div class="app-preview w-full h-full border rounded-lg overflow-hidden bg-white">
+  <div class="app-preview w-full h-full overflow-hidden bg-background">
     <iframe
       v-if="iframeSrc"
       :src="iframeSrc"
@@ -68,6 +68,13 @@ onUnmounted(() => {
 
 <style scoped>
 .app-preview {
-  min-height: 400px;
+  min-height: 800px;
+  aspect-ratio: 16 / 10;
+}
+
+@media (max-width: 768px) {
+  .app-preview {
+    min-height: 500px;
+  }
 }
 </style>

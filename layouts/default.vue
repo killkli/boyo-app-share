@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col bg-background relative">
     <!-- Header with Brutalist design -->
     <header
-      class="border-b-2 md:border-b-4 border-foreground bg-background sticky top-0 z-50 transition-shadow duration-200"
+      class="border-b-2 md:border-b-4 border-foreground bg-background/95 backdrop-blur-md sticky top-0 z-50 transition-shadow duration-200 shadow-brutal-sm"
       role="banner"
     >
       <nav class="container mx-auto px-4 py-3 md:py-4" aria-label="主要導航">

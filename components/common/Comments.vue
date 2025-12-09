@@ -1,19 +1,25 @@
 <template>
   <div class="space-y-6">
-    <!-- 評論表單 -->
-    <div v-if="isAuthenticated" class="border rounded-lg p-4 bg-white dark:bg-gray-800">
+    <!-- 標題 -->
+    <h3 class="text-2xl font-bold uppercase tracking-wide border-b-3 border-foreground pb-3">
+      評論 ({{ totalCount }})
+    </h3>
+
+    <!-- 評論表單 - Brutalist -->
+    <div v-if="isAuthenticated" class="border-3 border-foreground p-6 bg-muted shadow-brutal">
       <form @submit.prevent="handleSubmit">
         <Textarea
           v-model="newComment"
           placeholder="分享你的想法..."
-          class="mb-3"
+          class="mb-4 border-3 border-foreground shadow-brutal-sm font-mono"
           :disabled="submitting"
-          rows="3"
+          rows="4"
         />
         <div class="flex justify-end">
           <Button
             type="submit"
             :disabled="!newComment.trim() || submitting"
+            class="font-bold uppercase tracking-wide"
           >
             {{ submitting ? '發送中...' : '發送評論' }}
           </Button>
@@ -21,77 +27,81 @@
       </form>
     </div>
 
-    <!-- 未登入提示 -->
-    <div v-else class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800 text-center">
-      <p class="text-gray-600 dark:text-gray-400 mb-3">請登入後發表評論</p>
-      <Button @click="navigateTo('/login')">登入</Button>
+    <!-- 未登入提示 - Brutalist -->
+    <div v-else class="border-3 border-foreground p-8 bg-muted text-center shadow-brutal">
+      <div class="w-16 h-16 border-3 border-foreground bg-background mx-auto mb-4 flex items-center justify-center">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <p class="text-foreground mb-4 font-bold uppercase tracking-wide">請登入後發表評論</p>
+      <Button @click="navigateTo('/login')" class="font-bold uppercase tracking-wide">登入</Button>
     </div>
 
     <!-- 評論列表 -->
     <div class="space-y-4">
-      <h3 class="text-lg font-semibold">評論 ({{ totalCount }})</h3>
-
-      <!-- 載入中 -->
+      <!-- 載入中 - Brutalist -->
       <div v-if="loading" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="animate-pulse">
-          <div class="flex gap-3">
-            <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full" />
-            <div class="flex-1 space-y-2">
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-              <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+        <div v-for="i in 3" :key="i" class="border-3 border-foreground p-4 bg-muted shadow-brutal-sm">
+          <div class="flex gap-4">
+            <div class="w-12 h-12 border-2 border-foreground bg-background animate-pulse" />
+            <div class="flex-1 space-y-3">
+              <div class="h-4 bg-background border-2 border-foreground w-1/4 animate-pulse" />
+              <div class="h-4 bg-background border-2 border-foreground w-3/4 animate-pulse" />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 空狀態 -->
-      <div v-else-if="comments.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-        <p>尚無評論，成為第一個留言的人吧！</p>
+      <!-- 空狀態 - Brutalist -->
+      <div v-else-if="comments.length === 0" class="border-3 border-foreground p-12 bg-muted text-center shadow-brutal">
+        <div class="w-20 h-20 border-3 border-foreground bg-background mx-auto mb-6 flex items-center justify-center">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </div>
+        <p class="font-bold uppercase tracking-wide text-lg">尚無評論</p>
+        <p class="text-muted-foreground mt-2 font-mono">成為第一個留言的人吧！</p>
       </div>
 
-      <!-- 評論項目 -->
+      <!-- 評論項目 - Brutalist -->
       <div v-else class="space-y-4">
         <div
           v-for="comment in comments"
           :key="comment.id"
-          class="flex gap-3 pb-4 border-b last:border-b-0"
+          class="border-3 border-foreground p-5 bg-background shadow-brutal-sm hover:shadow-brutal transition-shadow"
         >
-          <!-- 頭像 -->
-          <Avatar class="w-10 h-10">
-            <AvatarImage
-              v-if="comment.user_avatar"
-              :src="comment.user_avatar"
-              :alt="comment.username"
-            />
-            <AvatarFallback>{{ getInitials(comment.username) }}</AvatarFallback>
-          </Avatar>
-
-          <!-- 內容 -->
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1">
-              <span class="font-medium text-sm">{{ comment.username }}</span>
-              <span class="text-xs text-gray-500 dark:text-gray-400">
-                {{ formatDate(comment.created_at) }}
-              </span>
+          <div class="flex gap-4">
+            <!-- 方形頭像 - Brutalist -->
+            <div class="w-12 h-12 border-3 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase flex-shrink-0">
+              {{ getInitials(comment.username) }}
             </div>
-            <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {{ comment.content }}
-            </p>
+
+            <!-- 內容 -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-3 pb-2 border-b-2 border-foreground">
+                <span class="font-bold text-base uppercase tracking-wide">{{ comment.username }}</span>
+                <span class="text-xs text-muted-foreground font-mono">
+                  {{ formatDate(comment.created_at) }}
+                </span>
+              </div>
+              <p class="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                {{ comment.content }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 載入更多 -->
-      <div v-if="hasMore" class="text-center">
+      <!-- 載入更多 - Brutalist -->
+      <div v-if="hasMore" class="text-center pt-4">
         <Button
           variant="outline"
           @click="$emit('load-more')"
           :disabled="loading"
+          class="font-bold uppercase tracking-wide shadow-brutal-sm hover:shadow-brutal"
         >
-          載入更多
+          載入更多評論
         </Button>
       </div>
     </div>
@@ -102,7 +112,6 @@
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 interface Comment {
   id: string
