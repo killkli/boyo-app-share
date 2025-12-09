@@ -33,7 +33,7 @@
                 <SelectValue placeholder="所有分類" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">所有分類</SelectItem>
+                <SelectItem value="all">所有分類</SelectItem>
                 <SelectItem value="game">遊戲</SelectItem>
                 <SelectItem value="tool">工具</SelectItem>
                 <SelectItem value="art">藝術</SelectItem>
@@ -139,14 +139,14 @@ const totalPages = ref(1)
 
 const filters = ref({
   search: (route.query.search as string) || '',
-  category: (route.query.category as string) || '',
+  category: (route.query.category as string) || 'all',
   sort: (route.query.sort as string) || 'latest'
 })
 
 // 檢查是否有啟用的篩選條件
 const hasActiveFilters = computed(() => {
   return filters.value.search !== '' ||
-         filters.value.category !== '' ||
+         filters.value.category !== 'all' ||
          filters.value.sort !== 'latest'
 })
 
@@ -170,7 +170,7 @@ const applyFilters = () => {
 const clearFilters = () => {
   filters.value = {
     search: '',
-    category: '',
+    category: 'all',
     sort: 'latest'
   }
   applyFilters()
@@ -190,7 +190,7 @@ const updateQueryParams = () => {
   const query: Record<string, string> = {}
 
   if (filters.value.search) query.search = filters.value.search
-  if (filters.value.category) query.category = filters.value.category
+  if (filters.value.category && filters.value.category !== 'all') query.category = filters.value.category
   if (filters.value.sort !== 'latest') query.sort = filters.value.sort
   if (currentPage.value > 1) query.page = currentPage.value.toString()
 
@@ -209,7 +209,7 @@ const fetchApps = async () => {
     }
 
     if (filters.value.search) params.search = filters.value.search
-    if (filters.value.category) params.category = filters.value.category
+    if (filters.value.category && filters.value.category !== 'all') params.category = filters.value.category
 
     const response = await $fetch<{
       apps: App[]
@@ -233,7 +233,7 @@ const fetchApps = async () => {
 watch(() => route.query, (newQuery) => {
   currentPage.value = parseInt(newQuery.page as string) || 1
   filters.value.search = (newQuery.search as string) || ''
-  filters.value.category = (newQuery.category as string) || ''
+  filters.value.category = (newQuery.category as string) || 'all'
   filters.value.sort = (newQuery.sort as string) || 'latest'
   fetchApps()
 }, { deep: true })
