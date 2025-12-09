@@ -124,7 +124,7 @@ describe('POST /api/apps - ZIP 上傳', () => {
 
     // 檢查 query 被呼叫時的參數
     const queryCall = vi.mocked(query).mock.calls[0]
-    const fileManifestJson = queryCall[1][8] // file_manifest 參數（JSON 字串）
+    const fileManifestJson = queryCall![1]![8] // file_manifest 參數（JSON 字串）
 
     // 解析 JSON 字串
     expect(typeof fileManifestJson).toBe('string')
@@ -155,7 +155,7 @@ describe('POST /api/apps - ZIP 上傳', () => {
 
     // 檢查 html_s3_key 應該指向 main.html
     const queryCall = vi.mocked(query).mock.calls[0]
-    const htmlS3Key = queryCall[1][7] // html_s3_key 參數
+    const htmlS3Key = queryCall![1]![7] // html_s3_key 參數
 
     expect(htmlS3Key).toContain('main.html')
   })

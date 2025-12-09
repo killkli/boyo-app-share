@@ -1,4 +1,4 @@
-import { Pool, type QueryResult } from 'pg'
+import { Pool, type QueryResult, type QueryResultRow } from 'pg'
 
 let pool: Pool | null = null
 
@@ -46,7 +46,7 @@ export const getDb = (): Pool => {
  * @param params 查詢參數
  * @returns 查詢結果
  */
-export const query = async <T = any>(
+export const query = async <T extends QueryResultRow = any>(
   text: string,
   params?: any[]
 ): Promise<QueryResult<T>> => {

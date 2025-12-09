@@ -7,6 +7,7 @@ import { config } from 'dotenv'
 config()
 
 export default defineConfig({
+  // @ts-expect-error - Vite 版本類型不匹配，但功能正常
   plugins: [vue()],
   resolve: {
     alias: {

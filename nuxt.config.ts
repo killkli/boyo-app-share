@@ -5,6 +5,14 @@ export default defineNuxtConfig({
     preset: 'cloudflare-pages',
     experimental: {
       database: true
+    },
+    // 排除可選依賴 pg-native（不被 Cloudflare Pages 支援）
+    rollupConfig: {
+      external: ['pg-native']
+    },
+    // 標記為外部依賴（Cloudflare Pages 支援）
+    externals: {
+      inline: ['pg']
     }
   },
 

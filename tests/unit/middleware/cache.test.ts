@@ -40,7 +40,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為靜態圖片設置長時間快取', async () => {
-    mockEvent.path = '/images/logo.png'
+    (mockEvent as any).path = '/images/logo.png'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/images/logo.png'
     }
@@ -54,7 +54,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為 CSS 檔案設置長時間快取', async () => {
-    mockEvent.path = '/styles/main.css'
+    (mockEvent as any).path = '/styles/main.css'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/styles/main.css'
     }
@@ -68,7 +68,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為 JavaScript 檔案設置長時間快取', async () => {
-    mockEvent.path = '/js/app.js'
+    (mockEvent as any).path = '/js/app.js'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/js/app.js'
     }
@@ -82,7 +82,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為 API 回應設置 no-cache', async () => {
-    mockEvent.path = '/api/apps'
+    (mockEvent as any).path = '/api/apps'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/api/apps'
     }
@@ -96,7 +96,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為 HTML 頁面設置短時間快取', async () => {
-    mockEvent.path = '/'
+    (mockEvent as any).path = '/'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/'
     }
@@ -110,7 +110,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該跳過非 GET 請求', async () => {
-    mockEvent.method = 'POST'
+    (mockEvent as any).method = 'POST'
     if (mockEvent.node?.req) {
       mockEvent.node.req.method = 'POST'
     }
@@ -121,7 +121,7 @@ describe('Cache Control Middleware', () => {
   })
 
   it('應該為字體檔案設置長時間快取', async () => {
-    mockEvent.path = '/fonts/roboto.woff2'
+    (mockEvent as any).path = '/fonts/roboto.woff2'
     if (mockEvent.node?.req) {
       mockEvent.node.req.url = '/fonts/roboto.woff2'
     }

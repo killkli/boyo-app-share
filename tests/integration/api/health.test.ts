@@ -13,7 +13,7 @@ beforeAll(async () => {
 
 describe('GET /api/health', () => {
   it('應該返回健康狀態', async () => {
-    const event = createMockEvent('GET', '/api/health')
+    const event = createMockEvent({ method: 'GET', path: '/api/health' })
 
     const response = await healthHandler(event)
 
@@ -24,7 +24,7 @@ describe('GET /api/health', () => {
   })
 
   it('應該包含資料庫連接狀態', async () => {
-    const event = createMockEvent('GET', '/api/health')
+    const event = createMockEvent({ method: 'GET', path: '/api/health' })
 
     const response = await healthHandler(event)
 
@@ -34,7 +34,7 @@ describe('GET /api/health', () => {
   })
 
   it('應該包含服務版本資訊', async () => {
-    const event = createMockEvent('GET', '/api/health')
+    const event = createMockEvent({ method: 'GET', path: '/api/health' })
 
     const response = await healthHandler(event)
 
@@ -43,7 +43,7 @@ describe('GET /api/health', () => {
   })
 
   it('應該包含環境資訊', async () => {
-    const event = createMockEvent('GET', '/api/health')
+    const event = createMockEvent({ method: 'GET', path: '/api/health' })
 
     const response = await healthHandler(event)
 
@@ -53,7 +53,7 @@ describe('GET /api/health', () => {
 
   it('應該在資料庫連接失敗時返回 degraded 狀態', async () => {
     // Mock 資料庫連接失敗
-    const event = createMockEvent('GET', '/api/health')
+    const event = createMockEvent({ method: 'GET', path: '/api/health' })
 
     // 這個測試需要在實作時加入資料庫 mock
     // 暫時標記為基本結構

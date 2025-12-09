@@ -140,7 +140,7 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該跳過白名單路徑', async () => {
-    mockEvent.path = '/api/health'
+    (mockEvent as any).path = '/api/health'
 
     // 即使超過限制，健康檢查端點也應該通過
     for (let i = 0; i < 100; i++) {

@@ -36,7 +36,7 @@ describe('Auth Middleware', () => {
     it('應該識別 POST /api/apps 為受保護路由', () => {
       const publicPaths = ['/api/auth/login', '/api/auth/register']
       const path = '/api/apps'
-      const method = 'POST'
+      const method: string = 'POST'
 
       const isPublic = publicPaths.some(p => path?.startsWith(p))
       const isPublicAppsGet = path?.startsWith('/api/apps') && method === 'GET'
