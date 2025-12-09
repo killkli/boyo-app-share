@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { ZodError } from 'zod'
 import { registerSchema } from '~/server/utils/validation'
 import { generateToken } from '~/server/utils/jwt'

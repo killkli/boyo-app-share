@@ -1,44 +1,90 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white">
-      <div class="container mx-auto px-4 py-16">
-        <div class="text-center max-w-3xl mx-auto">
-          <h1 class="text-5xl font-bold mb-4">
-            {{ config.public.appName }}
-          </h1>
-          <p class="text-xl mb-8 text-blue-100">
-            {{ config.public.appDescription }}
-          </p>
-          <div class="flex gap-4 justify-center">
-            <Button size="lg" variant="secondary" as-child>
+  <div class="min-h-screen bg-paper overflow-hidden">
+    <!-- Hero Section with playful collage aesthetic -->
+    <div class="relative bg-gradient-to-br from-[hsl(var(--color-sunshine))] via-[hsl(var(--color-coral))] to-[hsl(var(--color-lavender))] overflow-hidden">
+      <!-- Decorative floating shapes -->
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute top-10 left-[10%] w-32 h-32 rounded-full bg-white/40 animate-float"></div>
+        <div class="absolute top-32 right-[15%] w-24 h-24 rounded-lg rotate-12 bg-white/30 animate-float" style="animation-delay: 0.5s;"></div>
+        <div class="absolute bottom-20 left-[20%] w-40 h-40 rounded-full bg-white/30 animate-float" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-32 right-[25%] w-28 h-28 rounded-lg -rotate-12 bg-white/40 animate-float" style="animation-delay: 1.5s;"></div>
+      </div>
+
+      <div class="container mx-auto px-4 py-20 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+          <!-- Main title with stagger animation -->
+          <div class="animate-slide-up-fade">
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 text-white drop-shadow-lg">
+              {{ config.public.appName }}
+            </h1>
+          </div>
+
+          <div class="animate-slide-up-fade" style="animation-delay: 0.1s;">
+            <p class="text-xl md:text-2xl mb-10 text-white/95 font-medium max-w-2xl mx-auto leading-relaxed">
+              {{ config.public.appDescription }}
+            </p>
+          </div>
+
+          <!-- CTA buttons with playful styling -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up-fade" style="animation-delay: 0.2s;">
+            <Button
+              size="lg"
+              class="bg-white text-[hsl(var(--foreground))] hover:bg-white/90 shadow-playful-lg hover:shadow-playful transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 font-semibold rounded-2xl"
+              as-child
+            >
               <NuxtLink to="/explore">
-                探索應用
+                🔍 探索應用
               </NuxtLink>
             </Button>
-            <Button size="lg" as-child>
+            <Button
+              size="lg"
+              class="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 shadow-playful-lg hover:shadow-playful transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 font-semibold rounded-2xl"
+              as-child
+            >
               <NuxtLink to="/create">
-                建立應用
+                ✨ 建立應用
               </NuxtLink>
             </Button>
           </div>
         </div>
       </div>
+
+      <!-- Wave divider -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-16 md:h-24">
+          <path d="M0,0 C150,80 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z" fill="hsl(var(--background))" />
+        </svg>
+      </div>
     </div>
 
-    <!-- Featured Apps Section -->
-    <div class="container mx-auto px-4 py-12">
-      <!-- 最新應用 -->
-      <section class="mb-16">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-3xl font-bold text-gray-900">最新應用</h2>
-          <Button variant="ghost" as-child>
-            <NuxtLink to="/explore?sort=latest">查看全部 →</NuxtLink>
+    <!-- Featured Apps Section with staggered grid -->
+    <div class="container mx-auto px-4 py-12 md:py-20">
+      <!-- Latest Apps -->
+      <section class="mb-20">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-4xl md:text-5xl font-bold mb-2">
+              最新應用
+            </h2>
+            <div class="h-2 w-24 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] rounded-full"></div>
+          </div>
+          <Button
+            variant="ghost"
+            class="font-semibold text-lg hover:text-[hsl(var(--primary))] transition-colors group"
+            as-child
+          >
+            <NuxtLink to="/explore?sort=latest">
+              查看全部
+              <span class="inline-block transition-transform group-hover:translate-x-1 ml-1">→</span>
+            </NuxtLink>
           </Button>
         </div>
 
-        <div v-if="latestLoading" class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div v-if="latestLoading" class="text-center py-20">
+          <div class="inline-block animate-bounce-gentle">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--secondary))]"></div>
+          </div>
+          <p class="mt-4 text-lg font-medium text-muted-foreground">載入中...</p>
         </div>
 
         <AppGrid
@@ -50,17 +96,32 @@
         />
       </section>
 
-      <!-- 熱門應用 -->
-      <section>
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-3xl font-bold text-gray-900">熱門應用</h2>
-          <Button variant="ghost" as-child>
-            <NuxtLink to="/explore?sort=popular">查看全部 →</NuxtLink>
+      <!-- Popular Apps -->
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-4xl md:text-5xl font-bold mb-2">
+              熱門應用
+            </h2>
+            <div class="h-2 w-24 bg-gradient-to-r from-[hsl(var(--secondary))] to-[hsl(var(--accent))] rounded-full"></div>
+          </div>
+          <Button
+            variant="ghost"
+            class="font-semibold text-lg hover:text-[hsl(var(--secondary))] transition-colors group"
+            as-child
+          >
+            <NuxtLink to="/explore?sort=popular">
+              查看全部
+              <span class="inline-block transition-transform group-hover:translate-x-1 ml-1">→</span>
+            </NuxtLink>
           </Button>
         </div>
 
-        <div v-if="popularLoading" class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div v-if="popularLoading" class="text-center py-20">
+          <div class="inline-block animate-bounce-gentle">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[hsl(var(--secondary))] to-[hsl(var(--accent))]"></div>
+          </div>
+          <p class="mt-4 text-lg font-medium text-muted-foreground">載入中...</p>
         </div>
 
         <AppGrid

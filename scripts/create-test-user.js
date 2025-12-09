@@ -5,7 +5,7 @@
  * 用途：快速創建一個測試帳號用於開發和測試
  */
 
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import pg from 'pg'
 import dotenv from 'dotenv'
 

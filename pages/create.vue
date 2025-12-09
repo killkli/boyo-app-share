@@ -1,169 +1,190 @@
 <template>
-  <div class="container mx-auto px-4 py-8 max-w-6xl">
-    <h1 class="text-3xl font-bold mb-8">上傳新的 HTML App</h1>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- 左側：表單 -->
-      <div class="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>App 資訊</CardTitle>
-            <CardDescription>填寫你的 HTML App 基本資訊</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <!-- 標題 -->
-            <div class="space-y-2">
-              <Label for="title">標題 *</Label>
-              <Input
-                id="title"
-                v-model="form.title"
-                placeholder="我的 HTML App"
-                :class="{ 'border-red-500': errors.title }"
-              />
-              <p v-if="errors.title" class="text-sm text-red-500">{{ errors.title }}</p>
-            </div>
-
-            <!-- 描述 -->
-            <div class="space-y-2">
-              <Label for="description">描述</Label>
-              <Textarea
-                id="description"
-                v-model="form.description"
-                placeholder="這是一個簡單的 HTML App..."
-                rows="3"
-              />
-            </div>
-
-            <!-- 分類 -->
-            <div class="space-y-2">
-              <Label for="category">分類</Label>
-              <Select v-model="form.category">
-                <SelectTrigger>
-                  <SelectValue placeholder="選擇分類" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="tool">工具</SelectItem>
-                  <SelectItem value="game">遊戲</SelectItem>
-                  <SelectItem value="demo">展示</SelectItem>
-                  <SelectItem value="experiment">實驗</SelectItem>
-                  <SelectItem value="education">教育</SelectItem>
-                  <SelectItem value="art">藝術</SelectItem>
-                  <SelectItem value="other">其他</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <!-- 標籤 -->
-            <div class="space-y-2">
-              <Label for="tags">標籤 (逗號分隔，最多 10 個)</Label>
-              <Input
-                id="tags"
-                v-model="tagsInput"
-                placeholder="javascript, html, css"
-              />
-              <p class="text-sm text-gray-500">目前標籤: {{ form.tags.length }} / 10</p>
-              <p v-if="errors.tags" class="text-sm text-red-500">{{ errors.tags }}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <!-- 上傳方式 -->
-        <Card>
-          <CardHeader>
-            <CardTitle>上傳方式</CardTitle>
-            <CardDescription>選擇如何上傳你的 HTML App</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs v-model="uploadType" class="w-full">
-              <TabsList class="grid w-full grid-cols-2">
-                <TabsTrigger value="paste">剪貼簿</TabsTrigger>
-                <TabsTrigger value="file">上傳檔案</TabsTrigger>
-              </TabsList>
-
-              <!-- 剪貼簿上傳 -->
-              <TabsContent value="paste" class="space-y-4">
-                <div class="space-y-2">
-                  <Label for="htmlContent">HTML 內容 *</Label>
-                  <Textarea
-                    id="htmlContent"
-                    v-model="form.htmlContent"
-                    placeholder="貼上你的 HTML 程式碼..."
-                    rows="12"
-                    class="font-mono text-sm"
-                    :class="{ 'border-red-500': errors.htmlContent }"
-                  />
-                  <p v-if="errors.htmlContent" class="text-sm text-red-500">{{ errors.htmlContent }}</p>
-                </div>
-              </TabsContent>
-
-              <!-- 檔案上傳 -->
-              <TabsContent value="file" class="space-y-4">
-                <div class="space-y-2">
-                  <Label for="fileInput">選擇 HTML 檔案 *</Label>
-                  <Input
-                    id="fileInput"
-                    type="file"
-                    accept=".html,.htm"
-                    @change="handleFileChange"
-                    :class="{ 'border-red-500': errors.file }"
-                  />
-                  <p v-if="selectedFile" class="text-sm text-gray-500">
-                    已選擇: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
-                  </p>
-                  <p v-if="errors.file" class="text-sm text-red-500">{{ errors.file }}</p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        <!-- 提交按鈕 -->
-        <div class="flex gap-4">
-          <Button
-            @click="handleSubmit"
-            :disabled="isUploading"
-            class="flex-1"
-          >
-            <span v-if="isUploading">上傳中...</span>
-            <span v-else>上傳 App</span>
-          </Button>
-          <Button
-            variant="outline"
-            @click="handleReset"
-            :disabled="isUploading"
-          >
-            重置
-          </Button>
+  <div class="min-h-screen bg-paper">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <!-- Header with playful styling -->
+      <div class="mb-10">
+        <h1 class="text-5xl md:text-6xl font-bold mb-3">
+          ✨ 建立新應用
+        </h1>
+        <div
+          class="h-2 w-32 bg-gradient-to-r from-[hsl(var(--accent))] via-[hsl(var(--primary))] to-[hsl(var(--secondary))] rounded-full">
         </div>
-
-        <!-- 錯誤訊息 -->
-        <div v-if="uploadError" class="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-sm text-red-600">{{ uploadError }}</p>
-        </div>
-
-        <!-- 成功訊息 -->
-        <div v-if="uploadSuccess" class="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p class="text-sm text-green-600 mb-2">上傳成功！</p>
-          <a :href="uploadedUrl" target="_blank" class="text-sm text-blue-600 hover:underline">
-            查看你的 App →
-          </a>
-        </div>
+        <p class="mt-4 text-lg text-muted-foreground font-medium">
+          分享你的創意，讓更多人看見！
+        </p>
       </div>
 
-      <!-- 右側：即時預覽 -->
-      <div class="space-y-4">
-        <Card class="sticky top-4">
-          <CardHeader>
-            <CardTitle>即時預覽</CardTitle>
-            <CardDescription>查看你的 HTML App 渲染效果</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AppPreview v-if="form.htmlContent" :html-content="form.htmlContent" />
-            <div v-else class="w-full h-[400px] border rounded-lg flex items-center justify-center text-gray-400">
-              <p>等待 HTML 內容...</p>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left: Form -->
+        <div class="space-y-6">
+          <Card class="border-2 shadow-playful rounded-3xl overflow-hidden">
+            <CardHeader
+              class="bg-gradient-to-r from-[hsl(var(--primary))]/5 to-[hsl(var(--secondary))]/5 border-b-2 border-dashed">
+              <CardTitle class="text-2xl">📝 App 資訊</CardTitle>
+              <CardDescription class="text-base">填寫你的 HTML App 基本資訊</CardDescription>
+            </CardHeader>
+            <CardContent class="space-y-5 pt-6">
+              <!-- Title -->
+              <div class="space-y-2">
+                <Label for="title" class="text-sm font-bold">📌 標題 *</Label>
+                <Input id="title" v-model="form.title" placeholder="我的超酷 HTML App" class="border-2 rounded-xl text-base"
+                  :class="{ 'border-red-500 focus:border-red-500': errors.title }" />
+                <p v-if="errors.title" class="text-sm text-red-500 font-medium">{{ errors.title }}</p>
+              </div>
+
+              <!-- Description -->
+              <div class="space-y-2">
+                <Label for="description" class="text-sm font-bold">💬 描述</Label>
+                <Textarea id="description" v-model="form.description" placeholder="這是一個簡單又有趣的 HTML App..." rows="3"
+                  class="border-2 rounded-xl resize-none text-base" />
+              </div>
+
+              <!-- Category -->
+              <div class="space-y-2">
+                <Label for="category" class="text-sm font-bold">🏷️ 分類</Label>
+                <Select v-model="form.category">
+                  <SelectTrigger class="border-2 rounded-xl">
+                    <SelectValue placeholder="選擇分類" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tool">🔧 工具</SelectItem>
+                    <SelectItem value="game">🎮 遊戲</SelectItem>
+                    <SelectItem value="demo">✨ 展示</SelectItem>
+                    <SelectItem value="experiment">🧪 實驗</SelectItem>
+                    <SelectItem value="education">📚 教育</SelectItem>
+                    <SelectItem value="art">🎨 藝術</SelectItem>
+                    <SelectItem value="other">📦 其他</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <!-- Tags -->
+              <div class="space-y-2">
+                <Label for="tags" class="text-sm font-bold">🏷 標籤 (逗號分隔，最多 10 個)</Label>
+                <Input id="tags" v-model="tagsInput" placeholder="javascript, html, css"
+                  class="border-2 rounded-xl text-base" />
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium text-muted-foreground">
+                    目前標籤: <span class="text-[hsl(var(--primary))] font-bold">{{ form.tags.length }}</span> / 10
+                  </p>
+                  <p v-if="errors.tags" class="text-sm text-red-500 font-medium">{{ errors.tags }}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- Upload Method -->
+          <Card class="border-2 shadow-playful rounded-3xl overflow-hidden">
+            <CardHeader
+              class="bg-gradient-to-r from-[hsl(var(--accent))]/5 to-[hsl(var(--primary))]/5 border-b-2 border-dashed">
+              <CardTitle class="text-2xl">📤 上傳方式</CardTitle>
+              <CardDescription class="text-base">選擇如何上傳你的 HTML App</CardDescription>
+            </CardHeader>
+            <CardContent class="pt-6">
+              <Tabs v-model="uploadType" class="w-full">
+                <TabsList class="grid w-full grid-cols-2 p-1 bg-muted/50 rounded-2xl border-2">
+                  <TabsTrigger value="paste"
+                    class="rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-playful">
+                    📋 剪貼簿
+                  </TabsTrigger>
+                  <TabsTrigger value="file"
+                    class="rounded-xl font-bold data-[state=active]:bg-white data-[state=active]:shadow-playful">
+                    📁 上傳檔案
+                  </TabsTrigger>
+                </TabsList>
+
+                <!-- Paste upload -->
+                <TabsContent value="paste" class="space-y-4 mt-6">
+                  <div class="space-y-2">
+                    <Label for="htmlContent" class="text-sm font-bold">💻 HTML 內容 *</Label>
+                    <Textarea id="htmlContent" v-model="form.htmlContent"
+                      placeholder="<html>&#10;  <body>&#10;    <h1>Hello World!</h1>&#10;  </body>&#10;</html>"
+                      rows="12" class="font-mono text-sm border-2 rounded-xl resize-none"
+                      :class="{ 'border-red-500 focus:border-red-500': errors.htmlContent }" />
+                    <p v-if="errors.htmlContent" class="text-sm text-red-500 font-medium">{{ errors.htmlContent }}</p>
+                  </div>
+                </TabsContent>
+
+                <!-- File upload -->
+                <TabsContent value="file" class="space-y-4 mt-6">
+                  <div class="space-y-2">
+                    <Label for="fileInput" class="text-sm font-bold">📄 選擇 HTML 檔案 *</Label>
+                    <Input id="fileInput" type="file" accept=".html,.htm"
+                      class="border-2 rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-[hsl(var(--primary))]/10 file:text-[hsl(var(--primary))] hover:file:bg-[hsl(var(--primary))]/20"
+                      @change="handleFileChange" :class="{ 'border-red-500': errors.file }" />
+                    <p v-if="selectedFile" class="text-sm font-medium text-[hsl(var(--primary))]">
+                      ✓ 已選擇: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+                    </p>
+                    <p v-if="errors.file" class="text-sm text-red-500 font-medium">{{ errors.file }}</p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          <!-- Action buttons -->
+          <div class="flex gap-4">
+            <Button @click="handleSubmit" :disabled="isUploading"
+              class="flex-1 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] hover:from-[hsl(var(--primary))]/90 hover:to-[hsl(var(--secondary))]/90 text-white font-bold text-lg py-6 rounded-2xl shadow-playful hover:shadow-playful-lg transform hover:scale-[1.02] transition-all duration-300">
+              <span v-if="isUploading" class="flex items-center gap-2">
+                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                上傳中...
+              </span>
+              <span v-else class="flex items-center gap-2">
+                🚀 上傳 App
+              </span>
+            </Button>
+            <Button variant="outline" @click="handleReset" :disabled="isUploading"
+              class="border-2 font-bold text-base px-8 py-6 rounded-2xl hover:bg-muted/50">
+              🔄 重置
+            </Button>
+          </div>
+
+          <!-- Error message -->
+          <div v-if="uploadError" class="p-5 bg-red-50 border-2 border-red-200 rounded-2xl shadow-playful">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">⚠️</span>
+              <div>
+                <p class="font-bold text-red-700 mb-1">上傳失敗</p>
+                <p class="text-sm text-red-600">{{ uploadError }}</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <!-- Success message -->
+          <div v-if="uploadSuccess" class="p-5 bg-green-50 border-2 border-green-200 rounded-2xl shadow-playful">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">🎉</span>
+              <div class="flex-1">
+                <p class="font-bold text-green-700 mb-2">上傳成功！</p>
+                <a :href="uploadedUrl" target="_blank"
+                  class="inline-flex items-center gap-2 text-sm font-bold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/80 hover:underline">
+                  查看你的 App →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Live Preview -->
+        <div class="space-y-4">
+          <Card class="sticky top-4 border-2 shadow-playful-lg rounded-3xl overflow-hidden">
+            <CardHeader
+              class="bg-gradient-to-r from-[hsl(var(--color-lavender))]/10 to-[hsl(var(--color-mint))]/10 border-b-2 border-dashed">
+              <CardTitle class="text-2xl">👀 即時預覽</CardTitle>
+              <CardDescription class="text-base">查看你的 HTML App 渲染效果</CardDescription>
+            </CardHeader>
+            <CardContent class="p-6">
+              <AppPreview v-if="form.htmlContent" :html-content="form.htmlContent" />
+              <div v-else
+                class="w-full h-[400px] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center text-muted-foreground bg-muted/10">
+                <div class="text-6xl mb-4">📱</div>
+                <p class="font-medium text-lg">等待 HTML 內容...</p>
+                <p class="text-sm mt-2">貼上或上傳你的程式碼即可預覽</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   </div>

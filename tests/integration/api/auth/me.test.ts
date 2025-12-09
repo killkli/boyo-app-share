@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { query } from '~/server/utils/db'
 import { setupH3Mocks, createMockEvent } from '~/tests/helpers/h3Mocks'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 // 設置 H3 mocks
 setupH3Mocks()

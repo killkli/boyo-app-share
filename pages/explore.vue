@@ -1,75 +1,100 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-4xl font-bold text-gray-900 mb-8">探索應用</h1>
+  <div class="min-h-screen bg-paper">
+    <div class="container mx-auto px-4 py-8 md:py-12">
+      <!-- Page header with playful styling -->
+      <div class="mb-10">
+        <h1 class="text-5xl md:text-6xl font-bold mb-3">
+          探索應用
+        </h1>
+        <div class="h-2 w-32 bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--secondary))] to-[hsl(var(--accent))] rounded-full"></div>
+      </div>
 
-      <!-- 篩選與搜尋 -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- 搜尋 -->
-          <div class="md:col-span-2">
-            <Label for="search">搜尋</Label>
-            <Input
-              id="search"
-              v-model="filters.search"
-              type="text"
-              placeholder="搜尋應用標題或描述..."
-              @input="handleSearch"
-            />
+      <!-- Filter and search section with colorful design -->
+      <div class="bg-white rounded-3xl shadow-playful-lg border-2 border-[hsl(var(--border))] p-6 md:p-8 mb-10 relative overflow-hidden">
+        <!-- Decorative background circles -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-[hsl(var(--primary))]/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-[hsl(var(--secondary))]/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+        <div class="relative z-10">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <!-- Search input with icon -->
+            <div class="md:col-span-2">
+              <Label for="search" class="text-sm font-bold mb-2 block">🔍 搜尋</Label>
+              <Input
+                id="search"
+                v-model="filters.search"
+                type="text"
+                placeholder="搜尋應用標題或描述..."
+                class="border-2 focus:border-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))]/20 rounded-xl text-base"
+                @input="handleSearch"
+              />
+            </div>
+
+            <!-- Category filter with emoji -->
+            <div>
+              <Label for="category" class="text-sm font-bold mb-2 block">🏷️ 分類</Label>
+              <Select v-model="filters.category" @update:model-value="applyFilters">
+                <SelectTrigger id="category" class="border-2 rounded-xl">
+                  <SelectValue placeholder="所有分類" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">📦 所有分類</SelectItem>
+                  <SelectItem value="game">🎮 遊戲</SelectItem>
+                  <SelectItem value="tool">🔧 工具</SelectItem>
+                  <SelectItem value="art">🎨 藝術</SelectItem>
+                  <SelectItem value="education">📚 教育</SelectItem>
+                  <SelectItem value="demo">✨ 展示</SelectItem>
+                  <SelectItem value="experiment">🧪 實驗</SelectItem>
+                  <SelectItem value="other">📦 其他</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <!-- Sort with emoji -->
+            <div>
+              <Label for="sort" class="text-sm font-bold mb-2 block">📊 排序</Label>
+              <Select v-model="filters.sort" @update:model-value="applyFilters">
+                <SelectTrigger id="sort" class="border-2 rounded-xl">
+                  <SelectValue placeholder="最新" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">🆕 最新</SelectItem>
+                  <SelectItem value="popular">🔥 熱門</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <!-- 分類篩選 -->
-          <div>
-            <Label for="category">分類</Label>
-            <Select v-model="filters.category" @update:model-value="applyFilters">
-              <SelectTrigger id="category">
-                <SelectValue placeholder="所有分類" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">所有分類</SelectItem>
-                <SelectItem value="game">遊戲</SelectItem>
-                <SelectItem value="tool">工具</SelectItem>
-                <SelectItem value="art">藝術</SelectItem>
-                <SelectItem value="education">教育</SelectItem>
-                <SelectItem value="other">其他</SelectItem>
-              </SelectContent>
-            </Select>
+          <!-- Clear filters button -->
+          <div v-if="hasActiveFilters" class="mt-5 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              class="font-semibold hover:bg-[hsl(var(--primary))]/10 hover:text-[hsl(var(--primary))] rounded-xl"
+              @click="clearFilters"
+            >
+              ✕ 清除所有篩選
+            </Button>
           </div>
-
-          <!-- 排序 -->
-          <div>
-            <Label for="sort">排序</Label>
-            <Select v-model="filters.sort" @update:model-value="applyFilters">
-              <SelectTrigger id="sort">
-                <SelectValue placeholder="最新" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="latest">最新</SelectItem>
-                <SelectItem value="popular">熱門</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <!-- 清除篩選 -->
-        <div v-if="hasActiveFilters" class="mt-4">
-          <Button variant="ghost" size="sm" @click="clearFilters">
-            清除所有篩選
-          </Button>
         </div>
       </div>
 
-      <!-- 載入狀態 -->
-      <div v-if="loading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="mt-4 text-gray-600">載入中...</p>
+      <!-- Loading state with playful animation -->
+      <div v-if="loading" class="text-center py-20">
+        <div class="inline-block animate-bounce-gentle mb-4">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--secondary))]"></div>
+        </div>
+        <p class="text-xl font-semibold text-muted-foreground">載入中...</p>
       </div>
 
-      <!-- App 列表 -->
+      <!-- Apps list -->
       <div v-else>
-        <!-- 結果統計 -->
-        <div class="mb-4 text-gray-600">
-          找到 {{ total }} 個應用
+        <!-- Results count with playful badge -->
+        <div class="mb-6 flex items-center gap-3">
+          <div class="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(var(--primary))]/10 to-[hsl(var(--secondary))]/10 border-2 border-[hsl(var(--primary))]/20 rounded-full px-5 py-2.5 font-bold text-lg">
+            <span class="text-2xl">🎯</span>
+            <span>找到 <span class="text-[hsl(var(--primary))]">{{ total }}</span> 個應用</span>
+          </div>
         </div>
 
         <AppGrid
