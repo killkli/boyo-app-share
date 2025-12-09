@@ -12,7 +12,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm run build
+RUN NITRO_PRESET=node-server pnpm run build
 
 # Stage 2: Production
 FROM node:20-slim
