@@ -190,10 +190,12 @@ describe.skipIf(skipIfNoDb)('PUT /api/apps/[id]/reupload', () => {
 
     // Mock extractZip 來避免實際解壓
     const { extractZip } = await import('~/server/utils/zip')
+    const htmlContent = Buffer.from('<html>New ZIP Content</html>')
     vi.mocked(extractZip).mockResolvedValueOnce([
       {
         path: 'index.html',
-        content: Buffer.from('<html>New ZIP Content</html>'),
+        content: htmlContent,
+        size: htmlContent.length,
         type: 'text/html'
       }
     ])

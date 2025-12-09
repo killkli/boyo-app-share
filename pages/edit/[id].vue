@@ -362,7 +362,7 @@ const handleSubmit = async () => {
         tags: form.value.tags,
         creators: form.value.creators
       }
-    })
+    } as any)
 
     // 成功後跳轉到詳情頁
     router.push(`/app/${appId}`)
@@ -394,7 +394,7 @@ const handleDelete = async () => {
       headers: {
         Authorization: `Bearer ${token.value}`
       }
-    })
+    } as any)
 
     // 刪除成功後跳轉到首頁
     router.push('/')
