@@ -254,25 +254,49 @@ export async function reuploadAppContent(
 
 **Components to Create/Update**:
 
-### 1. `pages/profile/favorites.vue`
+### 1. `pages/profile/favorites.vue` ✅
 展示使用者收藏的apps列表
+- 支援排序（最新收藏、熱門、評分最高）
+- 分頁功能
+- 空狀態處理
 
-### 2. `pages/profile/my-apps.vue`
+### 2. `pages/profile/my-apps.vue` ✅
 展示使用者創建的apps列表
+- 支援排序（最新建立、熱門、評分最高）
+- 分頁功能
+- 空狀態處理
+- 快速建立新應用按鈕
 
-### 3. `components/AppUploadForm.vue` (更新)
+### 3. `pages/create.vue` (更新) ✅
 新增創作者輸入欄位：
-- 可添加多個創作者
+- 可添加多個創作者（最多10個）
 - 可刪除創作者
-- 可拖曳排序
+- 表單驗證
 
-### 4. `components/AppEditForm.vue` (更新)
+### 4. `pages/edit/[id].vue` (更新) ✅
 - 新增創作者編輯功能
-- 新增「重新上傳HTML」按鈕
-- 重新上傳時顯示確認對話框
+- 新增「重新上傳HTML」對話框
+  - 支援剪貼簿和檔案上傳
+  - 可選重新生成縮圖
+  - 確認對話框防止誤操作
+- 更新 API 呼叫包含 creators 欄位
 
-### 5. `components/CreatorInput.vue` (新建)
+### 5. `components/common/CreatorInput.vue` (新建) ✅
 多創作者輸入組件
+- v-model 雙向綁定
+- 動態添加/刪除創作者
+- 輸入驗證（最多100字元）
+- 數量限制（最多10個）
+- 錯誤顯示
+
+**Implementation**:
+- ✅ 創建 `pages/profile/favorites.vue`
+- ✅ 創建 `pages/profile/my-apps.vue`
+- ✅ 創建 `components/common/CreatorInput.vue`
+- ✅ 更新 `pages/create.vue` 支援多作者
+- ✅ 更新 `pages/edit/[id].vue` 支援創作者編輯和 HTML 重新上傳
+- ✅ 所有頁面遵循專案的 Brutalist 設計風格
+- ✅ 使用 shadcn-vue UI 組件保持一致性
 
 **Tests** (E2E with Playwright):
 - [ ] 可以導航到「我的收藏」頁面
@@ -285,7 +309,7 @@ export async function reuploadAppContent(
 - [ ] 可以重新上傳HTML
 - [ ] 重新上傳後內容更新
 
-**Status**: Not Started
+**Status**: ✅ Completed (2025-12-09)
 
 ---
 
@@ -297,7 +321,7 @@ export async function reuploadAppContent(
 4. ✅ Stage 2: 個人收藏和創建APP列表API
 5. ✅ Stage 3: 多作者標註功能（後端）
 6. ✅ Stage 4: HTML重新上傳功能
-7. ⏳ Stage 5: 前端UI更新（待開發）
+7. ✅ Stage 5: 前端UI更新
 
 ## 完成進度總結
 
@@ -319,11 +343,14 @@ export async function reuploadAppContent(
 - 整合測試: 34 tests passed
 - TDD 開發流程嚴格遵循
 
-### ⏳ 待完成
-- **Stage 5**: 前端UI開發
-  - 個人中心頁面（我的收藏/我的作品）
-  - 多作者輸入組件
-  - 重新上傳HTML界面
+### ✅ Stage 5 已完成 (2025-12-09)
+- **前端UI開發**:
+  - `pages/profile/favorites.vue` - 我的收藏頁面
+  - `pages/profile/my-apps.vue` - 我的作品頁面
+  - `components/common/CreatorInput.vue` - 多作者輸入組件
+  - `pages/create.vue` 更新 - 支援多作者輸入
+  - `pages/edit/[id].vue` 更新 - 創作者編輯 + HTML重新上傳對話框
+  - 遵循 Brutalist 設計風格，使用 shadcn-vue 組件
 
 ## 注意事項
 
@@ -336,4 +363,31 @@ export async function reuploadAppContent(
 ---
 
 **最後更新**: 2025-12-09
-**狀態**: Stage 1-4 已完成，Stage 5 待開發
+**狀態**: ✅ 所有 Stage (1-5) 已完成
+
+## 🎉 實作完成總結
+
+本次實作計劃已全部完成，包含：
+
+### 後端功能 (Stages 1-4)
+- ✅ 多作者資料庫架構 (`app_creators` 表)
+- ✅ 個人收藏/作品 API endpoints
+- ✅ 多作者 CRUD 操作和批量查詢優化
+- ✅ HTML 重新上傳功能 (paste/file/zip 類型)
+- ✅ S3 清理機制
+- ✅ 34 個整合測試全部通過
+
+### 前端功能 (Stage 5)
+- ✅ 個人收藏頁面 (`/profile/favorites`)
+- ✅ 我的作品頁面 (`/profile/my-apps`)
+- ✅ 多作者輸入組件 (可動態添加/刪除)
+- ✅ 創建頁面支援多作者
+- ✅ 編輯頁面支援創作者編輯
+- ✅ HTML 重新上傳對話框 (支援剪貼簿/檔案)
+- ✅ 遵循專案 Brutalist 設計風格
+
+### 下一步建議
+- [ ] 編寫 E2E 測試 (Playwright)
+- [ ] 在導航列添加「個人中心」連結
+- [ ] 在 App 詳情頁顯示創作者資訊
+- [ ] 考慮添加創作者頭像或連結功能

@@ -67,6 +67,11 @@
                   <p v-if="errors.tags" class="text-sm text-red-500 font-medium">{{ errors.tags }}</p>
                 </div>
               </div>
+
+              <!-- Creators -->
+              <div class="pt-4 border-t-2 border-muted">
+                <CreatorInput v-model="form.creators" :error="errors.creators" />
+              </div>
             </CardContent>
           </Card>
 
@@ -205,6 +210,7 @@ import {
   TabsTrigger,
 } from '~/components/ui/tabs'
 import AppPreview from '~/components/app/AppPreview.vue'
+import CreatorInput from '~/components/common/CreatorInput.vue'
 
 // 定義頁面 meta
 definePageMeta({
@@ -224,6 +230,7 @@ const form = ref({
   description: '',
   category: '',
   tags: [] as string[],
+  creators: [] as string[],
   htmlContent: ''
 })
 
@@ -301,6 +308,10 @@ const validateForm = (): boolean => {
     errors.value.tags = '標籤最多 10 個'
   }
 
+  if (form.value.creators.length > 10) {
+    errors.value.creators = '創作者最多 10 個'
+  }
+
   if (!form.value.htmlContent.trim()) {
     if (uploadType.value === 'paste') {
       errors.value.htmlContent = 'HTML 內容不能為空'
@@ -348,6 +359,7 @@ const handleSubmit = async () => {
         description: form.value.description || undefined,
         category: form.value.category || undefined,
         tags: form.value.tags.length > 0 ? form.value.tags : undefined,
+        creators: form.value.creators.length > 0 ? form.value.creators : undefined,
         htmlContent: form.value.htmlContent,
         thumbnailBase64: thumbnailBase64
       }
@@ -371,6 +383,7 @@ const handleReset = () => {
     description: '',
     category: '',
     tags: [],
+    creators: [],
     htmlContent: ''
   }
   tagsInput.value = ''

@@ -100,10 +100,94 @@
             <p v-if="errors.tags" class="text-sm text-red-500">{{ errors.tags }}</p>
           </div>
 
-          <!-- 上傳資訊（唯讀） -->
+          <!-- Creators -->
+          <div class="pt-4 border-t-2 border-muted">
+            <CreatorInput v-model="form.creators" :error="errors.creators" />
+          </div>
+
+          <!-- HTML 重新上傳 -->
           <div class="border-t pt-6 mt-6">
-            <h3 class="text-lg font-semibold mb-4">上傳資訊（不可修改）</h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-semibold mb-2">HTML 內容管理</h3>
+                <p class="text-sm text-muted-foreground">更新你的應用 HTML 內容</p>
+              </div>
+              <Dialog v-model:open="showReuploadDialog">
+                <DialogTrigger as-child>
+                  <Button variant="outline" class="font-bold uppercase tracking-wide">
+                    重新上傳 HTML
+                  </Button>
+                </DialogTrigger>
+                <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle class="text-2xl font-bold">重新上傳 HTML</DialogTitle>
+                    <DialogDescription>
+                      上傳新的 HTML 內容將會替換現有的應用內容
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <Tabs v-model="reuploadType" class="w-full mt-4">
+                    <TabsList class="grid w-full grid-cols-2 bg-muted">
+                      <TabsTrigger value="paste">剪貼簿</TabsTrigger>
+                      <TabsTrigger value="file">上傳檔案</TabsTrigger>
+                    </TabsList>
+
+                    <!-- Paste upload -->
+                    <TabsContent value="paste" class="space-y-4 mt-4">
+                      <div class="space-y-2">
+                        <Label for="reuploadHtmlContent">HTML 內容 *</Label>
+                        <Textarea
+                          id="reuploadHtmlContent"
+                          v-model="reuploadForm.htmlContent"
+                          placeholder="<html>&#10;  <body>&#10;    <h1>Hello World!</h1>&#10;  </body>&#10;</html>"
+                          rows="12"
+                          class="font-mono text-sm"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    <!-- File upload -->
+                    <TabsContent value="file" class="space-y-4 mt-4">
+                      <div class="space-y-2">
+                        <Label for="reuploadFileInput">選擇 HTML 檔案 *</Label>
+                        <Input
+                          id="reuploadFileInput"
+                          type="file"
+                          accept=".html,.htm"
+                          @change="handleReuploadFileChange"
+                        />
+                        <p v-if="selectedFile" class="text-sm text-muted-foreground">
+                          已選擇: {{ selectedFile.name }}
+                        </p>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+
+                  <div class="flex items-center space-x-2 pt-4 border-t">
+                    <input
+                      id="regenerateThumbnail"
+                      type="checkbox"
+                      v-model="reuploadForm.regenerateThumbnail"
+                      class="rounded border-gray-300"
+                    />
+                    <Label for="regenerateThumbnail" class="cursor-pointer">
+                      重新生成縮圖
+                    </Label>
+                  </div>
+
+                  <DialogFooter class="flex gap-2">
+                    <Button variant="outline" @click="showReuploadDialog = false">
+                      取消
+                    </Button>
+                    <Button @click="handleReupload" :disabled="reuploading">
+                      {{ reuploading ? '上傳中...' : '確認上傳' }}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 text-sm bg-muted p-4 rounded">
               <div>
                 <span class="text-gray-600">上傳方式:</span>
                 <Badge variant="outline" class="ml-2">
@@ -146,6 +230,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import CreatorInput from '~/components/common/CreatorInput.vue'
 
 definePageMeta({
   layout: 'default',
@@ -159,6 +246,7 @@ interface App {
   description: string | null
   category: string | null
   tags: string[]
+  creators: string[]
   upload_type: string
   created_at: string
 }
@@ -177,11 +265,22 @@ const form = ref({
   title: '',
   description: '',
   category: '',
-  tags: [] as string[]
+  tags: [] as string[],
+  creators: [] as string[]
 })
 
 const tagsInput = ref('')
 const errors = ref<Record<string, string>>({})
+
+// HTML 重新上傳相關狀態
+const showReuploadDialog = ref(false)
+const reuploadType = ref<'paste' | 'file'>('paste')
+const reuploadForm = ref({
+  htmlContent: '',
+  regenerateThumbnail: false
+})
+const selectedFile = ref<File | null>(null)
+const reuploading = ref(false)
 
 // 判斷是否可編輯
 const canEdit = computed(() => {
@@ -214,6 +313,7 @@ const fetchApp = async () => {
     form.value.description = app.value.description || ''
     form.value.category = app.value.category || ''
     form.value.tags = app.value.tags || []
+    form.value.creators = app.value.creators || []
     tagsInput.value = form.value.tags.join(', ')
   } catch (err) {
     console.error('Failed to fetch app:', err)
@@ -233,6 +333,10 @@ const validateForm = () => {
 
   if (form.value.tags.length > 10) {
     errors.value.tags = '標籤最多 10 個'
+  }
+
+  if (form.value.creators.length > 10) {
+    errors.value.creators = '創作者最多 10 個'
   }
 
   return Object.keys(errors.value).length === 0
@@ -255,7 +359,8 @@ const handleSubmit = async () => {
         title: form.value.title,
         description: form.value.description || null,
         category: form.value.category || null,
-        tags: form.value.tags
+        tags: form.value.tags,
+        creators: form.value.creators
       }
     })
 
@@ -318,6 +423,69 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric'
   })
+}
+
+// 處理重新上傳檔案選擇
+const handleReuploadFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (file) {
+    selectedFile.value = file
+
+    // 讀取檔案內容
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      reuploadForm.value.htmlContent = e.target?.result as string
+    }
+    reader.readAsText(file)
+  }
+}
+
+// 處理重新上傳
+const handleReupload = async () => {
+  if (!reuploadForm.value.htmlContent.trim()) {
+    alert('請輸入或選擇 HTML 內容')
+    return
+  }
+
+  if (!confirm('確定要重新上傳 HTML 嗎？這將會替換現有的內容。')) {
+    return
+  }
+
+  try {
+    reuploading.value = true
+
+    const appId = route.params.id as string
+    await $fetch(`/api/apps/${appId}/reupload`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      },
+      body: {
+        uploadType: reuploadType.value,
+        htmlContent: reuploadForm.value.htmlContent,
+        regenerateThumbnail: reuploadForm.value.regenerateThumbnail
+      }
+    })
+
+    // 重新上傳成功
+    showReuploadDialog.value = false
+    reuploadForm.value = {
+      htmlContent: '',
+      regenerateThumbnail: false
+    }
+    selectedFile.value = null
+
+    // 顯示成功訊息並重新整理頁面
+    alert('HTML 內容已成功更新！')
+    await fetchApp()
+  } catch (err: any) {
+    console.error('Failed to reupload:', err)
+    alert(err.data?.message || '重新上傳失敗，請稍後再試')
+  } finally {
+    reuploading.value = false
+  }
 }
 
 onMounted(() => {
