@@ -1,4 +1,5 @@
 /* Import Google Fonts - Neo-Brutalist Typography */
+/* Optimized with font-display: swap for better performance */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -254,6 +255,22 @@
     outline: 3px solid hsl(var(--primary));
     outline-offset: 2px;
   }
+
+  /* Improved Focus States for Interactive Elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 3px;
+    z-index: 10;
+  }
+
+  /* Keyboard Navigation Helper */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 focus-visible:border-primary;
+  }
 }
 
 /* Simple Page Transitions - Minimal */
@@ -301,6 +318,139 @@
 
   .delay-200 {
     animation-delay: 200ms;
+  }
+
+  /* Responsive Border Utilities - Thinner on mobile */
+  @media (max-width: 640px) {
+    .border-brutal-responsive {
+      border-width: 2px;
+    }
+
+    .border-b-brutal-responsive {
+      border-bottom-width: 2px;
+    }
+
+    .border-t-brutal-responsive {
+      border-top-width: 2px;
+    }
+
+    .shadow-brutal-responsive {
+      box-shadow: 2px 2px 0px hsl(var(--foreground));
+    }
+  }
+
+  @media (min-width: 641px) {
+    .border-brutal-responsive {
+      border-width: 3px;
+    }
+
+    .border-b-brutal-responsive {
+      border-bottom-width: 3px;
+    }
+
+    .border-t-brutal-responsive {
+      border-top-width: 3px;
+    }
+
+    .shadow-brutal-responsive {
+      box-shadow: 4px 4px 0px hsl(var(--foreground));
+    }
+  }
+
+  /* Smooth Hover Transitions */
+  .smooth-hover {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .smooth-hover-fast {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  /* Interactive Card Enhancement */
+  .interactive-card {
+    @apply border-3 border-foreground bg-card shadow-brutal;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutal-md;
+    @apply active:translate-x-0.5 active:translate-y-0.5 active:shadow-brutal-sm;
+  }
+
+  /* Brutalist Link Style */
+  .link-brutal {
+    @apply font-bold uppercase text-sm tracking-wide;
+    @apply hover:text-primary transition-colors duration-150;
+    @apply underline decoration-2 underline-offset-4;
+    @apply hover:decoration-primary;
+  }
+
+  /* Press Effect for Buttons */
+  .press-effect {
+    @apply active:scale-[0.98] transition-transform duration-100;
+  }
+
+  /* Shimmer Loading Effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  /* Pulse Effect for Loading */
+  @keyframes pulse-brutal {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .pulse-brutal {
+    animation: pulse-brutal 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Slide In Animations - More Options */
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slideInFromLeft 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInFromRight 0.3s ease-out;
   }
 }
 

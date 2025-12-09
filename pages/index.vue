@@ -1,21 +1,27 @@
 <template>
   <div class="min-h-screen bg-background">
     <!-- Hero Section - Brutalist Style -->
-    <section class="border-b-4 border-foreground bg-background py-16 md:py-24 relative overflow-hidden">
+    <section
+      class="border-b-2 md:border-b-4 border-foreground bg-background py-16 md:py-24 relative overflow-hidden"
+      aria-labelledby="hero-heading"
+    >
       <!-- Optional subtle grid pattern background -->
-      <div class="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+      <div class="absolute inset-0 bg-grid opacity-30 pointer-events-none" aria-hidden="true"></div>
 
       <div class="container mx-auto px-4 relative z-10">
         <div class="max-w-4xl mx-auto">
           <!-- Main Heading - Bold Typography -->
-          <h1 class="text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6 animate-slide-up">
+          <h1
+            id="hero-heading"
+            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight mb-6 animate-slide-up text-balance"
+          >
             分享你的<br />
             HTML 創意<br />
-            <span class="text-primary">給世界</span>
+            <span class="text-primary inline-block">給世界</span>
           </h1>
 
           <!-- Subtitle -->
-          <p class="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl animate-slide-up delay-75">
+          <p class="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl animate-slide-up delay-75 text-balance">
             {{ config.public.appDescription }}
           </p>
 
@@ -48,29 +54,35 @@
     <!-- Featured Apps Section -->
     <div class="container mx-auto px-4 py-12 md:py-16">
       <!-- Latest Apps -->
-      <section class="mb-16">
-        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between border-b-4 border-foreground pb-4 mb-8 gap-4">
+      <section class="mb-16" aria-labelledby="latest-heading">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between border-b-2 md:border-b-4 border-foreground pb-4 mb-8 gap-4">
           <div>
-            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block">Latest</span>
-            <h2 class="text-3xl md:text-4xl font-bold">
+            <span class="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1 block" aria-label="分類標籤">Latest</span>
+            <h2 id="latest-heading" class="text-2xl sm:text-3xl md:text-4xl font-bold">
               最新應用
             </h2>
           </div>
           <NuxtLink
             to="/explore?sort=latest"
-            class="font-bold uppercase text-sm tracking-wide hover:text-primary transition-colors group"
+            class="font-bold uppercase text-xs sm:text-sm tracking-wide hover:text-primary transition-colors group focus-ring px-2 py-1 -mx-2 -my-1 rounded-sm"
+            aria-label="查看所有最新應用"
           >
             查看全部
-            <span class="inline-block transition-transform group-hover:translate-x-1 ml-1">→</span>
+            <span class="inline-block transition-transform group-hover:translate-x-1 ml-1" aria-hidden="true">→</span>
           </NuxtLink>
         </div>
 
         <!-- Loading State -->
-        <div v-if="latestLoading" class="text-center py-16">
+        <div v-if="latestLoading" class="text-center py-16" role="status" aria-live="polite">
           <div class="inline-block mb-4">
-            <div class="w-12 h-12 border-4 border-foreground border-t-transparent animate-spin"></div>
+            <div
+              class="w-12 h-12 border-4 border-foreground border-t-transparent animate-spin"
+              aria-hidden="true"
+            ></div>
           </div>
-          <p class="text-sm font-bold uppercase tracking-wide text-muted-foreground">載入中</p>
+          <p class="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+            載入中<span class="sr-only">，請稍候</span>
+          </p>
         </div>
 
         <!-- Apps Grid -->

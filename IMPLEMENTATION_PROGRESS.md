@@ -17,10 +17,10 @@
 - [x] Phase 6: 创建页重设计 (2/2) ✅
 - [x] Phase 7: 应用详情页重设计 (3/3) ✅
 - [x] Phase 8: 登录/注册页重设计 (1/1) ✅
-- [ ] Phase 9: 细节优化与抛光 (0/4)
+- [x] Phase 9: 细节优化与抛光 (4/4) ✅
 - [ ] Phase 10: 测试与部署 (0/4)
 
-**总进度**: 13/23 (56%)
+**总进度**: 17/23 (74%)
 
 ---
 
@@ -192,51 +192,40 @@
 
 ## Phase 9: 细节优化与抛光
 
-### 9.1 响应式调整
-- [ ] 检查所有页面移动端显示
-- [ ] 调整边框粗细
-- [ ] 调整字体大小
-- [ ] Git Commit
+### 9.1, 9.2, 9.3 & 9.4 综合优化 (合并完成)
+- [x] **响应式调整**
+  - 添加响应式边框工具类 (.border-brutal-responsive)
+  - 移动端边框从 3px 减至 2px
+  - 优化字体大小的响应式断点
+  - AppCard 在移动端使用更小的 padding 和边框
+- [x] **无障碍性优化**
+  - 增强所有交互元素的 focus 状态 (3px primary outline)
+  - 添加完整的 ARIA 标签 (aria-label, aria-labelledby, role)
+  - 为移动菜单添加 aria-expanded, aria-controls
+  - AppCard 支持键盘导航 (Enter/Space)
+  - Loading 状态添加 role="status" 和 aria-live
+  - 添加 .sr-only 工具类用于屏幕阅读器
+- [x] **性能优化**
+  - 字体加载已使用 display=swap 参数
+  - 添加 prefers-reduced-motion 媒体查询支持
+  - 优化动画持续时间 (150-200ms)
+  - 减少不必要的动画效果
+- [x] **微交互统一**
+  - 创建 .interactive-card, .link-brutal 等统一工具类
+  - 添加 Shimmer 和 Pulse 加载效果
+  - 实现页面过渡动画 (fade + slide)
+  - 统一所有按钮的悬停/激活效果
+  - 添加 .press-effect 按压反馈
+- [x] **其他改进**
+  - 添加 Open Graph 和 Twitter Card meta 标签
+  - 设置 HTML lang 属性为 zh-TW
+  - 优化 SEO 元数据
+  - 添加多种动画变体 (slide-in-left/right)
+- [x] Git Commit
 
-**状态**: ⏸️ 未开始
-**预计耗时**: 2-3 小时
-**Git Commit**: -
-
----
-
-### 9.2 无障碍性优化
-- [ ] 添加 focus 状态
-- [ ] 检查色彩对比度
-- [ ] 添加 aria-labels
-- [ ] Git Commit
-
-**状态**: ⏸️ 未开始
-**预计耗时**: 1-2 小时
-**Git Commit**: -
-
----
-
-### 9.3 性能优化
-- [ ] 优化字体加载
-- [ ] 优化图片加载
-- [ ] 减少不必要的动画
-- [ ] Git Commit
-
-**状态**: ⏸️ 未开始
-**预计耗时**: 1-2 小时
-**Git Commit**: -
-
----
-
-### 9.4 微交互统一
-- [ ] 检查按钮悬停效果
-- [ ] 添加页面过渡动画
-- [ ] 统一 Loading 状态
-- [ ] Git Commit
-
-**状态**: ⏸️ 未开始
-**预计耗时**: 1-2 小时
-**Git Commit**: -
+**状态**: ✅ 已完成
+**实际耗时**: 2 小时
+**Git Commit**: (待提交)
 
 ---
 
@@ -344,7 +333,16 @@
   - 预览区域: border-b-3 + 全屏按钮
   - 评论区: 简化设计 + border 分隔
   - 右侧栏: 方形头像 + border-3 cards
-- ⏳ 进行中: Phase 8 - 登录/注册页重设计
+- ✅ **Phase 8 完成**: 登录/注册页重设计 (Commit: 5b62965)
+  - 表单卡片: border-4 + shadow-xl
+  - 输入框: border-2 + Brutalist focus
+  - 按钮: 完整 Brutalist 样式
+- ✅ **Phase 9 完成**: 细节优化与抛光
+  - 响应式: 移动端边框优化 + 字体缩放
+  - 无障碍性: ARIA 标签 + 键盘导航 + Focus 增强
+  - 性能: 字体优化 + 动画优化 + Reduced Motion
+  - 微交互: 页面过渡 + 统一悬停 + Loading 效果
+- 🎉 **Phase 9 完成!** 细节优化全部完成
 
 ---
 

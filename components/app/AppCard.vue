@@ -1,18 +1,23 @@
 <template>
   <article
-    class="group border-3 border-foreground bg-card overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutal-md shadow-brutal"
+    class="group border-2 md:border-3 border-foreground bg-card overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-brutal-md shadow-brutal focus-within:outline focus-within:outline-3 focus-within:outline-primary focus-within:outline-offset-2"
     @click="navigateToApp"
+    @keydown.enter="navigateToApp"
+    @keydown.space.prevent="navigateToApp"
+    tabindex="0"
+    role="button"
+    :aria-label="`查看應用: ${app.title}，分類: ${getCategoryLabel(app.category || 'other')}，作者: ${app.author_username}`"
   >
     <!-- Thumbnail -->
-    <div class="relative aspect-video overflow-hidden" :class="thumbnailBgClass">
+    <div class="relative aspect-video overflow-hidden" :class="thumbnailBgClass" aria-hidden="true">
       <LazyImage
         v-if="app.thumbnail_s3_key"
         :src="getThumbnailUrl(app.thumbnail_s3_key)"
-        :alt="app.title"
+        :alt="`${app.title} 的預覽圖`"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
       <div v-else class="w-full h-full flex items-center justify-center">
-        <svg class="w-16 h-16 text-card-foreground opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-12 sm:w-16 h-12 sm:h-16 text-card-foreground opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
         </svg>
       </div>
@@ -20,10 +25,10 @@
       <!-- Category Badge - Brutalist Style -->
       <div
         v-if="app.category"
-        class="absolute top-3 right-3"
+        class="absolute top-2 sm:top-3 right-2 sm:right-3"
       >
         <div
-          class="px-3 py-1 bg-background border-2 border-foreground font-bold text-xs uppercase tracking-wide"
+          class="px-2 sm:px-3 py-0.5 sm:py-1 bg-background border-2 border-foreground font-bold text-xs uppercase tracking-wide shadow-brutal-sm"
         >
           {{ getCategoryLabel(app.category) }}
         </div>
