@@ -1,18 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // Cloudflare Pages 部署設定
+  // Nitro 設定
+  // Nitro 設定
   nitro: {
-    preset: 'cloudflare-pages',
     experimental: {
       database: true
-    },
-    // 排除可選依賴 pg-native（不被 Cloudflare Pages 支援）
-    rollupConfig: {
-      external: ['pg-native']
-    },
-    // 標記為外部依賴（Cloudflare Pages 支援）
-    externals: {
-      inline: ['pg']
     }
   },
 

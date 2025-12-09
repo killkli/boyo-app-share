@@ -58,7 +58,7 @@
   - 單元與整合: [Vitest](https://vitest.dev/)
   - E2E: [Playwright](https://playwright.dev/)
 - **CI/CD**: GitHub Actions
-- **部署**: [Cloudflare Pages](https://pages.cloudflare.com/) / [Vercel](https://vercel.com/)
+- **部署**: [Zeabur](https://zeabur.com/)
 
 ### 資料庫
 - **PostgreSQL** on [Zeabur](https://zeabur.com/)
@@ -232,21 +232,16 @@ boyo-app-share/
 
 ## 部署
 
+**Zeabur** (推薦):
+此專案已針對 Zeabur 部署進行優化。Zeabur 會自動偵測並部署 Nuxt 應用程式。
+
+1. 登入 [Zeabur Dashboard](https://zeabur.com)
+2. 建立新專案
+3. 建立服務 -> 選擇 Git 來源 -> 選擇本專案儲存庫
+4. Zeabur 會自動開始部署
+5. 在服務設定中加入環境變數（參考下方說明）
+
 詳細部署指南請參閱 [DEPLOYMENT.md](./docs/DEPLOYMENT.md)。
-
-### 快速部署
-
-**Cloudflare Pages**:
-```bash
-pnpm build
-npx wrangler pages deploy .output/public
-```
-
-**Vercel**:
-```bash
-pnpm build
-vercel --prod
-```
 
 ### 環境變數設定
 

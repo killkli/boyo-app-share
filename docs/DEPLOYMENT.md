@@ -8,10 +8,9 @@
 2. [環境變數配置](#環境變數配置)
 3. [資料庫設置](#資料庫設置)
 4. [S3 儲存設置](#s3-儲存設置)
-5. [部署到 Cloudflare Pages](#部署到-cloudflare-pages)
-6. [部署到 Vercel](#部署到-vercel)
-7. [部署驗證](#部署驗證)
-8. [常見問題](#常見問題)
+5. [部署到 Zeabur](#部署到-zeabur)
+6. [部署驗證](#部署驗證)
+7. [常見問題](#常見問題)
 
 ---
 
@@ -169,9 +168,11 @@ psql $DATABASE_URL -c "\dt"
 
 ---
 
-## 部署到 Cloudflare Pages
+## 部署到 Zeabur
 
-### 1. 建立 GitHub Repository
+### 1. 準備 GitHub Repository
+
+確保您的程式碼已推送到 GitHub：
 
 ```bash
 git remote add origin https://github.com/你的用戶名/boyo-app-share.git
@@ -179,25 +180,22 @@ git branch -M main
 git push -u origin main
 ```
 
-### 2. 連接 Cloudflare Pages
+### 2. 建立 Zeabur 專案
 
-1. 前往 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. 選擇 "Workers & Pages"
-3. 點擊 "Create application" > "Pages" > "Connect to Git"
-4. 選擇你的 GitHub repository
+1. 前往 [Zeabur Dashboard](https://zeabur.com)
+2. 點擊 "Create Project"
+3. 選擇地區（建議選擇離使用者最近的地區，如 Asia）
 
-### 3. 設置建置配置
+### 3. 部署服務
 
-```yaml
-Build command: pnpm build
-Build output directory: .output/public
-Root directory: /
-Node version: 18
-```
+1. 在專案中點擊 "Create Service"
+2. 選擇 "Git" 作為來源
+3. 選擇 GitHub Repository "boyo-app-share"
+4. Zeabur 會自動偵測這是一個 Nuxt 專案並開始建置
 
 ### 4. 設置環境變數
 
-在 Cloudflare Pages 設置中添加所有 `.env` 中的環境變數：
+在服務部署完成前或完成後，前往 "Variables" 頁籤，加入以下變數（參考您的 `.env`）：
 
 ```
 DATABASE_URL=...
@@ -207,49 +205,16 @@ TEBI_ACCESS_KEY=...
 TEBI_SECRET_KEY=...
 TEBI_BUCKET=...
 NUXT_PUBLIC_S3_BASE_URL=...
+# 其他公開變數
+NUXT_PUBLIC_APP_NAME=博幼APP分享平臺
+...
 ```
 
-### 5. 部署
+### 5. 綁定網域 (可選)
 
-點擊 "Save and Deploy"，Cloudflare Pages 會自動建置和部署。
-
----
-
-## 部署到 Vercel
-
-### 1. 安裝 Vercel CLI
-
-```bash
-pnpm add -g vercel
-```
-
-### 2. 登入 Vercel
-
-```bash
-vercel login
-```
-
-### 3. 部署
-
-```bash
-# 第一次部署
-vercel
-
-# 生產環境部署
-vercel --prod
-```
-
-### 4. 設置環境變數
-
-```bash
-# 方式 1: 使用 CLI
-vercel env add DATABASE_URL
-vercel env add JWT_SECRET
-# ... 其他環境變數
-
-# 方式 2: 在 Vercel Dashboard 設置
-# https://vercel.com/你的用戶名/boyo-app-share/settings/environment-variables
-```
+1. 前往 "Domain" 頁籤
+2. 您可以使用 Zeabur 提供的免費子網域 (`*.zeabur.app`)
+3. 或綁定您的自定義網域
 
 ---
 
@@ -310,8 +275,7 @@ lighthouse https://your-domain.com --view
 **解決方案**:
 1. 檢查 `DATABASE_URL` 格式是否正確
 2. 確認資料庫服務正在運行
-3. 檢查防火牆設定
-4. 如果使用 SSL，添加 `?sslmode=require` 到連接字串
+3. 如果在 Zeabur 內部連接（App 連接同專案的 DB），確保使用內部主機名稱（如 `postgres` 或 Zeabur 提供的變數）而非外部網域，以獲得更佳效能。但 Zeabur 通常會注入正確的環境變數。
 
 ### Q2: S3 上傳失敗
 
@@ -332,24 +296,14 @@ lighthouse https://your-domain.com --view
 2. 檢查 token 是否過期
 3. 清除瀏覽器 localStorage 重新登入
 
-### Q4: Rate Limiting 問題
-
-**錯誤**: `429 Too Many Requests`
-
-**解決方案**:
-1. 調整 Rate Limit 配置
-2. 使用 Redis 替代記憶體儲存（生產環境）
-3. 檢查是否有 IP 被錯誤識別
-
-### Q5: Build 失敗
+### Q4: Build 失敗
 
 **錯誤**: `Build failed`
 
 **解決方案**:
-1. 檢查 Node.js 版本（需要 18+）
-2. 清除快取：`rm -rf .nuxt node_modules && pnpm install`
-3. 檢查 TypeScript 錯誤：`pnpm build`
-4. 查看詳細錯誤日誌
+1. 檢查 Node.js 版本
+2. 查看 Zeabur 的建置日誌
+3. Zeabur 預設會執行 `pnpm build`，確保您的 `package.json` 中的 `build` script 正確。
 
 ---
 
@@ -365,7 +319,7 @@ pnpm add @sentry/nuxt
 
 ### 2. 設置日誌
 
-使用 [Cloudflare Workers Analytics](https://developers.cloudflare.com/analytics/) 或 [Vercel Analytics](https://vercel.com/analytics)
+Zeabur Dashboard 提供即時日誌查看功能。
 
 ### 3. 定期備份
 
@@ -377,32 +331,21 @@ pg_dump $DATABASE_URL > backup-$(date +%Y%m%d).sql
 rclone sync tebi:boyo-app-share ./backup-s3
 ```
 
-### 4. 更新依賴
-
-```bash
-# 檢查過期的依賴
-pnpm outdated
-
-# 更新依賴
-pnpm update
-```
-
 ---
 
 ## 安全建議
 
 1. **使用強密碼**：JWT_SECRET 至少 32 字元
-2. **啟用 HTTPS**：所有生產環境必須使用 HTTPS
+2. **啟用 HTTPS**：Zeabur 自動為所有網域啟用 HTTPS
 3. **定期更新**：保持依賴套件最新
 4. **設置 Rate Limiting**：防止 API 濫用
-5. **監控日誌**：定期檢查異常活動
-6. **備份資料**：定期備份資料庫和 S3
+5. **備份資料**：定期備份資料庫和 S3
 
 ---
 
 ## 效能優化
 
-1. **啟用 CDN**：使用 Cloudflare CDN 加速靜態資源
+1. **CDN**: Zeabur 部署通常包含 CDN 支援
 2. **資料庫優化**：執行 `001_performance_optimization.sql` 遷移
 3. **圖片優化**：使用 WebP 格式和適當的壓縮
 4. **Code Splitting**：Nuxt 自動處理
@@ -420,4 +363,4 @@ pnpm update
 ---
 
 **最後更新**: 2024-12-09
-**版本**: 1.0.0
+**版本**: 1.1.0
