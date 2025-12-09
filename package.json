@@ -59,6 +59,6 @@
     "typescript": "^5.4.3",
     "vitest": "^1.3.1",
     "vue-tsc": "^3.1.7",
-    "wrangler": "^3.45.0"
+    "wrangler": "^4.53.0"
   }
 }
