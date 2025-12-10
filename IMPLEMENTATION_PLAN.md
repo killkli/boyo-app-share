@@ -47,11 +47,11 @@ CHECK (
 - [ ] 現有資料不受影響
 
 **Implementation**:
-- [ ] 建立 `server/database/migrations/003_add_creator_links.sql`
-- [ ] 更新資料庫 schema
-- [ ] 執行 migration 測試
+- [x] 建立 `server/database/migrations/003_add_creator_links.sql`
+- [x] 更新資料庫 schema
+- [x] 執行 migration 測試
 
-**Status**: 🔄 Not Started
+**Status**: ✅ Completed
 
 ---
 
