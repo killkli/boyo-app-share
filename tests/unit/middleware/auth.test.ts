@@ -44,6 +44,42 @@ describe('Auth Middleware', () => {
 
       expect(needsAuth).toBe(true)
     })
+
+    it('應該識別 GET /api/apps/favorites 為受保護路由', () => {
+      const authRequiredPaths = ['/api/apps/favorites', '/api/apps/my-apps']
+      const path = '/api/apps/favorites'
+      const method = 'GET'
+
+      const isAuthRequired = authRequiredPaths.some(p => path?.startsWith(p))
+      const isPublicAppsGet = path?.startsWith('/api/apps') && method === 'GET' && !isAuthRequired
+
+      expect(isAuthRequired).toBe(true)
+      expect(isPublicAppsGet).toBe(false)
+    })
+
+    it('應該識別 GET /api/apps/my-apps 為受保護路由', () => {
+      const authRequiredPaths = ['/api/apps/favorites', '/api/apps/my-apps']
+      const path = '/api/apps/my-apps'
+      const method = 'GET'
+
+      const isAuthRequired = authRequiredPaths.some(p => path?.startsWith(p))
+      const isPublicAppsGet = path?.startsWith('/api/apps') && method === 'GET' && !isAuthRequired
+
+      expect(isAuthRequired).toBe(true)
+      expect(isPublicAppsGet).toBe(false)
+    })
+
+    it('應該識別 GET /api/apps/[id] 為公開路由', () => {
+      const authRequiredPaths = ['/api/apps/favorites', '/api/apps/my-apps']
+      const path = '/api/apps/abc-123'
+      const method = 'GET'
+
+      const isAuthRequired = authRequiredPaths.some(p => path?.startsWith(p))
+      const isPublicAppsGet = path?.startsWith('/api/apps') && method === 'GET' && !isAuthRequired
+
+      expect(isAuthRequired).toBe(false)
+      expect(isPublicAppsGet).toBe(true)
+    })
   })
 
   describe('Token 驗證邏輯', () => {

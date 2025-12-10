@@ -15,8 +15,17 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // GET /api/apps 公開
-  if (path?.startsWith('/api/apps') && method === 'GET') {
+  // 需要認證的 /api/apps 路由
+  const authRequiredPaths = [
+    '/api/apps/favorites',
+    '/api/apps/my-apps'
+  ]
+
+  // 如果是需要認證的路由，繼續執行認證邏輯
+  const isAuthRequired = authRequiredPaths.some(p => path?.startsWith(p))
+
+  // GET /api/apps 公開（除了需要認證的路由）
+  if (path?.startsWith('/api/apps') && method === 'GET' && !isAuthRequired) {
     return
   }
 
