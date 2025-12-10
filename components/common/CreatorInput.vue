@@ -12,34 +12,66 @@
     </p>
 
     <!-- Creator list -->
-    <div v-if="creators.length > 0" class="space-y-2">
+    <div v-if="creators.length > 0" class="space-y-3">
       <div
         v-for="(creator, index) in creators"
         :key="index"
-        class="flex items-center gap-2 bg-muted border-2 border-foreground p-3"
+        class="bg-muted border-2 border-foreground p-3 space-y-2"
       >
-        <div class="flex-1 flex items-center gap-3">
+        <!-- Name input row -->
+        <div class="flex items-center gap-2">
           <span class="font-mono text-sm text-muted-foreground font-bold">{{ index + 1 }}.</span>
           <Input
-            v-model="creators[index]"
+            v-model="creators[index].name"
             placeholder="創作者名稱"
             class="flex-1"
             maxlength="100"
-            @input="handleCreatorChange(index, $event)"
           />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            class="shrink-0 border-2"
+            :class="{ 'bg-primary text-primary-foreground': expandedLinks.has(index) }"
+            @click.prevent="toggleLinkInput(index)"
+            title="添加連結"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            class="shrink-0 border-2"
+            @click.prevent="removeCreator(index)"
+            :disabled="creators.length === 1 && !creators[0].name"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          class="shrink-0 border-2"
-          @click.prevent="removeCreator(index)"
-          :disabled="creators.length === 1 && !creators[0]"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </Button>
+
+        <!-- Link input (collapsible) -->
+        <div v-if="expandedLinks.has(index)" class="pl-6 space-y-1">
+          <div class="flex items-center gap-2">
+            <Input
+              v-model="creators[index].link"
+              placeholder="https://example.com"
+              class="flex-1"
+              maxlength="500"
+              :class="{ 'border-red-500': creators[index].link && !isValidUrl(creators[index].link || '') }"
+            />
+          </div>
+          <p v-if="creators[index].link && !isValidUrl(creators[index].link || '')" class="text-xs text-red-500 font-medium">
+            請輸入有效的 URL（以 http:// 或 https:// 開頭）
+          </p>
+          <p v-else class="text-xs text-muted-foreground">
+            個人網站、社群媒體或作品集連結（可選）
+          </p>
+        </div>
       </div>
     </div>
 
@@ -64,18 +96,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted, computed } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 
+// 創作者資料類型
+interface CreatorWithLink {
+  name: string
+  link?: string
+}
+
+type CreatorInput = string | CreatorWithLink
+
 interface Props {
-  modelValue: string[]
+  modelValue: CreatorInput[]
   error?: string
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string[]): void
+  (e: 'update:modelValue', value: CreatorInput[]): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -85,52 +125,104 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-// 本地創作者列表
-const creators = ref<string[]>([...props.modelValue])
+// 標準化創作者輸入
+const normalizeCreator = (input: CreatorInput): CreatorWithLink => {
+  if (typeof input === 'string') {
+    return { name: input }
+  }
+  return {
+    name: input.name || '',
+    link: input.link || undefined
+  }
+}
+
+// 本地創作者列表（統一為物件格式）
+const creators = ref<CreatorWithLink[]>(
+  props.modelValue.length > 0
+    ? props.modelValue.map(normalizeCreator)
+    : [{ name: '' }]
+)
+
+// 追蹤每個創作者的連結輸入展開狀態
+const expandedLinks = ref<Set<number>>(new Set())
 
 // 如果初始值為空，添加一個空項
 if (creators.value.length === 0) {
-  creators.value = ['']
+  creators.value = [{ name: '' }]
 }
 
-// 監聽 props 變化（但避免無限循環）
+// 監聽 props 變化
 watch(() => props.modelValue, (newValue) => {
-  // 只有在外部值與內部值不同時才更新
-  const currentFiltered = creators.value.map(c => c.trim()).filter(c => c.length > 0)
-  const newFiltered = newValue.filter(c => c.trim().length > 0)
+  const normalized = newValue.length > 0
+    ? newValue.map(normalizeCreator)
+    : [{ name: '' }]
 
-  // 比較兩個陣列是否相同
-  const isDifferent = currentFiltered.length !== newFiltered.length ||
-    currentFiltered.some((val, index) => val !== newFiltered[index])
-
+  // 簡單比較，避免不必要的更新
+  const isDifferent = JSON.stringify(creators.value) !== JSON.stringify(normalized)
   if (isDifferent) {
-    creators.value = newValue.length > 0 ? [...newValue] : ['']
+    creators.value = normalized
+    // 如果有連結，自動展開對應項
+    creators.value.forEach((c, index) => {
+      if (c.link) {
+        expandedLinks.value.add(index)
+      }
+    })
   }
 }, { deep: true })
 
-// 監聽本地變化，發送到父組件（使用 debounce 避免過度觸發）
+// 監聽本地變化，發送到父組件
 let updateTimeout: NodeJS.Timeout | null = null
 watch(creators, (newValue) => {
-  // 清除之前的 timeout
   if (updateTimeout) {
     clearTimeout(updateTimeout)
   }
 
-  // 延遲更新以避免無限循環
   updateTimeout = setTimeout(() => {
-    // 過濾掉空白項目
+    // 過濾掉空名稱的項目，轉換為 API 格式
     const filtered = newValue
-      .map(c => c.trim())
-      .filter(c => c.length > 0)
+      .map(c => ({
+        name: c.name.trim(),
+        link: c.link?.trim() || undefined
+      }))
+      .filter(c => c.name.length > 0)
+      .map(c => {
+        // 如果沒有連結，返回純字串（向後兼容）
+        if (!c.link) {
+          return c.name
+        }
+        return c
+      })
 
     emit('update:modelValue', filtered)
   }, 0)
 }, { deep: true })
 
+// URL 驗證
+const isValidUrl = (url: string): boolean => {
+  if (!url || url.trim() === '') return true // 空值是有效的
+  try {
+    const urlObj = new URL(url)
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+// 切換連結輸入展開狀態
+const toggleLinkInput = (index: number) => {
+  if (expandedLinks.value.has(index)) {
+    expandedLinks.value.delete(index)
+    // 清空連結
+    creators.value[index].link = undefined
+  } else {
+    expandedLinks.value.add(index)
+  }
+}
+
 // 添加創作者
 const addCreator = () => {
   if (creators.value.length < 10) {
-    creators.value.push('')
+    creators.value.push({ name: '' })
   }
 }
 
@@ -138,16 +230,22 @@ const addCreator = () => {
 const removeCreator = (index: number) => {
   if (creators.value.length > 1) {
     creators.value.splice(index, 1)
+    expandedLinks.value.delete(index)
+    // 更新其他項的索引
+    const newExpanded = new Set<number>()
+    expandedLinks.value.forEach(i => {
+      if (i > index) {
+        newExpanded.add(i - 1)
+      } else if (i < index) {
+        newExpanded.add(i)
+      }
+    })
+    expandedLinks.value = newExpanded
   } else {
     // 如果只剩一個，清空它
-    creators.value[0] = ''
+    creators.value[0] = { name: '' }
+    expandedLinks.value.delete(0)
   }
-}
-
-// 處理創作者變化
-const handleCreatorChange = (index: number, event: Event) => {
-  const target = event.target as HTMLInputElement
-  creators.value[index] = target.value
 }
 
 // 清理 timeout
