@@ -151,12 +151,40 @@ interface App {
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const apps = ref<App[]>([])
 const loading = ref(true)
 const total = ref(0)
 const currentPage = ref(1)
 const totalPages = ref(1)
+
+// 設置 SEO Meta Tags
+useHead({
+  title: '探索應用 - 博幼APP分享平臺',
+  meta: [
+    { name: 'description', content: '探索博幼APP分享平臺上的所有教育應用，發現適合您的互動學習工具。瀏覽各種分類的HTML應用，包含遊戲、工具、藝術創作等。' },
+    { name: 'keywords', content: '教育應用,HTML App,互動學習,博幼基金會,應用分享,教學工具,線上學習' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://boyo-app-share.zeabur.app/explore' }
+  ]
+})
+
+useSeoMeta({
+  // Open Graph
+  ogType: 'website',
+  ogTitle: '探索應用 - 博幼APP分享平臺',
+  ogDescription: '探索博幼APP分享平臺上的所有教育應用，發現適合您的互動學習工具',
+  ogUrl: 'https://boyo-app-share.zeabur.app/explore',
+  ogSiteName: '博幼APP分享平臺',
+  ogLocale: 'zh_TW',
+
+  // Twitter Card
+  twitterCard: 'summary',
+  twitterTitle: '探索應用 - 博幼APP分享平臺',
+  twitterDescription: '探索博幼APP分享平臺上的所有教育應用，發現適合您的互動學習工具',
+})
 
 const filters = ref({
   search: (route.query.search as string) || '',
