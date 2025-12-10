@@ -140,4 +140,35 @@ describe.skipIf(skipIfNoDb)('GET /api/apps/[id]', () => {
     expect(result.app.tags).toEqual(['test', 'demo'])
     expect(result.app.file_manifest).toEqual({ files: ['index.html', 'style.css'] })
   })
+
+  it('應該返回 creators 欄位', async () => {
+    // 為測試 App 添加創作者
+    await query(
+      `INSERT INTO app_creators (app_id, creator_name, creator_order)
+       VALUES ($1, $2, $3), ($1, $4, $5)`,
+      [testAppId, 'Creator One', 0, 'Creator Two', 1]
+    )
+
+    const event = createMockEvent({
+      context: { params: { id: testAppId } }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('creators')
+    expect(Array.isArray(result.app.creators)).toBe(true)
+    expect(result.app.creators).toEqual(['Creator One', 'Creator Two'])
+  })
+
+  it('當沒有創作者時應該返回空陣列', async () => {
+    const event = createMockEvent({
+      context: { params: { id: testAppId } }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('creators')
+    expect(Array.isArray(result.app.creators)).toBe(true)
+    expect(result.app.creators).toEqual([])
+  })
 })

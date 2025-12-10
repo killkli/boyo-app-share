@@ -34,6 +34,14 @@
             >
               建立
             </NuxtLink>
+            <NuxtLink
+              v-if="user"
+              to="/profile"
+              class="px-4 py-2 font-bold uppercase text-sm tracking-wide hover:bg-muted transition-colors focus-ring rounded-sm"
+              aria-label="個人中心"
+            >
+              個人中心
+            </NuxtLink>
 
             <!-- Unauthenticated State -->
             <template v-if="!user">
@@ -114,6 +122,14 @@
           @click="isMenuOpen = false"
         >
           建立應用
+        </NuxtLink>
+        <NuxtLink
+          v-if="user"
+          to="/profile"
+          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 hover:text-primary transition-colors"
+          @click="isMenuOpen = false"
+        >
+          個人中心
         </NuxtLink>
 
         <div class="h-4"></div>

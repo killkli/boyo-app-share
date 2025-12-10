@@ -170,20 +170,41 @@
 
         <!-- 右側：作者資訊與操作 -->
         <div class="lg:col-span-1 space-y-6">
-          <!-- 作者資訊 -->
+          <!-- 創作者資訊 -->
           <Card class="border-3 border-foreground shadow-brutal">
             <CardHeader class="bg-muted border-b-3 border-foreground">
-              <CardTitle class="text-lg font-bold uppercase tracking-wide">作者</CardTitle>
+              <CardTitle class="text-lg font-bold uppercase tracking-wide">
+                {{ app.creators && app.creators.length > 0 ? '創作者' : '作者' }}
+              </CardTitle>
             </CardHeader>
             <CardContent class="pt-6">
-              <div class="flex items-center gap-3">
+              <!-- 如果有多個創作者 -->
+              <div v-if="app.creators && app.creators.length > 0" class="space-y-4">
+                <div
+                  v-for="(creator, index) in app.creators"
+                  :key="index"
+                  class="flex items-center gap-3 pb-3 last:pb-0 border-b-2 border-foreground last:border-0"
+                >
+                  <!-- 方形頭像 -->
+                  <div class="w-10 h-10 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase flex-shrink-0">
+                    {{ getInitials(creator) }}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold truncate">{{ creator }}</p>
+                    <p class="text-xs text-muted-foreground font-mono">創作者 {{ index + 1 }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 如果沒有創作者資訊，顯示原始作者 -->
+              <div v-else class="flex items-center gap-3">
                 <!-- 方形頭像 -->
                 <div class="w-12 h-12 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase">
                   {{ getInitials(app.author_username) }}
                 </div>
                 <div>
                   <p class="font-bold">{{ app.author_username }}</p>
-                  <p class="text-sm text-muted-foreground font-mono">{{ app.author_email }}</p>
+                  <p class="text-sm text-muted-foreground font-mono">上傳者</p>
                 </div>
               </div>
             </CardContent>
@@ -276,6 +297,7 @@ interface App {
   author_username: string
   author_email: string
   author_avatar?: string | null
+  creators?: string[]
 }
 
 const route = useRoute()
