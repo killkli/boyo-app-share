@@ -157,8 +157,24 @@ watch(() => props.modelValue, (newValue) => {
     ? newValue.map(normalizeCreator)
     : [{ name: '' }]
 
-  // 簡單比較，避免不必要的更新
-  const isDifferent = JSON.stringify(creators.value) !== JSON.stringify(normalized)
+  // 計算當前本地狀態過濾後的值（與 emit 邏輯一致）
+  const currentFiltered = creators.value
+    .map(c => ({
+      name: c.name.trim(),
+      link: c.link?.trim() || undefined
+    }))
+    .filter(c => c.name.length > 0)
+    .map(c => {
+      if (!c.link) {
+        return c.name
+      }
+      return c
+    })
+
+  // 比較過濾後的本地值和新的 props 值，而不是原始本地值
+  // 這樣可以避免因為有空項目而觸發不必要的重置
+  const isDifferent = JSON.stringify(currentFiltered) !== JSON.stringify(newValue)
+
   if (isDifferent) {
     creators.value = normalized
     // 如果有連結，自動展開對應項
