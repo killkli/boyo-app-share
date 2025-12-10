@@ -292,6 +292,7 @@ interface App {
   tags: string[]
   upload_type: string
   html_s3_key: string
+  thumbnail_s3_key?: string | null
   file_manifest: {
     files: Array<{
       path: string
@@ -442,6 +443,9 @@ const fetchApp = async () => {
       isFavorited.value = app.value.is_favorited
     }
 
+    // 設置 SEO Meta Tags
+    setupSeoMeta()
+
     // 載入 HTML 內容
     await fetchHtmlContent()
   } catch (err) {
@@ -450,6 +454,103 @@ const fetchApp = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 設置 SEO Meta Tags
+const setupSeoMeta = () => {
+  if (!app.value) return
+
+  const appTitle = app.value.title
+  const appDescription = app.value.description || `查看 ${appTitle} - 一個由 ${getCreatorNames()} 創作的互動應用`
+  const appUrl = `https://boyo-app-share.zeabur.app/app/${app.value.id}`
+  const thumbnailUrl = app.value.thumbnail_s3_key
+    ? `${config.public.s3BaseUrl}/${app.value.thumbnail_s3_key}`
+    : undefined
+
+  // 設置頁面標題和基本 meta
+  useHead({
+    title: `${appTitle} - 博幼APP分享平臺`,
+    meta: [
+      { name: 'description', content: appDescription },
+      { name: 'keywords', content: app.value.tags?.join(', ') || '教育應用,互動學習,HTML App' },
+    ],
+    link: [
+      { rel: 'canonical', href: appUrl }
+    ]
+  })
+
+  // 設置 Open Graph 和 Twitter Card meta tags
+  useSeoMeta({
+    // Open Graph
+    ogType: 'website',
+    ogTitle: appTitle,
+    ogDescription: appDescription,
+    ogUrl: appUrl,
+    ogImage: thumbnailUrl,
+    ogSiteName: '博幼APP分享平臺',
+    ogLocale: 'zh_TW',
+
+    // Twitter Card
+    twitterCard: 'summary_large_image',
+    twitterTitle: appTitle,
+    twitterDescription: appDescription,
+    twitterImage: thumbnailUrl,
+  })
+
+  // 設置 Structured Data (JSON-LD)
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: appTitle,
+    description: appDescription,
+    image: thumbnailUrl,
+    author: app.value.creators && app.value.creators.length > 0
+      ? app.value.creators.map(c => {
+          const creator = normalizeCreator(c)
+          return {
+            '@type': 'Person',
+            name: creator.name,
+            ...(creator.link && { url: creator.link })
+          }
+        })
+      : {
+          '@type': 'Person',
+          name: app.value.author_username
+        },
+    datePublished: app.value.created_at,
+    applicationCategory: 'EducationalApplication',
+    aggregateRating: app.value.avg_rating && app.value.rating_count ? {
+      '@type': 'AggregateRating',
+      ratingValue: app.value.avg_rating,
+      ratingCount: app.value.rating_count,
+      bestRating: 5,
+      worstRating: 1
+    } : undefined,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'TWD'
+    }
+  }
+
+  useHead({
+    script: [
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(structuredData)
+      }
+    ]
+  })
+}
+
+// 獲取創作者名稱字串
+const getCreatorNames = (): string => {
+  if (!app.value || !app.value.creators || app.value.creators.length === 0) {
+    return app.value?.author_username || '創作者'
+  }
+  return app.value.creators
+    .map(c => normalizeCreator(c).name)
+    .join('、')
 }
 
 // 獲取 HTML 內容
