@@ -173,16 +173,16 @@ export async function getAppCreators(
 - [ ] 更新創作者時連結正確更新
 
 **Implementation**:
-- [ ] 建立 `server/types/creator.ts`
-- [ ] 更新 `server/utils/creators.ts`
-- [ ] 更新所有 validation schemas
-- [ ] 更新 POST /api/apps
-- [ ] 更新 PUT /api/apps/[id]
-- [ ] 更新 PUT /api/apps/[id]/reupload
-- [ ] 更新所有 GET APIs
-- [ ] 編寫整合測試
+- [x] 建立 `server/types/creator.ts`
+- [x] 更新 `server/utils/creators.ts`
+- [x] 更新所有 validation schemas
+- [x] POST /api/apps (使用更新後的工具函數，向後兼容)
+- [x] PUT /api/apps/[id] (使用更新後的工具函數，向後兼容)
+- [x] PUT /api/apps/[id]/reupload (無需修改)
+- [x] 所有 GET APIs (返回 CreatorWithLink[])
+- [x] 編寫整合測試
 
-**Status**: 🔄 Not Started
+**Status**: ✅ Completed
 
 ---
 
