@@ -33,11 +33,13 @@ export default defineEventHandler(async (event) => {
       u.username as author_username,
       COALESCE(AVG(r.rating), 0) as avg_rating,
       COUNT(DISTINCT r.id)::integer as rating_count,
-      COUNT(DISTINCT c.id)::integer as comment_count
+      COUNT(DISTINCT c.id)::integer as comment_count,
+      COUNT(DISTINCT f.id)::integer as favorite_count
     FROM apps a
     LEFT JOIN users u ON a.user_id = u.id
     LEFT JOIN ratings r ON a.id = r.app_id
     LEFT JOIN comments c ON a.id = c.app_id
+    LEFT JOIN favorites f ON a.id = f.app_id
     WHERE a.id = $1
     GROUP BY a.id, u.username`,
     [id]
@@ -52,8 +54,9 @@ export default defineEventHandler(async (event) => {
 
   const app = result.rows[0]
 
-  // 如果用戶已登入，獲取該用戶對此 App 的評分
+  // 如果用戶已登入，獲取該用戶對此 App 的評分和收藏狀態
   let userRating = null
+  let isFavorited = false
   if (currentUserId) {
     const userRatingResult = await query(
       'SELECT rating FROM ratings WHERE app_id = $1 AND user_id = $2',
@@ -62,6 +65,13 @@ export default defineEventHandler(async (event) => {
     if (userRatingResult.rows.length > 0) {
       userRating = userRatingResult.rows[0].rating
     }
+
+    // 檢查是否已收藏
+    const favoriteResult = await query(
+      'SELECT id FROM favorites WHERE app_id = $1 AND user_id = $2',
+      [id, currentUserId]
+    )
+    isFavorited = favoriteResult.rows.length > 0
   }
 
   // 增加瀏覽次數
@@ -78,6 +88,7 @@ export default defineEventHandler(async (event) => {
       ...app,
       avg_rating: Number(app.avg_rating),
       user_rating: userRating,
+      is_favorited: isFavorited,
       creators
     }
   }

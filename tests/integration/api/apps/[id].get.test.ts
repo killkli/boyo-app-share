@@ -171,4 +171,77 @@ describe.skipIf(skipIfNoDb)('GET /api/apps/[id]', () => {
     expect(Array.isArray(result.app.creators)).toBe(true)
     expect(result.app.creators).toEqual([])
   })
+
+  it('應該返回收藏數量 (favorite_count)', async () => {
+    // 添加一些收藏
+    const user2Result = await query(
+      `INSERT INTO users (email, username, password_hash)
+       VALUES ($1, $2, $3)
+       RETURNING id`,
+      [`favorite-user-${Date.now()}@example.com`, `favoriteuser-${Date.now()}`, 'hash']
+    )
+    const user2Id = user2Result.rows[0].id
+
+    await query(
+      'INSERT INTO favorites (app_id, user_id) VALUES ($1, $2)',
+      [testAppId, user2Id]
+    )
+
+    const event = createMockEvent({
+      context: { params: { id: testAppId } }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('favorite_count')
+    expect(result.app.favorite_count).toBeGreaterThanOrEqual(1)
+
+    // 清理
+    await query('DELETE FROM users WHERE id = $1', [user2Id])
+  })
+
+  it('當用戶已登入時應該返回收藏狀態 (is_favorited)', async () => {
+    // 用戶收藏此 App
+    await query(
+      'INSERT INTO favorites (app_id, user_id) VALUES ($1, $2)',
+      [testAppId, testUserId]
+    )
+
+    const event = createMockEvent({
+      context: {
+        params: { id: testAppId },
+        userId: testUserId
+      }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('is_favorited')
+    expect(result.app.is_favorited).toBe(true)
+  })
+
+  it('當用戶未收藏時 is_favorited 應該為 false', async () => {
+    const event = createMockEvent({
+      context: {
+        params: { id: testAppId },
+        userId: testUserId
+      }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('is_favorited')
+    expect(result.app.is_favorited).toBe(false)
+  })
+
+  it('當用戶未登入時 is_favorited 應該為 false', async () => {
+    const event = createMockEvent({
+      context: { params: { id: testAppId } }
+    })
+
+    const result = await getAppHandler(event)
+
+    expect(result.app).toHaveProperty('is_favorited')
+    expect(result.app.is_favorited).toBe(false)
+  })
 })

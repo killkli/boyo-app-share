@@ -293,6 +293,7 @@ interface App {
   comment_count?: number
   favorite_count?: number
   user_rating?: number | null
+  is_favorited?: boolean
   created_at: string
   author_username: string
   author_email: string
@@ -408,6 +409,11 @@ const fetchApp = async () => {
     // 初始化用戶評分（如果有的話）
     if (app.value.user_rating) {
       userRating.value = app.value.user_rating
+    }
+
+    // 初始化收藏狀態（如果有的話）
+    if (app.value.is_favorited !== undefined) {
+      isFavorited.value = app.value.is_favorited
     }
 
     // 載入 HTML 內容

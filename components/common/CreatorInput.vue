@@ -29,10 +29,11 @@
           />
         </div>
         <Button
+          type="button"
           variant="outline"
           size="icon"
           class="shrink-0 border-2"
-          @click="removeCreator(index)"
+          @click.prevent="removeCreator(index)"
           :disabled="creators.length === 1 && !creators[0]"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,11 +45,12 @@
 
     <!-- Add creator button -->
     <Button
+      type="button"
       variant="outline"
       size="sm"
       class="w-full font-bold uppercase tracking-wide border-2 border-dashed"
       :disabled="creators.length >= 10"
-      @click="addCreator"
+      @click.prevent="addCreator"
     >
       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -62,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -91,19 +93,38 @@ if (creators.value.length === 0) {
   creators.value = ['']
 }
 
-// 監聽 props 變化
+// 監聽 props 變化（但避免無限循環）
 watch(() => props.modelValue, (newValue) => {
-  creators.value = newValue.length > 0 ? [...newValue] : ['']
+  // 只有在外部值與內部值不同時才更新
+  const currentFiltered = creators.value.map(c => c.trim()).filter(c => c.length > 0)
+  const newFiltered = newValue.filter(c => c.trim().length > 0)
+
+  // 比較兩個陣列是否相同
+  const isDifferent = currentFiltered.length !== newFiltered.length ||
+    currentFiltered.some((val, index) => val !== newFiltered[index])
+
+  if (isDifferent) {
+    creators.value = newValue.length > 0 ? [...newValue] : ['']
+  }
 }, { deep: true })
 
-// 監聽本地變化，發送到父組件
+// 監聽本地變化，發送到父組件（使用 debounce 避免過度觸發）
+let updateTimeout: NodeJS.Timeout | null = null
 watch(creators, (newValue) => {
-  // 過濾掉空白項目
-  const filtered = newValue
-    .map(c => c.trim())
-    .filter(c => c.length > 0)
+  // 清除之前的 timeout
+  if (updateTimeout) {
+    clearTimeout(updateTimeout)
+  }
 
-  emit('update:modelValue', filtered)
+  // 延遲更新以避免無限循環
+  updateTimeout = setTimeout(() => {
+    // 過濾掉空白項目
+    const filtered = newValue
+      .map(c => c.trim())
+      .filter(c => c.length > 0)
+
+    emit('update:modelValue', filtered)
+  }, 0)
 }, { deep: true })
 
 // 添加創作者
@@ -128,4 +149,11 @@ const handleCreatorChange = (index: number, event: Event) => {
   const target = event.target as HTMLInputElement
   creators.value[index] = target.value
 }
+
+// 清理 timeout
+onUnmounted(() => {
+  if (updateTimeout) {
+    clearTimeout(updateTimeout)
+  }
+})
 </script>

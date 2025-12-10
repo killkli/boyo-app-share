@@ -33,7 +33,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
           )
         "
         v-bind="forwarded"
-        @pointer-down-outside="(event) => {
+        @pointer-down-outside="(event: any) => {
           const originalEvent = event.detail.originalEvent;
           const target = originalEvent.target as HTMLElement;
           if (originalEvent.offsetX > target.clientWidth || originalEvent.offsetY > target.clientHeight) {

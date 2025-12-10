@@ -68,8 +68,8 @@ describe.skipIf(skipIfNoDb)('POST /api/apps/[id]/favorite - 收藏功能', () =>
 
     const response = await toggleFavoriteHandler(event)
 
-    expect(response).toHaveProperty('favorited')
-    expect(response.favorited).toBe(true)
+    expect(response).toHaveProperty('isFavorited')
+    expect(response.isFavorited).toBe(true)
 
     // 驗證資料庫中有收藏記錄
     const favoriteResult = await query(
@@ -101,7 +101,7 @@ describe.skipIf(skipIfNoDb)('POST /api/apps/[id]/favorite - 收藏功能', () =>
 
     const response = await toggleFavoriteHandler(event)
 
-    expect(response.favorited).toBe(false)
+    expect(response.isFavorited).toBe(false)
 
     // 驗證資料庫中已刪除收藏記錄
     const favoriteResult = await query(
@@ -126,15 +126,15 @@ describe.skipIf(skipIfNoDb)('POST /api/apps/[id]/favorite - 收藏功能', () =>
 
     // 第一次：收藏
     const response1 = await toggleFavoriteHandler(event)
-    expect(response1.favorited).toBe(true)
+    expect(response1.isFavorited).toBe(true)
 
     // 第二次：取消收藏
     const response2 = await toggleFavoriteHandler(event)
-    expect(response2.favorited).toBe(false)
+    expect(response2.isFavorited).toBe(false)
 
     // 第三次：再次收藏
     const response3 = await toggleFavoriteHandler(event)
-    expect(response3.favorited).toBe(true)
+    expect(response3.isFavorited).toBe(true)
   })
 
   it('應該拒絕未認證的請求', async () => {

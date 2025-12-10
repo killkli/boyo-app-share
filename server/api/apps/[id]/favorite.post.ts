@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
   )
 
   return {
-    favorited,
+    isFavorited: favorited,
     favoriteCount: Number(countResult.rows[0].count)
   }
 })

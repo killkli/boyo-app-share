@@ -40,7 +40,7 @@
               <div class="space-y-2">
                 <Label for="category" class="text-sm font-bold uppercase tracking-wide">分類</Label>
                 <Select v-model="form.category">
-                  <SelectTrigger>
+                  <SelectTrigger id="category">
                     <SelectValue placeholder="選擇分類" />
                   </SelectTrigger>
                   <SelectContent>
