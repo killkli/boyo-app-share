@@ -1,6 +1,25 @@
 import { z } from 'zod'
 
 /**
+ * 創作者驗證 Schema
+ * 支援純字串或物件格式（含可選連結）
+ */
+export const creatorSchema = z.union([
+  z.string().max(100, '創作者名稱最多 100 個字元'),
+  z.object({
+    name: z.string().max(100, '創作者名稱最多 100 個字元'),
+    link: z.string().url('請提供有效的 URL').max(500, 'URL 最多 500 個字元').optional()
+  })
+])
+
+/**
+ * 創作者陣列驗證 Schema
+ */
+export const creatorsArraySchema = z.array(creatorSchema)
+  .max(10, '創作者最多 10 個')
+  .optional()
+
+/**
  * 註冊表單驗證 Schema
  */
 export const registerSchema = z.object({
@@ -45,9 +64,7 @@ export const uploadPasteSchema = z.object({
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
   htmlContent: z.string().min(1, 'HTML 內容不能為空'),
   thumbnailBase64: z.string().optional(),
-  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
-    .max(10, '創作者最多 10 個')
-    .optional()
+  creators: creatorsArraySchema
 })
 
 /**
@@ -60,9 +77,7 @@ export const uploadFileSchema = z.object({
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
   thumbnailBase64: z.string().optional(),
-  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
-    .max(10, '創作者最多 10 個')
-    .optional()
+  creators: creatorsArraySchema
 })
 
 /**
@@ -75,9 +90,7 @@ export const uploadZipSchema = z.object({
   category: z.string().max(50, '分類最多 50 個字元').optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
   zipContent: z.string().min(1, 'ZIP 內容不能為空'),
-  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
-    .max(10, '創作者最多 10 個')
-    .optional()
+  creators: creatorsArraySchema
 })
 
 /**
@@ -103,9 +116,7 @@ export const updateAppSchema = z.object({
     errorMap: () => ({ message: `分類必須是以下之一: ${appCategories.join(', ')}` })
   }).optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
-  creators: z.array(z.string().max(100, '創作者名稱最多 100 個字元'))
-    .max(10, '創作者最多 10 個')
-    .optional()
+  creators: creatorsArraySchema
 })
 
 /**
