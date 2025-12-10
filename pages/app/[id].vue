@@ -187,12 +187,25 @@
                 >
                   <!-- 方形頭像 -->
                   <div class="w-10 h-10 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase flex-shrink-0">
-                    {{ getInitials(creator) }}
+                    {{ getInitials(normalizeCreator(creator).name) }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="font-bold truncate">{{ creator }}</p>
+                    <p class="font-bold truncate">{{ normalizeCreator(creator).name }}</p>
                     <p class="text-xs text-muted-foreground font-mono">創作者 {{ index + 1 }}</p>
                   </div>
+                  <!-- 創作者連結（如果有） -->
+                  <a
+                    v-if="normalizeCreator(creator).link"
+                    :href="normalizeCreator(creator).link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="w-8 h-8 border-2 border-foreground bg-background hover:bg-muted flex items-center justify-center transition-colors flex-shrink-0"
+                    :title="`前往 ${normalizeCreator(creator).name} 的連結`"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
                 </div>
               </div>
 
@@ -298,7 +311,20 @@ interface App {
   author_username: string
   author_email: string
   author_avatar?: string | null
-  creators?: string[]
+  creators?: Array<string | { name: string; link?: string }>
+}
+
+// 標準化創作者類型
+interface CreatorWithLink {
+  name: string
+  link?: string
+}
+
+const normalizeCreator = (creator: string | { name: string; link?: string }): CreatorWithLink => {
+  if (typeof creator === 'string') {
+    return { name: creator }
+  }
+  return creator
 }
 
 const route = useRoute()
