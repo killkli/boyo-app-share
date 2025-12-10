@@ -101,24 +101,25 @@
     <div
       v-if="isMenuOpen"
       id="mobile-menu"
-      class="fixed inset-0 z-40 bg-background flex flex-col pt-24 px-6 md:hidden overflow-y-auto animate-fade-in"
+      class="fixed inset-0 z-40 bg-white flex flex-col pt-24 px-6 md:hidden overflow-y-auto animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="行動版選單"
     >
-      <div class="absolute inset-0 bg-grid opacity-30 pointer-events-none"></div>
+      <!-- Subtle grid pattern -->
+      <div class="absolute inset-0 bg-grid opacity-5 pointer-events-none"></div>
 
       <nav class="flex flex-col gap-6 relative z-10" aria-label="行動版導航">
         <NuxtLink
           to="/explore"
-          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 hover:text-primary transition-colors"
+          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-black hover:text-primary transition-colors"
           @click="isMenuOpen = false"
         >
           探索應用
         </NuxtLink>
         <NuxtLink
           to="/create"
-          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 hover:text-primary transition-colors"
+          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-black hover:text-primary transition-colors"
           @click="isMenuOpen = false"
         >
           建立應用
@@ -126,7 +127,7 @@
         <NuxtLink
           v-if="user"
           to="/profile"
-          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 hover:text-primary transition-colors"
+          class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-black hover:text-primary transition-colors"
           @click="isMenuOpen = false"
         >
           個人中心
@@ -137,14 +138,14 @@
         <template v-if="!user">
           <NuxtLink
             to="/login"
-            class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 hover:text-primary transition-colors"
+            class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-black hover:text-primary transition-colors"
             @click="isMenuOpen = false"
           >
             登入
           </NuxtLink>
           <NuxtLink
             to="/register"
-            class="text-4xl font-bold uppercase tracking-tighter text-primary border-b-2 border-foreground pb-2 hover:text-foreground transition-colors"
+            class="text-4xl font-bold uppercase tracking-tighter text-primary border-b-2 border-black pb-2 hover:text-black transition-colors"
             @click="isMenuOpen = false"
           >
             註冊帳號
@@ -153,15 +154,15 @@
 
         <template v-else>
           <div class="flex items-center gap-4 py-2">
-            <div class="w-12 h-12 border-3 border-foreground bg-primary flex items-center justify-center font-bold text-lg text-primary-foreground uppercase">
+            <div class="w-12 h-12 border-3 border-black bg-primary flex items-center justify-center font-bold text-lg text-primary-foreground uppercase">
               {{ getUserInitials(user.username) }}
             </div>
-            <span class="text-2xl font-bold">{{ user.username }}</span>
+            <span class="text-2xl font-bold text-black">{{ user.username }}</span>
           </div>
 
           <button
             @click="() => { handleLogout(); isMenuOpen = false; }"
-            class="text-left text-4xl font-bold uppercase tracking-tighter border-b-2 border-foreground pb-2 text-destructive hover:text-destructive/80 transition-colors"
+            class="text-left text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-destructive hover:text-destructive/80 transition-colors"
           >
             登出
           </button>
