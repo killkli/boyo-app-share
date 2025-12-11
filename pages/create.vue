@@ -97,8 +97,24 @@
                 <!-- Paste upload -->
                 <TabsContent value="paste" class="space-y-4 mt-6">
                   <div class="space-y-2">
-                    <Label for="htmlContent" class="text-sm font-bold uppercase tracking-wide">HTML 內容 *</Label>
-                    <Textarea id="htmlContent" v-model="form.htmlContent"
+                    <div class="flex justify-between items-center">
+                      <Label for="htmlContent" class="text-sm font-bold uppercase tracking-wide">HTML 內容 *</Label>
+                      <AICreateDialog @generated="handleAiGenerated">
+        <Button variant="outline" size="sm" type="button" class="h-8 gap-2 text-primary border-primary hover:bg-primary hover:text-white font-bold">
+          ✨ AI 生成
+        </Button>
+      </AICreateDialog>
+    </div>
+    
+    <!-- Token Usage Stats -->
+    <div v-if="lastUsage" class="bg-muted/50 p-3 text-xs font-mono border-l-4 border-primary flex gap-4 animate-fade-in">
+      <span class="font-bold">✨ Generation Stats:</span>
+      <span>Input Tok: {{ lastUsage.promptTokenCount }}</span>
+      <span>Output Tok: {{ lastUsage.candidatesTokenCount }}</span>
+      <span class="ml-auto text-muted-foreground">{{ new Date().toLocaleTimeString() }}</span>
+    </div>
+
+    <Textarea id="htmlContent" v-model="form.htmlContent"
                       placeholder="<html>&#10;  <body>&#10;    <h1>Hello World!</h1>&#10;  </body>&#10;</html>"
                       rows="12" class="font-mono text-sm resize-none"
                       :class="{ 'border-red-500 focus:border-red-500': errors.htmlContent }" />
@@ -181,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRouter } from 'vue-router'
 import { useThumbnail } from '~/composables/useThumbnail'
@@ -211,6 +227,7 @@ import {
 } from '~/components/ui/tabs'
 import AppPreview from '~/components/app/AppPreview.vue'
 import CreatorInput from '~/components/common/CreatorInput.vue'
+import AICreateDialog from '~/components/app/AICreateDialog.vue'
 
 // 定義頁面 meta
 definePageMeta({
@@ -236,6 +253,57 @@ const form = ref({
 
 // 標籤輸入
 const tagsInput = ref('')
+
+// 統計數據
+const lastUsage = ref<{ promptTokenCount: number, candidatesTokenCount: number } | null>(null)
+
+// 監聽 AI 生成事件
+const handleAiGenerated = (code: string, prompt: string, usage?: any) => {
+  form.value.htmlContent = code
+  
+  let desc = `AI Generation Prompt: ${prompt}`
+  if (usage) {
+    lastUsage.value = usage
+    desc += `\n\nToken Usage: Input ${usage.promptTokenCount} / Output ${usage.candidatesTokenCount}`
+  }
+  
+  // Append to existing description or set new
+  if (form.value.description) {
+    form.value.description += `\n\n${desc}`
+  } else {
+    form.value.description = desc
+  }
+}
+
+onMounted(() => {
+  // 檢查是否有 AI 生成/修改的導入代碼
+  try {
+    const importedData = sessionStorage.getItem('boyo-ai-import')
+    if (importedData) {
+      const data = JSON.parse(importedData)
+      if (data.code) {
+        form.value.htmlContent = data.code
+        uploadType.value = 'paste'
+        
+        if (data.title) {
+          form.value.title = `${data.title} (AI Remix)`
+          let desc = `Based on: ${data.title}\nAI Modification: ${data.prompt || 'Remix'}`
+          
+          if (data.usage) {
+            desc += `\n\nToken Usage: Input ${data.usage.promptTokenCount} / Output ${data.usage.candidatesTokenCount}`
+            lastUsage.value = data.usage
+          }
+          
+          form.value.description = desc
+        }
+      }
+      // 清除，避免重整後重複載入
+      sessionStorage.removeItem('boyo-ai-import')
+    }
+  } catch (e) {
+    console.error('Failed to load imported AI data', e)
+  }
+})
 
 // 監聽標籤輸入變化
 watch(tagsInput, (newValue) => {

@@ -15,7 +15,7 @@ export default defineEventHandler((event) => {
       "style-src 'self' 'unsafe-inline' blob:",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://s3.tebi.io blob:",
+      "connect-src 'self' https://s3.tebi.io https://generativelanguage.googleapis.com blob:",
       "frame-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",

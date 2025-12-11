@@ -27,7 +27,8 @@ import { ref, watch, onUnmounted } from 'vue'
  */
 
 const props = defineProps<{
-  htmlContent: string
+  htmlContent?: string
+  src?: string
 }>()
 
 const iframeSrc = ref<string>('')
@@ -50,8 +51,16 @@ const createBlobUrl = (html: string) => {
   iframeSrc.value = currentBlobUrl
 }
 
-// 監聽 HTML 內容變化並更新預覽
-watch(() => props.htmlContent, (newContent) => {
+// 監聽內容變化並更新預覽
+watch([() => props.htmlContent, () => props.src], ([newContent, newSrc]) => {
+  // 如果有 src，直接使用 src
+  if (newSrc) {
+    cleanupBlobUrl()
+    iframeSrc.value = newSrc
+    return
+  }
+
+  // 否則使用 htmlContent 生成 Blob URL
   if (newContent) {
     createBlobUrl(newContent)
   } else {

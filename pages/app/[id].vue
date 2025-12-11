@@ -100,13 +100,24 @@
                 >
                   {{ shareButtonText }}
                 </Button>
+
+                <!-- AI Remix Button -->
+                <AIModifyDialog v-if="app" :app="app">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    class="font-bold uppercase tracking-wide flex-1 min-w-[120px] text-purple-600 border-purple-600 hover:bg-purple-50"
+                  >
+                    ✨ AI Remix
+                  </Button>
+                </AIModifyDialog>
               </div>
             </CardHeader>
 
             <CardContent class="p-0">
-              <!-- 7.2: 預覽區域 -->
+                  <!-- 7.2: 預覽區域 -->
               <div class="relative border-b-3 border-foreground">
-                <AppPreview :html-content="htmlContent" />
+                <AppPreview :src="appUrl" />
                 <!-- 全屏按鈕 -->
                 <Button
                   variant="outline"
@@ -267,6 +278,7 @@ import AppPreview from '@/components/app/AppPreview.vue'
 import Rating from '@/components/common/Rating.vue'
 import Comments from '@/components/common/Comments.vue'
 import FavoriteButton from '@/components/common/FavoriteButton.vue'
+import AIModifyDialog from '@/components/app/AIModifyDialog.vue'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -333,7 +345,7 @@ const router = useRouter()
 const config = useRuntimeConfig()
 
 const app = ref<App | null>(null)
-const htmlContent = ref('')
+// const htmlContent = ref('') // No longer needed
 const loading = ref(true)
 const error = ref(false)
 
@@ -446,8 +458,8 @@ const fetchApp = async () => {
     // 設置 SEO Meta Tags
     setupSeoMeta()
 
-    // 載入 HTML 內容
-    await fetchHtmlContent()
+    // 載入 HTML 內容 - 不再需要
+    // await fetchHtmlContent()
   } catch (err) {
     console.error('Failed to fetch app:', err)
     error.value = true
@@ -554,18 +566,18 @@ const getCreatorNames = (): string => {
 }
 
 // 獲取 HTML 內容
-const fetchHtmlContent = async () => {
-  if (!app.value) return
-
-  try {
-    const s3Url = `${config.public.s3BaseUrl}/${app.value.html_s3_key}`
-    const response = await fetch(s3Url)
-    htmlContent.value = await response.text()
-  } catch (err) {
-    console.error('Failed to fetch HTML content:', err)
-    htmlContent.value = '<p>無法載入預覽</p>'
-  }
-}
+// const fetchHtmlContent = async () => {
+//   if (!app.value) return
+// 
+//   try {
+//     const s3Url = `${config.public.s3BaseUrl}/${app.value.html_s3_key}`
+//     const response = await fetch(s3Url)
+//     htmlContent.value = await response.text()
+//   } catch (err) {
+//     console.error('Failed to fetch HTML content:', err)
+//     htmlContent.value = '<p>無法載入預覽</p>'
+//   }
+// }
 
 // 輔助函數
 const getInitials = (username: string) => {
