@@ -1,3 +1,4 @@
+import { getServerSession } from '#auth'
 import { verifyToken } from '~/server/utils/jwt'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +11,13 @@ export default defineEventHandler(async (event) => {
   }
 
   // 公開路由跳過認證
-  const publicPaths = ['/api/auth/login', '/api/auth/register']
+  const publicPaths = [
+    '/api/auth',  // Auth.js endpoints (所有 /api/auth/* 路由)
+    '/api/health',
+    '/api/sitemap.xml',
+    '/api/robots.txt'
+  ]
+
   if (publicPaths.some(p => path?.startsWith(p))) {
     return
   }
@@ -29,23 +36,33 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // 驗證 JWT
-  const authorization = getHeader(event, 'authorization')
-  if (!authorization) {
-    throw createError({
-      statusCode: 401,
-      message: 'Unauthorized'
-    })
+  // 優先使用 Auth.js session
+  const session = await getServerSession(event)
+
+  if (session?.user?.id) {
+    // 將 userId 注入到 context
+    event.context.userId = session.user.id
+    return
   }
 
-  const token = authorization.replace('Bearer ', '')
-  try {
-    const decoded = verifyToken(token)
-    event.context.userId = decoded.userId
-  } catch (error) {
-    throw createError({
-      statusCode: 401,
-      message: 'Invalid token'
-    })
+  // 向後相容：如果沒有 Auth.js session，檢查是否有舊的 JWT token
+  const authorization = getHeader(event, 'authorization')
+  if (authorization) {
+    try {
+      const token = authorization.replace('Bearer ', '')
+      const decoded = verifyToken(token)
+
+      // 將 userId 注入到 context
+      event.context.userId = decoded.userId
+      return
+    } catch (error) {
+      // JWT 驗證失敗，繼續拋出 401
+    }
   }
+
+  // 沒有有效的 session 或 token
+  throw createError({
+    statusCode: 401,
+    message: 'Unauthorized'
+  })
 })
