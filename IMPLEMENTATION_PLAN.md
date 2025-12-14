@@ -1,637 +1,1185 @@
-# 實作計劃：功能改進
+# 實作計劃：OAuth 社群登入整合
 
 ## 概述
 
-本計劃實現兩個主要功能改進：
-1. **多作者連結功能**：為創作者添加可選的個人連結（如個人網站、社群媒體等）
-2. **SEO 優化與 Sitemap**：提升 APP 詳情頁與探索頁面的搜尋引擎可見度
+本計劃實現使用 `@sidebase/nuxt-auth` (或 `@auth/nuxt`) 整合 OAuth 社群登入功能：
+1. **Google OAuth 2.0**：使用 Google 帳號登入
+2. **LINE Login**：使用 LINE 帳號登入
+3. **Facebook Login**：使用 Facebook 帳號登入
+
+同時保留現有的 Email/Password 登入方式，提供使用者更多選擇。
 
 ---
 
-## Stage 1: 資料庫 Schema 更新（創作者連結支援）
+## 技術選擇說明
 
-**Goal**: 擴展 `app_creators` 表以支援創作者連結
+### Auth.js (NextAuth.js) vs @sidebase/nuxt-auth
+
+經過調查，有兩個主要選項：
+
+1. **@sidebase/nuxt-auth** (推薦)
+   - 專為 Nuxt 3 設計的輕量級封裝
+   - 基於 Auth.js (原 NextAuth.js)
+   - 更好的 TypeScript 支援
+   - 活躍維護
+
+2. **@auth/nuxt** (官方)
+   - Auth.js 的官方 Nuxt 模組
+   - 更接近上游更新
+   - 可能需要更多手動配置
+
+**決定：使用 `@sidebase/nuxt-auth`**，因為它對 Nuxt 3 的整合更友好。
+
+---
+
+## Stage 1: 資料庫 Schema 更新（OAuth 支援）
+
+**Goal**: 擴展 `users` 表以支援 OAuth 認證
 
 **Success Criteria**:
-- `app_creators` 表新增 `creator_link` 欄位
-- 支援可選的 URL 連結
-- 驗證 URL 格式
-- 向後相容（現有創作者無連結也能正常運作）
+- `users` 表新增 OAuth 相關欄位
+- `password_hash` 變為可選（OAuth 使用者不需要密碼）
+- 新增 `accounts` 表儲存 OAuth provider 資訊
+- 支援多個 OAuth provider 綁定到同一帳號
+- 向後相容（現有 email/password 使用者正常運作）
 
 **Database Migration**:
+
 ```sql
--- 003_add_creator_links.sql
--- 添加創作者連結欄位
-ALTER TABLE app_creators
-ADD COLUMN creator_link VARCHAR(500);
+-- 004_add_oauth_support.sql
 
--- 添加註解
-COMMENT ON COLUMN app_creators.creator_link IS '創作者個人連結（可選，如個人網站、社群媒體等）';
+-- 1. 修改 users 表
+ALTER TABLE users
+  ALTER COLUMN password_hash DROP NOT NULL;  -- 允許 OAuth 使用者無密碼
 
--- 添加檢查約束（確保是有效的 URL 格式或為空）
-ALTER TABLE app_creators
-ADD CONSTRAINT check_creator_link_format
-CHECK (
-  creator_link IS NULL
-  OR creator_link = ''
-  OR creator_link ~ '^https?://.+'
+ALTER TABLE users
+  ADD COLUMN email_verified BOOLEAN DEFAULT FALSE,
+  ADD COLUMN image TEXT;  -- OAuth provider 的頭像 URL
+
+COMMENT ON COLUMN users.email_verified IS 'Email 是否已驗證';
+COMMENT ON COLUMN users.image IS 'OAuth provider 提供的頭像 URL';
+
+-- 2. 創建 accounts 表（儲存 OAuth provider 資訊）
+CREATE TABLE accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(50) NOT NULL,  -- 'oauth' | 'email'
+  provider VARCHAR(50) NOT NULL,  -- 'google' | 'line' | 'facebook' | 'credentials'
+  provider_account_id VARCHAR(255) NOT NULL,  -- OAuth provider 的 user ID
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at BIGINT,  -- Unix timestamp
+  token_type VARCHAR(50),
+  scope TEXT,
+  id_token TEXT,
+  session_state TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(provider, provider_account_id)
 );
+
+CREATE INDEX idx_accounts_user_id ON accounts(user_id);
+CREATE INDEX idx_accounts_provider ON accounts(provider);
+
+COMMENT ON TABLE accounts IS 'OAuth provider accounts 和 credentials';
+
+-- 3. 創建 sessions 表（可選，用於資料庫 session 策略）
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_token VARCHAR(255) UNIQUE NOT NULL,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_session_token ON sessions(session_token);
+
+COMMENT ON TABLE sessions IS 'User sessions for Auth.js';
+
+-- 4. 創建 verification_tokens 表（Email 驗證）
+CREATE TABLE verification_tokens (
+  identifier VARCHAR(255) NOT NULL,  -- email
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (identifier, token)
+);
+
+CREATE INDEX idx_verification_tokens_token ON verification_tokens(token);
+
+COMMENT ON TABLE verification_tokens IS 'Email verification and password reset tokens';
 ```
 
 **Tests**:
-- [ ] Migration 可以成功執行
-- [ ] 可以插入帶有連結的創作者
-- [ ] 可以插入不帶連結的創作者（向後相容）
-- [ ] URL 格式驗證正常運作（拒絕無效 URL）
-- [ ] 空字串和 NULL 都能正常處理
-- [ ] 現有資料不受影響
+- [x] Migration 可以成功執行
+- [x] `password_hash` 可以為 NULL
+- [x] 可以插入 OAuth 使用者（無密碼）
+- [x] 可以插入傳統使用者（有密碼）
+- [x] `accounts` 表可以儲存多個 provider
+- [x] 同一個 provider 的 `provider_account_id` 是唯一的
+- [x] 現有使用者資料不受影響
 
 **Implementation**:
-- [x] 建立 `server/database/migrations/003_add_creator_links.sql`
-- [x] 更新資料庫 schema
+- [x] 建立 `server/database/migrations/004_add_oauth_support.sql`
+- [x] 更新資料庫 schema（schema.sql）
 - [x] 執行 migration 測試
+- [x] 備份現有資料（表結構快照）
 
-**Status**: ✅ Completed
+**Test Report**: 詳見 `MIGRATION_004_TEST_REPORT.md`
 
----
-
-## Stage 2: 創作者連結 API 支援
-
-**Goal**: 更新 API 和工具函數以支援創作者連結
-
-**Success Criteria**:
-- `creators.ts` 工具函數支援 `CreatorWithLink` 類型
-- POST/PUT API 支援 `creators` 物件陣列（包含 name 和 link）
-- GET API 返回完整的創作者資訊（name + link）
-- URL 驗證和清理
-- 向後相容（支援純字串陣列）
-
-**Type Definitions**:
-```typescript
-// server/types/creator.ts
-export interface CreatorWithLink {
-  name: string
-  link?: string  // 可選連結
-}
-
-export type CreatorInput = string | CreatorWithLink
-```
-
-**API Changes**:
-
-### POST /api/apps
-```typescript
-{
-  creators?: Array<string | CreatorWithLink>
-  // 範例1: ["Alice", "Bob"]  (向後相容)
-  // 範例2: [
-  //   { name: "Alice", link: "https://alice.com" },
-  //   { name: "Bob" }  // Bob 沒有連結
-  // ]
-}
-```
-
-### PUT /api/apps/[id]
-```typescript
-{
-  creators?: Array<string | CreatorWithLink>
-}
-```
-
-### Response 格式
-```typescript
-{
-  app: {
-    // ... 現有欄位
-    creators: Array<CreatorWithLink>  // 統一返回物件格式
-  }
-}
-```
-
-**Validation Schema**:
-```typescript
-// server/schemas/app.ts
-import { z } from 'zod'
-
-const creatorSchema = z.union([
-  z.string().max(100, '創作者名稱最多 100 個字元'),
-  z.object({
-    name: z.string().max(100, '創作者名稱最多 100 個字元'),
-    link: z.string().url('請提供有效的 URL').max(500, 'URL 最多 500 個字元').optional()
-  })
-])
-
-export const creatorsArraySchema = z.array(creatorSchema)
-  .max(10, '創作者最多 10 個')
-  .optional()
-```
-
-**Helper Functions Update**:
-```typescript
-// server/utils/creators.ts
-
-/**
- * 標準化創作者輸入（支援字串或物件）
- */
-function normalizeCreatorInput(input: CreatorInput): CreatorWithLink {
-  if (typeof input === 'string') {
-    return { name: input.trim() }
-  }
-  return {
-    name: input.name.trim(),
-    link: input.link?.trim() || undefined
-  }
-}
-
-/**
- * 保存 APP 的創作者列表（支援連結）
- */
-export async function saveAppCreators(
-  appId: string,
-  creators: CreatorInput[]
-): Promise<void>
-
-/**
- * 獲取 APP 的創作者列表（返回完整物件）
- */
-export async function getAppCreators(
-  appId: string
-): Promise<CreatorWithLink[]>
-export async function getAppCreators(
-  appIds: string[]
-): Promise<Record<string, CreatorWithLink[]>>
-```
-
-**Tests**:
-- [ ] 可以創建帶有連結的創作者
-- [ ] 可以創建不帶連結的創作者
-- [ ] 可以混合使用字串和物件格式（向後相容）
-- [ ] URL 驗證拒絕無效的連結
-- [ ] 空連結被正確處理（儲存為 NULL）
-- [ ] GET API 正確返回創作者物件陣列
-- [ ] 批量查詢正常運作
-- [ ] 更新創作者時連結正確更新
-
-**Implementation**:
-- [x] 建立 `server/types/creator.ts`
-- [x] 更新 `server/utils/creators.ts`
-- [x] 更新所有 validation schemas
-- [x] POST /api/apps (使用更新後的工具函數，向後兼容)
-- [x] PUT /api/apps/[id] (使用更新後的工具函數，向後兼容)
-- [x] PUT /api/apps/[id]/reupload (無需修改)
-- [x] 所有 GET APIs (返回 CreatorWithLink[])
-- [x] 編寫整合測試
-
-**Status**: ✅ Completed
+**Status**: ✅ Completed (2025-12-14)
 
 ---
 
-## Stage 3: 前端 UI 更新（創作者連結輸入）
+## Stage 2: 安裝和配置 Nuxt Auth
 
-**Goal**: 更新前端表單和顯示組件以支援創作者連結
-
-**Success Criteria**:
-- `CreatorInput.vue` 支援連結輸入
-- 創建/編輯頁面支援連結輸入
-- APP 詳情頁和探索頁正確顯示連結
-- 連結以可點擊方式呈現（新分頁開啟）
-- URL 驗證和使用者友好的錯誤提示
-
-**Components to Update**:
-
-### 1. `components/common/CreatorInput.vue` (更新)
-新增每個創作者的連結輸入欄位：
-```typescript
-// Props
-interface Creator {
-  name: string
-  link?: string
-}
-
-// v-model 綁定
-const modelValue = defineModel<Creator[]>()
-
-// UI 結構
-// [創作者名稱] [連結 (可選)] [刪除]
-```
-
-功能要求：
-- 為每個創作者添加可選的連結輸入框
-- URL 即時驗證（輸入時檢查格式）
-- 清晰的 placeholder（如："https://example.com"）
-- 連結為空時不顯示錯誤
-- 連結輸入框可摺疊/展開（UX 優化）
-
-### 2. `pages/create.vue` (更新)
-- 使用更新後的 `CreatorInput` 組件
-- 提交時轉換為正確的 API 格式
-- 表單驗證
-
-### 3. `pages/edit/[id].vue` (更新)
-- 載入現有創作者資料（含連結）
-- 使用更新後的 `CreatorInput` 組件
-- 更新時正確處理連結欄位
-
-### 4. `pages/app/[id].vue` (更新)
-顯示創作者及其連結：
-```vue
-<div class="creators">
-  <div v-for="creator in app.creators" :key="creator.name">
-    <Avatar :name="creator.name" />
-    <span>{{ creator.name }}</span>
-    <a
-      v-if="creator.link"
-      :href="creator.link"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="creator-link"
-    >
-      <ExternalLink class="w-4 h-4" />
-    </a>
-  </div>
-</div>
-```
-
-### 5. `pages/explore.vue` (更新)
-- 在 APP 卡片上顯示創作者
-- 如有連結，顯示為可點擊圖示
-
-**Implementation**:
-- [x] 更新 `components/common/CreatorInput.vue`
-  - [x] 添加連結輸入欄位
-  - [x] 實作 URL 驗證
-  - [x] 改善 UX（摺疊、提示等）
-- [x] 更新 `pages/create.vue` (自動支援，使用更新後的 CreatorInput)
-- [x] 更新 `pages/edit/[id].vue` (自動支援，使用更新後的 CreatorInput)
-- [x] 更新 `pages/app/[id].vue`
-- [ ] 更新 `pages/explore.vue` (可選，explore 頁面目前不顯示創作者)
-- [x] 添加 external link icon（內嵌 SVG）
-- [x] 確保符合 Brutalist 設計風格
-
-**Tests** (Manual/E2E):
-- [x] 可以在創建表單中添加帶連結的創作者
-- [x] 可以在創建表單中添加不帶連結的創作者
-- [x] 可以在編輯表單中修改創作者連結
-- [x] APP 詳情頁正確顯示創作者連結
-- [x] 點擊連結在新分頁開啟
-- [ ] 探索頁面正確顯示創作者連結 (可選功能)
-- [x] URL 驗證錯誤提示清晰
-
-**Status**: ✅ Completed (core features)
-
----
-
-## Stage 4: SEO 優化（Meta Tags）
-
-**Goal**: 為 APP 詳情頁和探索頁面添加完整的 SEO meta tags
+**Goal**: 安裝 `@sidebase/nuxt-auth` 並完成基本配置
 
 **Success Criteria**:
-- 動態生成頁面 title 和 description
-- Open Graph (OG) tags 支援社群媒體分享預覽
-- Twitter Card tags
-- Structured Data (JSON-LD) for rich snippets
-- 正確的 canonical URLs
-- 響應式 meta viewport
+- `@sidebase/nuxt-auth` 正確安裝
+- Nuxt config 正確配置
+- Auth.js 基本運作
+- Session 管理正常
+- 環境變數正確設定
 
-**Implementation Areas**:
+**Installation**:
 
-### 1. `pages/app/[id].vue` - APP 詳情頁 SEO
-
-**Meta Tags 結構**:
-```typescript
-// 使用 Nuxt 3 useHead composable
-useHead({
-  title: `${app.title} - ${config.public.appName}`,
-  meta: [
-    // 基本 meta
-    { name: 'description', content: app.description || `查看 ${app.title} - 由 ${creators} 創作` },
-    { name: 'keywords', content: `${app.tags?.join(', ')}, HTML App, 教育應用` },
-
-    // Open Graph
-    { property: 'og:type', content: 'website' },
-    { property: 'og:title', content: app.title },
-    { property: 'og:description', content: app.description },
-    { property: 'og:image', content: app.thumbnailUrl },
-    { property: 'og:url', content: `https://yoursite.com/app/${app.id}` },
-
-    // Twitter Card
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: app.title },
-    { name: 'twitter:description', content: app.description },
-    { name: 'twitter:image', content: app.thumbnailUrl },
-  ],
-  link: [
-    { rel: 'canonical', href: `https://yoursite.com/app/${app.id}` }
-  ]
-})
-
-// Structured Data (JSON-LD)
-useSchemaOrg([
-  {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    'name': app.title,
-    'description': app.description,
-    'image': app.thumbnailUrl,
-    'author': creators.map(c => ({
-      '@type': 'Person',
-      'name': c.name,
-      'url': c.link
-    })),
-    'datePublished': app.createdAt,
-    'applicationCategory': 'EducationalApplication',
-    'offers': {
-      '@type': 'Offer',
-      'price': '0',
-      'priceCurrency': 'TWD'
-    }
-  }
-])
+```bash
+pnpm add @sidebase/nuxt-auth
 ```
 
-### 2. `pages/explore.vue` - 探索頁面 SEO
+**Nuxt Config 更新** (`nuxt.config.ts`):
 
-**Meta Tags 結構**:
-```typescript
-useHead({
-  title: `探索應用 - ${config.public.appName}`,
-  meta: [
-    { name: 'description', content: '探索博幼 APP 分享平臺上的所有教育應用，發現適合您的互動學習工具' },
-    { name: 'keywords', content: config.public.appKeywords },
-
-    // Open Graph
-    { property: 'og:type', content: 'website' },
-    { property: 'og:title', content: '探索應用' },
-    { property: 'og:description', content: '探索博幼 APP 分享平臺上的所有教育應用' },
-    { property: 'og:url', content: 'https://yoursite.com/explore' },
-
-    // Twitter Card
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: '探索應用' },
-  ],
-  link: [
-    { rel: 'canonical', href: 'https://yoursite.com/explore' }
-  ]
-})
-```
-
-### 3. 全域 SEO 設定
-
-**更新 `nuxt.config.ts`**:
 ```typescript
 export default defineNuxtConfig({
-  app: {
-    head: {
-      htmlAttrs: {
-        lang: 'zh-TW'
-      },
-      charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1',
-      title: '博幼APP分享平臺',
-      meta: [
-        { name: 'format-detection', content: 'telephone=no' },
-        { name: 'robots', content: 'index, follow' },
-        // 預設的 OG image（當頁面沒有特定圖片時）
-        { property: 'og:site_name', content: '博幼APP分享平臺' },
-        { property: 'og:locale', content: 'zh_TW' },
-      ]
-    }
-  },
-
-  // SEO 模組（可選）
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@vueuse/nuxt',
-    '@nuxtjs/seo'  // 新增
-  ]
-})
-```
+    '@sidebase/nuxt-auth'  // 新增
+  ],
 
-**Tests**:
-- [ ] APP 詳情頁有正確的 title
-- [ ] APP 詳情頁有正確的 description
-- [ ] Open Graph tags 正確生成
-- [ ] Twitter Card tags 正確生成
-- [ ] JSON-LD structured data 正確生成
-- [ ] 創作者連結包含在 structured data 中
-- [ ] 探索頁面有正確的 meta tags
-- [ ] Canonical URLs 正確
-- [ ] 使用 Google Rich Results Test 驗證
-- [ ] 使用 Facebook Sharing Debugger 驗證
-- [ ] 使用 Twitter Card Validator 驗證
+  auth: {
+    // 基本設定
+    baseURL: process.env.AUTH_ORIGIN || 'http://localhost:3000',
+    provider: {
+      type: 'authjs'
+    },
 
-**Implementation**:
-- [x] 更新 `nuxt.config.ts` 全域設定
-- [x] 更新 `pages/app/[id].vue` 添加動態 SEO
-- [x] 更新 `pages/explore.vue` 添加 SEO
-- [x] 實作 structured data (JSON-LD) 在 app detail 頁面
-- [x] 使用 Nuxt 3 內建的 useHead 和 useSeoMeta
-- [ ] 建立 SEO composable (可選，直接實作更簡潔)
-- [ ] 編寫 SEO 測試工具腳本 (可手動驗證)
+    // Session 設定
+    session: {
+      // 使用 JWT strategy（與現有系統相容）
+      strategy: 'jwt'
+    },
 
-**Status**: ✅ Completed
+    // 全域中間件設定
+    globalAppMiddleware: {
+      isEnabled: false  // 手動控制需要認證的頁面
+    }
+  },
 
----
+  // Runtime config 更新
+  runtimeConfig: {
+    // 現有設定...
 
-## Stage 5: Sitemap 生成
+    // Auth.js 必要環境變數
+    authSecret: process.env.AUTH_SECRET,  // 用於加密 JWT
 
-**Goal**: 自動生成 XML sitemap 以提升搜尋引擎索引效率
+    // OAuth Providers
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
 
-**Success Criteria**:
-- 動態生成包含所有公開 APP 的 sitemap
-- 包含主要頁面（首頁、探索、關於等）
-- 正確的優先級和更新頻率設定
-- 支援大量 APP（sitemap index）
-- 定期更新機制
+    lineClientId: process.env.LINE_CLIENT_ID,
+    lineClientSecret: process.env.LINE_CLIENT_SECRET,
 
-**Sitemap 結構**:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- 主要頁面 -->
-  <url>
-    <loc>https://yoursite.com/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://yoursite.com/explore</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://yoursite.com/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
+    facebookClientId: process.env.FACEBOOK_CLIENT_ID,
+    facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
 
-  <!-- APP 詳情頁 -->
-  <url>
-    <loc>https://yoursite.com/app/[app-id-1]</loc>
-    <lastmod>2025-12-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <!-- ... 更多 apps ... -->
-</urlset>
-```
-
-**Implementation Options**:
-
-### Option 1: 使用 Nuxt SEO 模組（推薦）
-```typescript
-// nuxt.config.ts
-export default defineNuxtConfig({
-  modules: ['@nuxtjs/seo'],
-
-  sitemap: {
-    hostname: 'https://yoursite.com',
-    gzip: true,
-    routes: async () => {
-      // 從資料庫獲取所有公開的 APP IDs
-      const apps = await getPublicApps()
-      return apps.map(app => ({
-        url: `/app/${app.id}`,
-        lastmod: app.updatedAt,
-        changefreq: 'weekly',
-        priority: 0.8
-      }))
+    public: {
+      // 現有 public 設定...
     }
   }
 })
 ```
 
-### Option 2: 手動實作 Sitemap API
-```typescript
-// server/api/sitemap.xml.get.ts
-export default defineEventHandler(async (event) => {
-  const apps = await query('SELECT id, updated_at FROM apps WHERE is_public = true')
+**環境變數** (`.env`):
 
-  const staticPages = [
-    { loc: '/', changefreq: 'daily', priority: 1.0 },
-    { loc: '/explore', changefreq: 'daily', priority: 0.9 },
-    { loc: '/about', changefreq: 'monthly', priority: 0.5 },
-  ]
+```bash
+# Auth.js Secret (使用 openssl rand -base64 32 生成)
+AUTH_SECRET="your-secret-key-here"
+AUTH_ORIGIN="http://localhost:3000"
 
-  const appPages = apps.rows.map(app => ({
-    loc: `/app/${app.id}`,
-    lastmod: app.updated_at,
-    changefreq: 'weekly',
-    priority: 0.8
-  }))
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-  const allPages = [...staticPages, ...appPages]
+# LINE Login
+LINE_CLIENT_ID="your-line-channel-id"
+LINE_CLIENT_SECRET="your-line-channel-secret"
 
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allPages.map(page => `  <url>
-    <loc>https://yoursite.com${page.loc}</loc>
-    ${page.lastmod ? `<lastmod>${new Date(page.lastmod).toISOString()}</lastmod>` : ''}
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-  </url>`).join('\n')}
-</urlset>`
-
-  setHeader(event, 'Content-Type', 'application/xml')
-  return sitemap
-})
+# Facebook Login
+FACEBOOK_CLIENT_ID="your-facebook-app-id"
+FACEBOOK_CLIENT_SECRET="your-facebook-app-secret"
 ```
 
-**Sitemap Index（當 APP 超過 50,000 個時）**:
+**Auth.js 配置檔案** (`server/api/auth/[...].ts`):
+
 ```typescript
-// server/api/sitemap-index.xml.get.ts
-export default defineEventHandler(async (event) => {
-  // 分割成多個 sitemap
-  const sitemaps = [
-    { loc: '/sitemap-static.xml', lastmod: new Date() },
-    { loc: '/sitemap-apps-1.xml', lastmod: new Date() },
-    { loc: '/sitemap-apps-2.xml', lastmod: new Date() },
-  ]
+import { NuxtAuthHandler } from '#auth'
+import GoogleProvider from 'next-auth/providers/google'
+import LineProvider from 'next-auth/providers/line'
+import FacebookProvider from 'next-auth/providers/facebook'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
-  // ... 生成 sitemap index XML
-})
-```
+export default NuxtAuthHandler({
+  secret: useRuntimeConfig().authSecret,
 
-**robots.txt 配置**:
-```typescript
-// public/robots.txt
-User-agent: *
-Allow: /
+  providers: [
+    // 稍後實作
+  ],
 
-Sitemap: https://yoursite.com/sitemap.xml
-```
-
-**或動態生成**:
-```typescript
-// server/api/robots.txt.get.ts
-export default defineEventHandler((event) => {
-  setHeader(event, 'Content-Type', 'text/plain')
-  return `User-agent: *
-Allow: /
-
-Sitemap: https://yoursite.com/sitemap.xml`
+  callbacks: {
+    // 稍後實作
+  }
 })
 ```
 
 **Tests**:
-- [ ] `/sitemap.xml` 可以正確訪問
-- [ ] Sitemap 包含所有公開的 APP
-- [ ] Sitemap 包含所有靜態頁面
-- [ ] XML 格式正確（通過驗證器）
-- [ ] lastmod 日期正確
-- [ ] 優先級設定合理
-- [ ] Gzip 壓縮正常（如啟用）
-- [ ] robots.txt 正確指向 sitemap
-- [ ] 使用 Google Search Console 驗證
-- [ ] 大量 APP 時 sitemap index 正常運作
+- [ ] `pnpm install` 成功
+- [ ] Nuxt 開發伺服器正常啟動
+- [ ] `/api/auth/signin` endpoint 存在
+- [ ] `/api/auth/session` endpoint 存在
+- [ ] TypeScript 型別正確
 
 **Implementation**:
-- [x] 選擇實作方案（使用手動實作 API）
-- [x] 建立 `server/api/sitemap.xml.get.ts`
-- [x] 建立 `server/api/robots.txt.get.ts`
-- [x] 添加快取機制（1 小時，使用 defineCachedEventHandler）
-- [x] 查詢所有公開 APP 並生成 URL
-- [x] 包含靜態頁面（首頁、探索、創建等）
-- [x] 設定正確的優先級和更新頻率
-- [x] 配置 robots.txt 指向 sitemap
-- [ ] 提交 sitemap 到 Google Search Console (部署後)
-- [ ] 編寫自動化測試 (可選)
+- [ ] 安裝 `@sidebase/nuxt-auth`
+- [ ] 更新 `nuxt.config.ts`
+- [ ] 建立 `.env.example` 範本
+- [ ] 建立 `server/api/auth/[...].ts`
+- [ ] 建立 Auth.js types (`types/auth.d.ts`)
+- [ ] 執行基本測試
 
-**快取策略**: ✅ 已實作
-- 使用 `defineCachedEventHandler`
-- 快取時間：1 小時
-- Key: 'sitemap'
+**Status**: Not Started
 
-**Status**: ✅ Completed
+---
+
+## Stage 3: 實作 OAuth Providers
+
+**Goal**: 設定 Google、LINE、Facebook OAuth providers
+
+**Success Criteria**:
+- Google OAuth 登入正常運作
+- LINE Login 正常運作
+- Facebook Login 正常運作
+- 使用者資料正確儲存到資料庫
+- Email 作為唯一識別（合併帳號）
+- Avatar 和使用者資訊正確同步
+
+**Provider 設定**:
+
+### 3.1 設定 OAuth 應用程式
+
+#### Google Cloud Console
+1. 前往 https://console.cloud.google.com/
+2. 建立新專案或選擇現有專案
+3. 啟用 Google+ API
+4. 建立 OAuth 2.0 憑證
+5. 設定授權重定向 URI：
+   - Development: `http://localhost:3000/api/auth/callback/google`
+   - Production: `https://yourdomain.com/api/auth/callback/google`
+
+#### LINE Developers Console
+1. 前往 https://developers.line.biz/console/
+2. 建立新 Provider 和 Channel (LINE Login)
+3. 設定 Callback URL：
+   - Development: `http://localhost:3000/api/auth/callback/line`
+   - Production: `https://yourdomain.com/api/auth/callback/line`
+4. 取得 Channel ID 和 Channel Secret
+
+#### Facebook Developers
+1. 前往 https://developers.facebook.com/
+2. 建立新應用程式
+3. 新增 Facebook Login 產品
+4. 設定 Valid OAuth Redirect URIs：
+   - Development: `http://localhost:3000/api/auth/callback/facebook`
+   - Production: `https://yourdomain.com/api/auth/callback/facebook`
+5. 取得 App ID 和 App Secret
+
+### 3.2 Auth.js Provider 實作
+
+**更新 `server/api/auth/[...].ts`**:
+
+```typescript
+import { NuxtAuthHandler } from '#auth'
+import GoogleProvider from 'next-auth/providers/google'
+import LineProvider from 'next-auth/providers/line'
+import FacebookProvider from 'next-auth/providers/facebook'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import bcrypt from 'bcryptjs'
+import { query } from '~/server/utils/db'
+
+const config = useRuntimeConfig()
+
+export default NuxtAuthHandler({
+  secret: config.authSecret,
+
+  providers: [
+    // Google OAuth
+    GoogleProvider({
+      clientId: config.googleClientId,
+      clientSecret: config.googleClientSecret,
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code'
+        }
+      }
+    }),
+
+    // LINE Login
+    LineProvider({
+      clientId: config.lineClientId,
+      clientSecret: config.lineClientSecret
+    }),
+
+    // Facebook Login
+    FacebookProvider({
+      clientId: config.facebookClientId,
+      clientSecret: config.facebookClientSecret
+    }),
+
+    // Credentials (保留現有 email/password 登入)
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        // 查詢使用者
+        const result = await query(
+          'SELECT * FROM users WHERE email = $1',
+          [credentials.email]
+        )
+
+        if (result.rows.length === 0) {
+          return null
+        }
+
+        const user = result.rows[0]
+
+        // 檢查是否為 OAuth 使用者（無密碼）
+        if (!user.password_hash) {
+          throw new Error('此帳號使用社群登入，請使用對應的社群帳號登入')
+        }
+
+        // 驗證密碼
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password_hash
+        )
+
+        if (!isValid) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username,
+          image: user.avatar_url
+        }
+      }
+    })
+  ],
+
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      // OAuth 登入處理
+      if (account?.provider !== 'credentials') {
+        try {
+          // 檢查使用者是否已存在
+          const existingUser = await query(
+            'SELECT * FROM users WHERE email = $1',
+            [user.email]
+          )
+
+          let userId: string
+
+          if (existingUser.rows.length === 0) {
+            // 建立新使用者
+            const username = user.email?.split('@')[0] || `user_${Date.now()}`
+            const result = await query(
+              `INSERT INTO users (email, username, avatar_url, image, email_verified)
+               VALUES ($1, $2, $3, $4, $5)
+               RETURNING id`,
+              [user.email, username, user.image, user.image, true]
+            )
+            userId = result.rows[0].id
+          } else {
+            userId = existingUser.rows[0].id
+
+            // 更新使用者資訊
+            await query(
+              `UPDATE users
+               SET image = $1, email_verified = $2, updated_at = NOW()
+               WHERE id = $3`,
+              [user.image, true, userId]
+            )
+          }
+
+          // 儲存或更新 account
+          await query(
+            `INSERT INTO accounts (
+              user_id, type, provider, provider_account_id,
+              access_token, refresh_token, expires_at, token_type, scope, id_token
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ON CONFLICT (provider, provider_account_id)
+            DO UPDATE SET
+              access_token = $5,
+              refresh_token = $6,
+              expires_at = $7,
+              updated_at = NOW()`,
+            [
+              userId,
+              account.type,
+              account.provider,
+              account.providerAccountId,
+              account.access_token,
+              account.refresh_token,
+              account.expires_at,
+              account.token_type,
+              account.scope,
+              account.id_token
+            ]
+          )
+
+          return true
+        } catch (error) {
+          console.error('Sign in error:', error)
+          return false
+        }
+      }
+
+      return true
+    },
+
+    async jwt({ token, user, account }) {
+      // 首次登入時，將使用者資訊加到 token
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
+        token.picture = user.image
+      }
+      return token
+    },
+
+    async session({ session, token }) {
+      // 將 token 資訊加到 session
+      if (token && session.user) {
+        session.user.id = token.id as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+        session.user.image = token.picture as string
+      }
+      return session
+    }
+  },
+
+  pages: {
+    signIn: '/login',  // 自訂登入頁面
+    error: '/login'    // 錯誤時重定向到登入頁
+  }
+})
+```
+
+**Type Definitions** (`types/auth.d.ts`):
+
+```typescript
+import { DefaultSession } from 'next-auth'
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string
+      email: string
+      name: string
+      image?: string
+    } & DefaultSession['user']
+  }
+
+  interface User {
+    id: string
+    email: string
+    name: string
+    image?: string
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string
+    email: string
+    name: string
+    picture?: string
+  }
+}
+```
+
+**Tests**:
+- [ ] Google OAuth 登入成功建立使用者
+- [ ] LINE Login 登入成功建立使用者
+- [ ] Facebook Login 登入成功建立使用者
+- [ ] 同一個 email 的 OAuth 登入不會建立重複使用者
+- [ ] OAuth 使用者資料正確儲存到 `accounts` 表
+- [ ] 使用者頭像正確同步
+- [ ] email/password 登入仍然正常運作
+- [ ] OAuth 使用者無法使用 email/password 登入（顯示錯誤訊息）
+
+**Implementation**:
+- [ ] 建立 Google Cloud Console 專案
+- [ ] 建立 LINE Developers Console Channel
+- [ ] 建立 Facebook Developers App
+- [ ] 實作 `server/api/auth/[...].ts`
+- [ ] 建立 `types/auth.d.ts`
+- [ ] 更新環境變數
+- [ ] 編寫整合測試
+
+**Status**: Not Started
+
+---
+
+## Stage 4: 更新現有 API 使用 Auth.js Session
+
+**Goal**: 將現有的 JWT middleware 改為使用 Auth.js session
+
+**Success Criteria**:
+- 現有受保護的 API 改用 Auth.js session
+- 向後相容（仍支援現有 JWT token，過渡期）
+- Session 驗證正常運作
+- 所有測試通過
+
+**Session Helper** (`server/utils/session.ts`):
+
+```typescript
+import { getServerSession } from '#auth'
+import type { H3Event } from 'h3'
+
+/**
+ * 取得當前登入使用者的 session
+ */
+export async function getSession(event: H3Event) {
+  return await getServerSession(event)
+}
+
+/**
+ * 要求使用者必須登入（middleware helper）
+ */
+export async function requireAuth(event: H3Event) {
+  const session = await getSession(event)
+
+  if (!session?.user?.id) {
+    throw createError({
+      statusCode: 401,
+      message: 'Unauthorized - Please sign in'
+    })
+  }
+
+  return session.user
+}
+```
+
+**更新 Server Middleware** (`server/middleware/auth.ts`):
+
+```typescript
+import { getServerSession } from '#auth'
+
+export default defineEventHandler(async (event) => {
+  const path = event.path
+
+  // 公開路徑（不需要認證）
+  const publicPaths = [
+    '/api/auth',  // Auth.js endpoints
+    '/api/health',
+    '/api/sitemap.xml',
+    '/api/robots.txt',
+    '/api/apps'  // GET 公開 apps
+  ]
+
+  // 檢查是否為公開路徑
+  if (publicPaths.some(p => path?.startsWith(p))) {
+    return
+  }
+
+  // 需要認證的路徑
+  const authRequiredPaths = [
+    '/api/apps/my-apps',
+    '/api/apps/favorites'
+  ]
+
+  const isAuthRequired = authRequiredPaths.some(p => path?.startsWith(p))
+
+  if (!isAuthRequired) {
+    return
+  }
+
+  // 驗證 Auth.js session
+  const session = await getServerSession(event)
+
+  if (session?.user?.id) {
+    // 將 userId 注入到 context
+    event.context.userId = session.user.id
+    return
+  }
+
+  // 如果沒有 Auth.js session，檢查是否有舊的 JWT token（向後相容）
+  const authorization = getHeader(event, 'authorization')
+  if (authorization) {
+    try {
+      const token = authorization.replace('Bearer ', '')
+      const { verifyToken } = await import('~/server/utils/jwt')
+      const decoded = verifyToken(token)
+
+      // 將 userId 注入到 context
+      event.context.userId = decoded.userId
+      return
+    } catch (error) {
+      // JWT 驗證失敗，繼續拋出 401
+    }
+  }
+
+  throw createError({
+    statusCode: 401,
+    message: 'Unauthorized'
+  })
+})
+```
+
+**更新 API Endpoints 範例** (`server/api/apps/index.post.ts`):
+
+```typescript
+import { requireAuth } from '~/server/utils/session'
+
+export default defineEventHandler(async (event) => {
+  // 使用新的 session helper
+  const user = await requireAuth(event)
+
+  // user.id 是當前登入使用者的 ID
+  const userId = user.id
+
+  // ... 現有邏輯
+})
+```
+
+**Tests**:
+- [ ] 使用 Auth.js session 的 API 正常運作
+- [ ] 使用舊 JWT token 的 API 仍然正常（向後相容）
+- [ ] 未登入使用者訪問受保護 API 返回 401
+- [ ] Session 過期後需要重新登入
+- [ ] 所有現有 API 測試通過
+
+**Implementation**:
+- [ ] 建立 `server/utils/session.ts`
+- [ ] 更新 `server/middleware/auth.ts`
+- [ ] 更新所有受保護的 API endpoints：
+  - [ ] `POST /api/apps`
+  - [ ] `PUT /api/apps/[id]`
+  - [ ] `DELETE /api/apps/[id]`
+  - [ ] `POST /api/apps/[id]/comments`
+  - [ ] `POST /api/apps/[id]/rate`
+  - [ ] `POST /api/apps/[id]/favorite`
+  - [ ] `GET /api/apps/my-apps`
+  - [ ] `GET /api/apps/favorites`
+  - [ ] `GET /api/auth/me`
+- [ ] 編寫單元測試
+- [ ] 編寫整合測試
+
+**Status**: Not Started
+
+---
+
+## Stage 5: 前端 UI 更新（OAuth 登入）
+
+**Goal**: 更新前端頁面和組件以支援 OAuth 登入
+
+**Success Criteria**:
+- 登入頁面顯示 Google、LINE、Facebook 登入按鈕
+- 註冊頁面顯示社群登入選項
+- OAuth 登入流程順暢
+- 登入後正確重定向
+- 顯示使用者頭像和名稱
+- 登出功能正常
+
+**Composables** (`composables/useAuth.ts`):
+
+```typescript
+import { signIn, signOut, useSession } from '#auth'
+
+export const useAuth = () => {
+  const { data: session, status } = useSession()
+
+  const isAuthenticated = computed(() => status.value === 'authenticated')
+  const user = computed(() => session.value?.user)
+
+  const loginWithGoogle = () => {
+    signIn('google', { callbackUrl: '/explore' })
+  }
+
+  const loginWithLine = () => {
+    signIn('line', { callbackUrl: '/explore' })
+  }
+
+  const loginWithFacebook = () => {
+    signIn('facebook', { callbackUrl: '/explore' })
+  }
+
+  const loginWithCredentials = async (email: string, password: string) => {
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false
+    })
+
+    if (result?.error) {
+      throw new Error(result.error)
+    }
+
+    return result
+  }
+
+  const logout = () => {
+    signOut({ callbackUrl: '/' })
+  }
+
+  return {
+    session,
+    status,
+    isAuthenticated,
+    user,
+    loginWithGoogle,
+    loginWithLine,
+    loginWithFacebook,
+    loginWithCredentials,
+    logout
+  }
+}
+```
+
+**登入頁面更新** (`pages/login.vue`):
+
+```vue
+<template>
+  <div class="container max-w-md mx-auto py-12">
+    <h1 class="text-3xl font-bold mb-8">登入</h1>
+
+    <!-- 社群登入 -->
+    <div class="space-y-3 mb-6">
+      <Button
+        @click="loginWithGoogle"
+        variant="outline"
+        class="w-full"
+      >
+        <GoogleIcon class="w-5 h-5 mr-2" />
+        使用 Google 登入
+      </Button>
+
+      <Button
+        @click="loginWithLine"
+        variant="outline"
+        class="w-full"
+      >
+        <LineIcon class="w-5 h-5 mr-2" />
+        使用 LINE 登入
+      </Button>
+
+      <Button
+        @click="loginWithFacebook"
+        variant="outline"
+        class="w-full"
+      >
+        <FacebookIcon class="w-5 h-5 mr-2" />
+        使用 Facebook 登入
+      </Button>
+    </div>
+
+    <!-- 分隔線 -->
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center text-sm">
+        <span class="px-2 bg-white text-gray-500">或使用 Email</span>
+      </div>
+    </div>
+
+    <!-- Email/Password 登入表單 -->
+    <form @submit.prevent="handleLogin" class="space-y-4">
+      <div>
+        <Label for="email">Email</Label>
+        <Input
+          id="email"
+          v-model="form.email"
+          type="email"
+          required
+        />
+      </div>
+
+      <div>
+        <Label for="password">密碼</Label>
+        <Input
+          id="password"
+          v-model="form.password"
+          type="password"
+          required
+        />
+      </div>
+
+      <Button type="submit" class="w-full" :disabled="loading">
+        {{ loading ? '登入中...' : '登入' }}
+      </Button>
+    </form>
+
+    <p class="mt-4 text-center text-sm text-gray-600">
+      還沒有帳號？
+      <NuxtLink to="/register" class="text-blue-600 hover:underline">
+        註冊
+      </NuxtLink>
+    </p>
+  </div>
+</template>
+
+<script setup lang="ts">
+const { loginWithGoogle, loginWithLine, loginWithFacebook, loginWithCredentials } = useAuth()
+
+const form = reactive({
+  email: '',
+  password: ''
+})
+
+const loading = ref(false)
+const error = ref('')
+
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    await loginWithCredentials(form.email, form.password)
+    navigateTo('/explore')
+  } catch (e: any) {
+    error.value = e.message || '登入失敗'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+```
+
+**Header Component 更新** (`components/layout/Header.vue`):
+
+```vue
+<template>
+  <header class="border-b">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+      <NuxtLink to="/" class="text-xl font-bold">
+        博幼APP分享
+      </NuxtLink>
+
+      <nav class="flex items-center gap-4">
+        <NuxtLink to="/explore">探索</NuxtLink>
+
+        <template v-if="isAuthenticated">
+          <NuxtLink to="/create">建立</NuxtLink>
+          <NuxtLink to="/my-apps">我的 Apps</NuxtLink>
+
+          <!-- 使用者選單 -->
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Avatar>
+                <AvatarImage :src="user?.image" :alt="user?.name" />
+                <AvatarFallback>{{ userInitials }}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent>
+              <DropdownMenuItem @click="navigateTo('/profile')">
+                個人資料
+              </DropdownMenuItem>
+              <DropdownMenuItem @click="logout">
+                登出
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </template>
+
+        <template v-else>
+          <Button @click="navigateTo('/login')" variant="outline">
+            登入
+          </Button>
+          <Button @click="navigateTo('/register')">
+            註冊
+          </Button>
+        </template>
+      </nav>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+const { isAuthenticated, user, logout } = useAuth()
+
+const userInitials = computed(() => {
+  if (!user.value?.name) return '?'
+  return user.value.name.charAt(0).toUpperCase()
+})
+</script>
+```
+
+**Icons** (`components/icons/`):
+
+需要建立 Google、LINE、Facebook 的 SVG icon 組件。
+
+**Tests** (E2E):
+- [ ] 可以點擊 Google 登入按鈕
+- [ ] 可以點擊 LINE 登入按鈕
+- [ ] 可以點擊 Facebook 登入按鈕
+- [ ] OAuth 登入後正確重定向到探索頁
+- [ ] 登入後 Header 顯示使用者頭像
+- [ ] 可以正常登出
+- [ ] Email/Password 登入仍然正常
+- [ ] 未登入使用者無法訪問 /create 頁面
+
+**Implementation**:
+- [ ] 建立 `composables/useAuth.ts`
+- [ ] 更新 `pages/login.vue`
+- [ ] 更新 `pages/register.vue`
+- [ ] 更新 `components/layout/Header.vue`
+- [ ] 建立 OAuth provider icons
+- [ ] 更新客戶端 middleware (`middleware/auth.ts`)
+- [ ] 編寫 E2E 測試
+
+**Status**: Not Started
+
+---
+
+## Stage 6: 帳號合併與安全性
+
+**Goal**: 處理帳號合併、安全性和邊界情況
+
+**Success Criteria**:
+- 相同 email 的不同 OAuth provider 可以合併
+- Email 驗證流程
+- 密碼重設功能（針對 email/password 使用者）
+- CSRF 保護
+- Rate limiting
+- 安全的 session 管理
+
+**帳號合併邏輯**:
+
+當使用者用不同 OAuth provider 但相同 email 登入時：
+1. 檢查是否已有該 email 的使用者
+2. 如果有，將新的 provider 加到 `accounts` 表
+3. 允許使用者用任何已綁定的 provider 登入
+
+**Email 驗證**:
+
+對於 email/password 註冊的使用者：
+1. 註冊後發送驗證 email
+2. 點擊驗證連結後設定 `email_verified = true`
+3. OAuth 使用者自動設為已驗證
+
+**密碼重設**:
+
+```typescript
+// server/api/auth/forgot-password.post.ts
+export default defineEventHandler(async (event) => {
+  const { email } = await readBody(event)
+
+  // 查詢使用者
+  const user = await query('SELECT * FROM users WHERE email = $1', [email])
+
+  if (user.rows.length === 0) {
+    // 不洩漏使用者是否存在
+    return { message: '如果該 email 存在，將會收到重設密碼郵件' }
+  }
+
+  // 建立重設 token
+  const token = crypto.randomUUID()
+  await query(
+    `INSERT INTO verification_tokens (identifier, token, expires)
+     VALUES ($1, $2, $3)`,
+    [email, token, new Date(Date.now() + 24 * 60 * 60 * 1000)]  // 24 小時
+  )
+
+  // 發送 email（使用 email service）
+  // await sendPasswordResetEmail(email, token)
+
+  return { message: '如果該 email 存在，將會收到重設密碼郵件' }
+})
+```
+
+**安全性加強**:
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  auth: {
+    // ... 現有設定
+
+    // 安全性選項
+    session: {
+      strategy: 'jwt',
+      maxAge: 30 * 24 * 60 * 60  // 30 天
+    }
+  },
+
+  // CSP 更新（允許 OAuth providers）
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'connect-src': ["'self'", 'https://accounts.google.com', 'https://access.line.me', 'https://www.facebook.com']
+      }
+    }
+  }
+})
+```
+
+**Tests**:
+- [ ] 相同 email 的不同 provider 可以綁定到同一帳號
+- [ ] Email 驗證流程正常運作
+- [ ] 密碼重設功能正常運作
+- [ ] CSRF token 驗證正常
+- [ ] Session 過期後需要重新登入
+- [ ] Rate limiting 防止暴力破解
+
+**Implementation**:
+- [ ] 實作帳號合併邏輯
+- [ ] 實作 email 驗證流程
+- [ ] 實作密碼重設功能
+- [ ] 設定 CSRF 保護
+- [ ] 設定 rate limiting
+- [ ] 更新安全性設定
+- [ ] 編寫安全性測試
+
+**Status**: Not Started
+
+---
+
+## 測試策略
+
+### 單元測試 (Vitest)
+
+```typescript
+// tests/unit/auth/oauth.test.ts
+describe('OAuth 認證', () => {
+  it('應該為新 Google 使用者建立帳號', async () => {
+    // ...
+  })
+
+  it('應該為現有使用者新增 OAuth provider', async () => {
+    // ...
+  })
+
+  it('應該合併相同 email 的帳號', async () => {
+    // ...
+  })
+})
+```
+
+### 整合測試 (Vitest)
+
+```typescript
+// tests/integration/auth/providers.test.ts
+describe('OAuth Providers', () => {
+  it('Google OAuth callback 應該建立使用者', async () => {
+    // Mock OAuth callback
+  })
+
+  it('LINE OAuth callback 應該建立使用者', async () => {
+    // Mock OAuth callback
+  })
+})
+```
+
+### E2E 測試 (Playwright)
+
+```typescript
+// tests/e2e/auth.spec.ts
+test('使用者可以用 Google 登入', async ({ page }) => {
+  await page.goto('/login')
+  await page.click('text=使用 Google 登入')
+  // ... OAuth 流程
+  await expect(page).toHaveURL('/explore')
+})
+```
 
 ---
 
 ## 開發順序
 
-1. ✅ 分析現有架構（已完成）
-2. ✅ 建立新實作計劃（本文件）
-3. ✅ Stage 1: 資料庫 Schema 更新
-4. ✅ Stage 2: 創作者連結 API 支援
-5. ✅ Stage 3: 前端 UI 更新
-6. ✅ Stage 4: SEO 優化
-7. ✅ Stage 5: Sitemap 生成
+1. ✅ 分析現有架構
+2. ✅ 建立 OAuth 整合計劃（本文件）
+3. ✅ Stage 1: 資料庫 Schema 更新 (2025-12-14)
+4. ⏳ Stage 2: 安裝和配置 Nuxt Auth
+5. ⏳ Stage 3: 實作 OAuth Providers
+6. ⏳ Stage 4: 更新現有 API
+7. ⏳ Stage 5: 前端 UI 更新
+8. ⏳ Stage 6: 帳號合併與安全性
 
 ---
 
-## 完成進度總結
+## 遷移計劃
 
-### ✅ 已完成
-- **Stage 1**: 資料庫 Schema 更新（創作者連結）
-- **Stage 2**: API 和工具函數更新
-- **Stage 3**: 前端 UI 更新（連結輸入與顯示）
-- **Stage 4**: SEO Meta Tags 優化
-- **Stage 5**: Sitemap 生成與提交
+### 現有使用者遷移
 
-### 📋 後續工作（可選）
-- 提交 sitemap 到 Google Search Console（部署後）
-- 提交 sitemap 到 Bing Webmaster Tools（部署後）
-- 使用 SEO 驗證工具測試 (Google Rich Results, Facebook Debugger, etc.)
+對於已經用 email/password 註冊的使用者：
+
+1. **無需遷移**：現有使用者可以繼續使用 email/password 登入
+2. **綁定社群帳號**：可以在個人設定頁面綁定 Google/LINE/Facebook
+3. **過渡期**：保留舊的 JWT token 驗證機制，逐步遷移
+
+### API Token 相容性
+
+在過渡期，同時支援：
+1. Auth.js session (推薦)
+2. 舊的 JWT Bearer token (向後相容)
+
+---
+
+## 部署檢查清單
+
+### 環境變數設定
+
+- [ ] `AUTH_SECRET` 設定
+- [ ] `AUTH_ORIGIN` 設定為正式網域
+- [ ] Google OAuth credentials
+- [ ] LINE Login credentials
+- [ ] Facebook Login credentials
+
+### OAuth 設定
+
+- [ ] Google Cloud Console 設定正式 callback URL
+- [ ] LINE Developers Console 設定正式 callback URL
+- [ ] Facebook Developers 設定正式 callback URL
+
+### 資料庫
+
+- [ ] 執行 migration 004
+- [ ] 備份現有資料
+- [ ] 驗證新表結構
+
+### 測試
+
+- [ ] 所有單元測試通過
+- [ ] 所有整合測試通過
+- [ ] E2E 測試在 staging 環境通過
+- [ ] 手動測試所有 OAuth providers
 
 ---
 
@@ -639,58 +1187,37 @@ Sitemap: https://yoursite.com/sitemap.xml`
 
 ### 技術考量
 
-1. **向後相容性**: ✅ 確保創作者連結為可選欄位，不影響現有資料
-2. **URL 驗證**: ⚠️ 需要嚴格驗證 URL 格式，防止 XSS 攻擊
-3. **效能**: ⚠️ Sitemap 生成需要快取機制，避免頻繁查詢資料庫
-4. **SEO 最佳實踐**: ⚠️ 確保 meta tags 符合 Google、Facebook、Twitter 的規範
-5. **安全性**: ⚠️ 創作者連結使用 `rel="noopener noreferrer"`
-6. **測試覆蓋**: ✅ 所有功能都需要完整的測試（TDD 原則）
+1. **向後相容性**: ✅ 保留現有 email/password 登入
+2. **資料一致性**: ⚠️ 確保 email 作為唯一識別
+3. **效能**: ⚠️ Session 查詢需要適當的索引
+4. **安全性**: ⚠️ OAuth tokens 需要安全儲存
+5. **測試覆蓋**: ✅ 所有功能需要完整測試（TDD 原則）
+6. **隱私**: ⚠️ 遵守 OAuth providers 的隱私政策
 
-### SEO 檢查清單
+### OAuth 最佳實踐
 
-- [ ] 每個頁面有唯一的 title 和 description
-- [ ] Title 長度 50-60 字元
-- [ ] Description 長度 150-160 字元
-- [ ] 所有圖片有 alt 文字
-- [ ] 使用語義化 HTML（h1, h2, article, etc.）
-- [ ] 確保行動裝置友好（responsive）
-- [ ] 頁面載入速度優化（< 3 秒）
-- [ ] HTTPS 啟用
-- [ ] Canonical URLs 設定正確
-- [ ] Structured Data 驗證通過
-
-### Sitemap 最佳實踐
-
-- [ ] 一個 sitemap 不超過 50,000 個 URL
-- [ ] Sitemap 檔案大小 < 50MB
-- [ ] 使用 Gzip 壓縮
-- [ ] 定期更新（建議每天）
-- [ ] 提交到 Google Search Console
-- [ ] 提交到 Bing Webmaster Tools
-- [ ] 在 robots.txt 中聲明
-- [ ] 使用 lastmod 標記最後修改時間
+- [ ] 使用 HTTPS (正式環境)
+- [ ] 定期更新 OAuth tokens
+- [ ] 適當的錯誤處理和使用者提示
+- [ ] CSRF 保護
+- [ ] State parameter 驗證
+- [ ] Redirect URL 白名單
 
 ---
 
-## 驗證與測試工具
+## 參考資源
 
-### SEO 驗證工具
-- [Google Rich Results Test](https://search.google.com/test/rich-results)
-- [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
-- [Twitter Card Validator](https://cards-dev.twitter.com/validator)
-- [Schema.org Validator](https://validator.schema.org/)
-- [Google Lighthouse](https://developers.google.com/web/tools/lighthouse)
-
-### Sitemap 驗證工具
-- [XML Sitemap Validator](https://www.xml-sitemaps.com/validate-xml-sitemap.html)
-- [Google Search Console](https://search.google.com/search-console)
-- [Bing Webmaster Tools](https://www.bing.com/webmasters)
+- [Auth.js Documentation](https://authjs.dev/)
+- [@sidebase/nuxt-auth](https://sidebase.io/nuxt-auth)
+- [Google OAuth 2.0](https://developers.google.com/identity/protocols/oauth2)
+- [LINE Login Documentation](https://developers.line.biz/en/docs/line-login/)
+- [Facebook Login](https://developers.facebook.com/docs/facebook-login/)
 
 ---
 
-**最後更新**: 2025-12-10
-**狀態**: ✅ 全部完成
-**完成日期**: 2025-12-10
+**建立日期**: 2025-12-14
+**狀態**: 📋 Planning
+**預計完成**: TBD
 
 ---
 
@@ -700,28 +1227,32 @@ Sitemap: https://yoursite.com/sitemap.xml`
 
 ```bash
 # 1. 建立功能分支
-git checkout -b feature/creator-links-and-seo
+git checkout -b feature/oauth-social-login
 
 # 2. Stage 1: 資料庫更新
-# 建立並執行 migration
+# 建立並執行 migration 004
 
-# 3. Stage 2: 後端 API（TDD）
+# 3. Stage 2: 安裝 Nuxt Auth（TDD）
+pnpm add @sidebase/nuxt-auth
 # 先寫測試，再實作功能
 
-# 4. Stage 3: 前端 UI
-# 更新組件和頁面
+# 4. Stage 3: OAuth Providers
+# 設定 Google, LINE, Facebook
 
-# 5. Stage 4: SEO
-# 添加 meta tags 和 structured data
+# 5. Stage 4: 更新 API
+# 遷移到 Auth.js session
 
-# 6. Stage 5: Sitemap
-# 設定 sitemap 生成與提交
+# 6. Stage 5: 前端 UI
+# 更新登入、註冊頁面
 
-# 7. 測試與驗證
-# 執行所有測試，使用 SEO 工具驗證
+# 7. Stage 6: 安全性
+# 實作帳號合併、email 驗證等
 
-# 8. 提交與部署
-git commit -m "feat: add creator links and SEO optimization"
+# 8. 測試與驗證
+# 執行所有測試
+
+# 9. 提交與部署
+git commit -m "feat: add OAuth social login (Google, LINE, Facebook)"
 ```
 
 遵循 TDD 原則，確保每個階段都有充分的測試覆蓋！

@@ -43,3 +43,7 @@ test-results
 .wrangler
 wrangler.toml
 .serena
+
+# Database backups
+backups/
+backup_db.sh
