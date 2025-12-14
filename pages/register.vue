@@ -9,6 +9,52 @@
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <!-- OAuth 社群登入/註冊 -->
+        <div class="space-y-3 mb-6">
+          <Button
+            @click="loginWithGoogle"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <GoogleIcon />
+            使用 Google 註冊
+          </Button>
+
+          <Button
+            @click="loginWithLine"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <LineIcon />
+            使用 LINE 註冊
+          </Button>
+
+          <Button
+            @click="loginWithFacebook"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <FacebookIcon />
+            使用 Facebook 註冊
+          </Button>
+        </div>
+
+        <!-- 分隔線 -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t-2 border-muted"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-card text-muted-foreground font-mono text-xs uppercase tracking-wide">
+              或使用 Email 註冊
+            </span>
+          </div>
+        </div>
+
+        <!-- Email/Password 註冊表單 -->
         <form @submit.prevent="handleRegister" class="space-y-6">
           <div class="space-y-2">
             <label for="email" class="text-xs font-bold uppercase tracking-wide">Email</label>
@@ -90,6 +136,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import GoogleIcon from '@/components/icons/GoogleIcon.vue'
+import LineIcon from '@/components/icons/LineIcon.vue'
+import FacebookIcon from '@/components/icons/FacebookIcon.vue'
 
 definePageMeta({
   layout: 'default',
@@ -97,7 +146,7 @@ definePageMeta({
 })
 
 const router = useRouter()
-const { register } = useAuth()
+const { loginWithGoogle, loginWithLine, loginWithFacebook } = useOAuthAuth()
 
 const email = ref('')
 const username = ref('')
@@ -130,10 +179,20 @@ const handleRegister = async () => {
   loading.value = true
 
   try {
-    await register(email.value, username.value, password.value)
+    // 使用舊的註冊 API（Legacy）
+    // 注意：這仍然使用舊的 email/password 註冊方式
+    // OAuth 註冊會在首次 OAuth 登入時自動建立帳號
+    const response = await $fetch('/api/auth/register', {
+      method: 'POST',
+      body: {
+        email: email.value,
+        username: username.value,
+        password: password.value
+      }
+    })
 
-    // 註冊成功，導向首頁
-    await router.push('/')
+    // 註冊成功，導向探索頁面
+    await router.push('/explore')
   } catch (e: any) {
     console.error('Register error:', e)
     error.value = e.data?.message || e.message || '註冊失敗，請稍後再試'

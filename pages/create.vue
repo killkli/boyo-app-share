@@ -198,7 +198,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useAuth } from '~/composables/useAuth'
 import { useRouter } from 'vue-router'
 import { useThumbnail } from '~/composables/useThumbnail'
 import { Button } from '~/components/ui/button'
@@ -234,7 +233,7 @@ definePageMeta({
   middleware: 'auth' // 需要登入才能訪問
 })
 
-const { token } = useAuth()
+const { token } = useLegacyAuth()
 const router = useRouter()
 const { generateThumbnail, blobToBase64 } = useThumbnail()
 

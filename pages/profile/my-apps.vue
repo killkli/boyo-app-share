@@ -85,7 +85,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
 import AppGrid from '@/components/app/AppGrid.vue'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -114,7 +113,7 @@ interface App {
 
 const route = useRoute()
 const router = useRouter()
-const { token } = useAuth()
+const { token } = useLegacyAuth()
 
 const apps = ref<App[]>([])
 const loading = ref(true)

@@ -273,7 +273,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onActivated, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
 import AppPreview from '@/components/app/AppPreview.vue'
 import Rating from '@/components/common/Rating.vue'
 import Comments from '@/components/common/Comments.vue'
@@ -360,7 +359,7 @@ const isFullscreen = ref(false)
 const shareButtonText = ref('分享')
 
 // 獲取目前使用者 (用於判斷是否可編輯)
-const { user, token } = useAuth()
+const { user, token } = useLegacyAuth()
 
 // 判斷是否已登入
 const isAuthenticated = computed(() => !!user.value)

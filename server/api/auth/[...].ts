@@ -1,10 +1,17 @@
 import { NuxtAuthHandler } from '#auth'
-import GoogleProvider from 'next-auth/providers/google'
-import LineProvider from 'next-auth/providers/line'
-import FacebookProvider from 'next-auth/providers/facebook'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import type { AuthOptions } from 'next-auth'
+import _GoogleProvider from 'next-auth/providers/google'
+import _LINEProvider from 'next-auth/providers/line'
+import _FacebookProvider from 'next-auth/providers/facebook'
+import _CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { query } from '~/server/utils/db'
+
+// Handle default exports from CommonJS modules
+const GoogleProvider = (_GoogleProvider as any).default || _GoogleProvider
+const LINEProvider = (_LINEProvider as any).default || _LINEProvider
+const FacebookProvider = (_FacebookProvider as any).default || _FacebookProvider
+const CredentialsProvider = (_CredentialsProvider as any).default || _CredentialsProvider
 
 const config = useRuntimeConfig()
 
@@ -31,7 +38,7 @@ export default NuxtAuthHandler({
     }),
 
     // LINE Login
-    LineProvider({
+    LINEProvider({
       clientId: config.lineClientId,
       clientSecret: config.lineClientSecret
     }),
@@ -49,7 +56,7 @@ export default NuxtAuthHandler({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials) {
+      async authorize(credentials: any) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
@@ -100,7 +107,7 @@ export default NuxtAuthHandler({
   callbacks: {
     async signIn({ user, account, profile }) {
       // OAuth 登入處理
-      if (account?.provider !== 'credentials') {
+      if (account && account.provider !== 'credentials') {
         try {
           // 檢查使用者是否已存在
           const existingUser = await query(

@@ -65,10 +65,10 @@
                 <!-- User Avatar - Square with border -->
                 <div class="flex items-center gap-2 px-3 py-2 border-2 border-foreground bg-muted">
                   <div class="w-8 h-8 border-2 border-foreground bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground uppercase">
-                    {{ getUserInitials(user.username) }}
+                    {{ getUserInitials(user.name || user.email || 'U') }}
                   </div>
                   <span class="font-bold text-sm">
-                    {{ user.username }}
+                    {{ user.name || user.email }}
                   </span>
                 </div>
 
@@ -155,9 +155,9 @@
         <template v-else>
           <div class="flex items-center gap-4 py-2">
             <div class="w-12 h-12 border-3 border-black bg-primary flex items-center justify-center font-bold text-lg text-primary-foreground uppercase">
-              {{ getUserInitials(user.username) }}
+              {{ getUserInitials(user.name || user.email || 'U') }}
             </div>
-            <span class="text-2xl font-bold text-black">{{ user.username }}</span>
+            <span class="text-2xl font-bold text-black">{{ user.name || user.email }}</span>
           </div>
 
           <button
@@ -198,17 +198,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 const config = useRuntimeConfig()
-const { user, logout, initAuth } = useAuth()
+const { user, logout } = useOAuthAuth()
 const router = useRouter()
 
 const isMenuOpen = ref(false)
-
-// Initialize auth state
-onMounted(() => {
-  initAuth()
-})
 
 // Get user initials for avatar
 const getUserInitials = (username: string): string => {

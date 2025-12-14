@@ -254,7 +254,7 @@ interface App {
 
 const route = useRoute()
 const router = useRouter()
-const { user, token } = useAuth()
+const { user, token } = useLegacyAuth()
 
 const app = ref<App | null>(null)
 const loading = ref(true)

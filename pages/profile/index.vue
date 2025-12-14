@@ -20,10 +20,10 @@
           <div class="flex items-center gap-4">
             <!-- 方形頭像 -->
             <div class="w-16 h-16 border-3 border-foreground bg-primary flex items-center justify-center font-bold text-xl text-primary-foreground uppercase">
-              {{ getUserInitials(user.username) }}
+              {{ getUserInitials(user.name || user.email || 'U') }}
             </div>
             <div>
-              <p class="font-bold text-xl">{{ user.username }}</p>
+              <p class="font-bold text-xl">{{ user.name || user.email }}</p>
               <p class="text-sm text-muted-foreground font-mono">{{ user.email }}</p>
             </div>
           </div>
@@ -90,7 +90,7 @@ definePageMeta({
   middleware: 'auth' // 需要登入才能訪問
 })
 
-const { user } = useAuth()
+const { user } = useOAuthAuth()
 
 // 如果未登入，重定向到登入頁
 if (!user.value) {

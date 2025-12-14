@@ -9,6 +9,52 @@
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <!-- OAuth 社群登入 -->
+        <div class="space-y-3 mb-6">
+          <Button
+            @click="loginWithGoogle"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <GoogleIcon />
+            使用 Google 登入
+          </Button>
+
+          <Button
+            @click="loginWithLine"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <LineIcon />
+            使用 LINE 登入
+          </Button>
+
+          <Button
+            @click="loginWithFacebook"
+            variant="outline"
+            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+            type="button"
+          >
+            <FacebookIcon />
+            使用 Facebook 登入
+          </Button>
+        </div>
+
+        <!-- 分隔線 -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t-2 border-muted"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-card text-muted-foreground font-mono text-xs uppercase tracking-wide">
+              或使用 Email
+            </span>
+          </div>
+        </div>
+
+        <!-- Email/Password 登入表單 -->
         <form @submit.prevent="handleLogin" class="space-y-6">
           <div class="space-y-2">
             <label for="email" class="text-xs font-bold uppercase tracking-wide">Email</label>
@@ -61,6 +107,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import GoogleIcon from '@/components/icons/GoogleIcon.vue'
+import LineIcon from '@/components/icons/LineIcon.vue'
+import FacebookIcon from '@/components/icons/FacebookIcon.vue'
 
 definePageMeta({
   layout: 'default',
@@ -68,7 +117,7 @@ definePageMeta({
 })
 
 const router = useRouter()
-const { login } = useAuth()
+const { loginWithGoogle, loginWithLine, loginWithFacebook, loginWithCredentials } = useOAuthAuth()
 
 const email = ref('')
 const password = ref('')
@@ -80,14 +129,14 @@ const handleLogin = async () => {
   loading.value = true
 
   try {
-    await login(email.value, password.value)
+    await loginWithCredentials(email.value, password.value)
 
-    // 登入成功，導向首頁或原本要前往的頁面
+    // 登入成功，導向探索頁面或原本要前往的頁面
     const redirect = router.currentRoute.value.query.redirect as string
-    await router.push(redirect || '/')
+    await router.push(redirect || '/explore')
   } catch (e: any) {
     console.error('Login error:', e)
-    error.value = e.data?.message || e.message || '登入失敗，請檢查您的帳號密碼'
+    error.value = e.message || '登入失敗，請檢查您的帳號密碼'
   } finally {
     loading.value = false
   }

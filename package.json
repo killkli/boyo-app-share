@@ -33,7 +33,7 @@
     "jszip": "^3.10.1",
     "lucide-vue-next": "^0.556.0",
     "mime-types": "^2.1.35",
-    "next-auth": "^4.24.13",
+    "next-auth": "~4.21.1",
     "nuxt": "^3.11.0",
     "pg": "^8.11.3",
     "reka-ui": "^2.6.1",
