@@ -1,4 +1,7 @@
 import { NuxtAuthHandler } from '#auth'
+import GoogleProvider from 'next-auth/providers/google'
+import LineProvider from 'next-auth/providers/line'
+import FacebookProvider from 'next-auth/providers/facebook'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { query } from '~/server/utils/db'
@@ -14,6 +17,31 @@ export default NuxtAuthHandler({
   },
 
   providers: [
+    // Google OAuth 2.0
+    GoogleProvider({
+      clientId: config.googleClientId,
+      clientSecret: config.googleClientSecret,
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code'
+        }
+      }
+    }),
+
+    // LINE Login
+    LineProvider({
+      clientId: config.lineClientId,
+      clientSecret: config.lineClientSecret
+    }),
+
+    // Facebook Login
+    FacebookProvider({
+      clientId: config.facebookClientId,
+      clientSecret: config.facebookClientSecret
+    }),
+
     // Credentials Provider (保留現有 email/password 登入)
     CredentialsProvider({
       name: 'credentials',
@@ -67,14 +95,81 @@ export default NuxtAuthHandler({
         }
       }
     })
-
-    // OAuth Providers 將在 Stage 3 實作
-    // GoogleProvider({...})
-    // LineProvider({...})
-    // FacebookProvider({...})
   ],
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // OAuth 登入處理
+      if (account?.provider !== 'credentials') {
+        try {
+          // 檢查使用者是否已存在
+          const existingUser = await query(
+            'SELECT id, email, username, image FROM users WHERE email = $1',
+            [user.email]
+          )
+
+          let userId: string
+
+          if (existingUser.rows.length === 0) {
+            // 建立新使用者
+            const username = user.email?.split('@')[0] || user.name || `user_${Date.now()}`
+            const result = await query(
+              `INSERT INTO users (email, username, avatar_url, image, email_verified)
+               VALUES ($1, $2, $3, $4, $5)
+               RETURNING id`,
+              [user.email, username, user.image, user.image, true]
+            )
+            userId = result.rows[0].id
+            user.id = userId
+          } else {
+            userId = existingUser.rows[0].id
+            user.id = userId
+
+            // 更新使用者資訊（同步最新的頭像和驗證狀態）
+            await query(
+              `UPDATE users
+               SET image = $1, email_verified = $2, updated_at = NOW()
+               WHERE id = $3`,
+              [user.image, true, userId]
+            )
+          }
+
+          // 儲存或更新 account（使用 ON CONFLICT 避免重複）
+          await query(
+            `INSERT INTO accounts (
+              user_id, type, provider, provider_account_id,
+              access_token, refresh_token, expires_at, token_type, scope, id_token
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ON CONFLICT (provider, provider_account_id)
+            DO UPDATE SET
+              access_token = $5,
+              refresh_token = $6,
+              expires_at = $7,
+              updated_at = NOW()`,
+            [
+              userId,
+              account.type,
+              account.provider,
+              account.providerAccountId,
+              account.access_token,
+              account.refresh_token,
+              account.expires_at,
+              account.token_type,
+              account.scope,
+              account.id_token
+            ]
+          )
+
+          return true
+        } catch (error) {
+          console.error('OAuth sign in error:', error)
+          return false
+        }
+      }
+
+      return true
+    },
+
     async jwt({ token, user }) {
       // 首次登入時，將使用者資訊加到 token
       if (user) {
