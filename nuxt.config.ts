@@ -13,6 +13,20 @@ export default defineNuxtConfig({
     // Private (server-only)
     databaseUrl: process.env.DATABASE_URL,
     jwtSecret: process.env.JWT_SECRET,
+
+    // Auth.js
+    authSecret: process.env.AUTH_SECRET,
+    authOrigin: process.env.AUTH_ORIGIN || 'http://localhost:3000',
+
+    // OAuth Providers
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    lineClientId: process.env.LINE_CLIENT_ID,
+    lineClientSecret: process.env.LINE_CLIENT_SECRET,
+    facebookClientId: process.env.FACEBOOK_CLIENT_ID,
+    facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+
+    // S3
     tebiEndpoint: process.env.TEBI_ENDPOINT || 'https://s3.tebi.io',
     tebiAccessKey: process.env.TEBI_ACCESS_KEY,
     tebiSecretKey: process.env.TEBI_SECRET_KEY,
@@ -34,8 +48,22 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@sidebase/nuxt-auth'
   ],
+
+  // Auth.js 配置
+  auth: {
+    // 基本設定
+    baseURL: process.env.AUTH_ORIGIN || 'http://localhost:3000',
+    provider: {
+      type: 'authjs'
+    },
+    // 全域中間件設定（手動控制需要認證的頁面）
+    globalAppMiddleware: {
+      isEnabled: false
+    }
+  },
 
   // shadcn-nuxt 配置
   shadcn: {

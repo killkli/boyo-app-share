@@ -10,7 +10,7 @@ export interface AuthState {
   token: string
 }
 
-export const useAuth = () => {
+export const useLegacyAuth = () => {
   const user = useState<User | null>('user', () => null)
   const token = useState<string>('token', () => '')
 
