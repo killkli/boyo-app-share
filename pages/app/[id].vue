@@ -358,15 +358,12 @@ const favoriteSubmitting = ref(false)
 const isFullscreen = ref(false)
 const shareButtonText = ref('分享')
 
-// 獲取目前使用者 (用於判斷是否可編輯)
-const { user, token } = useLegacyAuth()
-
-// 判斷是否已登入
-const isAuthenticated = computed(() => !!user.value)
+// 獲取目前使用者和認證狀態 (支援 OAuth 和 Legacy token)
+const { isAuthenticated, user, getAuthHeaders } = useApiAuth()
 
 // 判斷是否可編輯
 const canEdit = computed(() => {
-  if (!user.value || !app.value) return false
+  if (!isAuthenticated.value || !user.value || !app.value) return false
   return user.value.id === app.value.user_id
 })
 
@@ -637,14 +634,12 @@ const fetchComments = async () => {
 
 // 提交評論
 const handleSubmitComment = async (content: string) => {
-  if (!app.value || !token.value) return
+  if (!app.value || !isAuthenticated.value) return
 
   try {
     await $fetch(`/api/apps/${app.value.id}/comments`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
+      headers: getAuthHeaders(),
       body: { content }
     })
 
@@ -663,15 +658,13 @@ const handleSubmitComment = async (content: string) => {
 
 // 提交評分
 const handleRate = async (rating: number) => {
-  if (!app.value || !token.value) return
+  if (!app.value || !isAuthenticated.value) return
 
   try {
     ratingSubmitting.value = true
     const response = await $fetch<{ avgRating: number, ratingCount: number }>(`/api/apps/${app.value.id}/rate`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
+      headers: getAuthHeaders(),
       body: { rating }
     })
 
@@ -693,15 +686,13 @@ const handleRate = async (rating: number) => {
 
 // 切換收藏
 const handleToggleFavorite = async () => {
-  if (!app.value || !token.value) return
+  if (!app.value || !isAuthenticated.value) return
 
   try {
     favoriteSubmitting.value = true
     const response = await $fetch<{ isFavorited: boolean, favoriteCount: number }>(`/api/apps/${app.value.id}/favorite`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
+      headers: getAuthHeaders()
     })
 
     // 更新收藏狀態

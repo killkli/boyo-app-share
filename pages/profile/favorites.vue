@@ -107,7 +107,7 @@ interface App {
 
 const route = useRoute()
 const router = useRouter()
-const { token } = useLegacyAuth()
+const { getAuthHeaders } = useApiAuth()
 
 const apps = ref<App[]>([])
 const loading = ref(true)
@@ -169,9 +169,7 @@ const fetchApps = async () => {
       totalPages: number
     }>('/api/apps/favorites', {
       params,
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
+      headers: getAuthHeaders()
     })
 
     apps.value = response.apps

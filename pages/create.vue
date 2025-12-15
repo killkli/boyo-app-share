@@ -233,7 +233,7 @@ definePageMeta({
   middleware: 'auth' // 需要登入才能訪問
 })
 
-const { token } = useLegacyAuth()
+const { getAuthHeaders } = useApiAuth()
 const router = useRouter()
 const { generateThumbnail, blobToBase64 } = useThumbnail()
 
@@ -417,9 +417,7 @@ const handleSubmit = async () => {
 
     const response = await $fetch<{ app: any; url: string }>('/api/apps', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
+      headers: getAuthHeaders(),
       body: {
         uploadType: uploadType.value,
         title: form.value.title,

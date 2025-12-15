@@ -194,10 +194,26 @@ export default NuxtAuthHandler({
       return true
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       // 首次登入時，將使用者資訊加到 token
       if (user) {
-        token.id = user.id
+        // 對於 OAuth 登入，從資料庫獲取正確的 user ID
+        if (account && account.provider !== 'credentials') {
+          try {
+            const dbUser = await query(
+              'SELECT id FROM users WHERE email = $1',
+              [user.email]
+            )
+            if (dbUser.rows.length > 0) {
+              token.id = dbUser.rows[0].id
+            }
+          } catch (error) {
+            console.error('Error fetching user ID in jwt callback:', error)
+          }
+        } else {
+          // credentials 登入已經有正確的 ID
+          token.id = user.id
+        }
         token.email = user.email
         token.name = user.name
         token.picture = user.image

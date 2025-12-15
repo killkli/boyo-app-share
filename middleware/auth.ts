@@ -1,17 +1,23 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-  const { token, user } = useLegacyAuth()
+  // 使用 OAuth session (Auth.js)
+  const { status } = useAuth()
 
-  // 如果沒有 token，重定向到登入頁面
-  if (!token.value) {
-    return navigateTo({
-      path: '/login',
-      query: { redirect: to.fullPath }
-    })
+  // 也檢查 legacy token 以向後相容
+  const { token } = useLegacyAuth()
+
+  // 如果 OAuth session 已認證，允許訪問
+  if (status.value === 'authenticated') {
+    return
   }
 
-  // 如果有 token 但沒有使用者資料，嘗試獲取使用者資料
-  if (!user.value) {
-    const { fetchUser } = useLegacyAuth()
-    fetchUser()
+  // 如果有 legacy token，也允許訪問（向後相容）
+  if (token.value) {
+    return
   }
+
+  // 否則重定向到登入頁面
+  return navigateTo({
+    path: '/login',
+    query: { redirect: to.fullPath }
+  })
 })

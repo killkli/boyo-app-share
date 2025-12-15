@@ -254,7 +254,7 @@ interface App {
 
 const route = useRoute()
 const router = useRouter()
-const { user, token } = useLegacyAuth()
+const { user, isAuthenticated, getAuthHeaders } = useApiAuth()
 
 const app = ref<App | null>(null)
 const loading = ref(true)
@@ -285,7 +285,7 @@ const reuploading = ref(false)
 
 // 判斷是否可編輯
 const canEdit = computed(() => {
-  if (!user.value || !app.value) return false
+  if (!isAuthenticated.value || !user.value || !app.value) return false
   return user.value.id === app.value.user_id
 })
 
@@ -353,9 +353,7 @@ const handleSubmit = async () => {
     const appId = route.params.id as string
     await $fetch(`/api/apps/${appId}`, {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
+      headers: getAuthHeaders(),
       body: {
         title: form.value.title,
         description: form.value.description || null,
@@ -392,9 +390,7 @@ const handleDelete = async () => {
     const appId = route.params.id as string
     await $fetch(`/api/apps/${appId}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
+      headers: getAuthHeaders()
     } as any)
 
     // 刪除成功後跳轉到首頁
@@ -460,9 +456,7 @@ const handleReupload = async () => {
     const appId = route.params.id as string
     await $fetch(`/api/apps/${appId}/reupload`, {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
+      headers: getAuthHeaders(),
       body: {
         htmlContent: reuploadForm.value.htmlContent,
         regenerateThumbnail: reuploadForm.value.regenerateThumbnail
