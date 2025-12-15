@@ -35,7 +35,17 @@ useHead({
     { name: 'twitter:description', content: config.public.appDescription }
   ],
   link: [
-    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/logo-16.png' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/logo-32.png' },
+    { rel: 'icon', type: 'image/png', sizes: '48x48', href: '/logo-48.png' },
+    { rel: 'icon', type: 'image/png', sizes: '64x64', href: '/logo-64.png' },
+    { rel: 'icon', type: 'image/png', sizes: '128x128', href: '/logo-128.png' },
+    { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/logo-192.png' },
+    { rel: 'icon', type: 'image/png', sizes: '256x256', href: '/logo-256.png' },
+    { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/logo-512.png' },
+    { rel: 'icon', type: 'image/png', sizes: '1024x1024', href: '/logo-1024.png' }
   ]
 })
 </script>
