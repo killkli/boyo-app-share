@@ -10,11 +10,14 @@
           <!-- Logo - Monospace, bold, uppercase -->
           <NuxtLink
             to="/"
-            class="text-xl md:text-2xl font-mono font-bold uppercase tracking-tight hover:text-primary transition-colors z-50 relative focus-ring"
+            class="hover:text-primary transition-colors z-50 relative focus-ring"
             @click="isMenuOpen = false"
             aria-label="返回首頁"
           >
-            {{ config.public.appName }}
+            <div class="flex items-center gap-3">
+              <img src="/logo.png" alt="博幼APP分享平臺" class="h-12 w-auto" />
+              <span class="text-xl md:text-2xl font-mono font-bold uppercase tracking-tight">博幼APP分享平臺</span>
+            </div>
           </NuxtLink>
 
           <!-- Desktop Navigation -->
