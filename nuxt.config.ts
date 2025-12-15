@@ -59,6 +59,10 @@ export default defineNuxtConfig({
     provider: {
       type: 'authjs'
     },
+    // Session 配置
+    session: {
+      strategy: 'jwt'
+    },
     // 全域中間件設定（手動控制需要認證的頁面）
     globalAppMiddleware: {
       isEnabled: false

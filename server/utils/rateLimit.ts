@@ -14,6 +14,18 @@ const RATE_LIMIT_CONFIG = {
     limit: 100,
     window: 60 * 1000
   },
+  // 敏感認證 endpoints：更嚴格的限制（防止暴力破解）
+  SENSITIVE_AUTH: {
+    limit: 5, // 每分鐘只允許 5 次嘗試
+    window: 60 * 1000,
+    paths: [
+      '/api/auth/login',
+      '/api/auth/register',
+      '/api/auth/forgot-password',
+      '/api/auth/reset-password',
+      '/api/auth/send-verification-email'
+    ]
+  },
   // 白名單路徑（不限制）
   WHITELIST_PATHS: ['/api/health', '/api/status']
 }
@@ -63,12 +75,27 @@ export async function checkRateLimit(
   cleanupExpiredRecords()
 
   // 決定使用哪個配置
-  const config = userId
-    ? RATE_LIMIT_CONFIG.AUTHENTICATED
-    : RATE_LIMIT_CONFIG.ANONYMOUS
+  let config
+  let keyPrefix = ''
+
+  // 檢查是否為敏感認證 endpoint
+  const isSensitiveAuth = RATE_LIMIT_CONFIG.SENSITIVE_AUTH.paths.some(p => path.startsWith(p))
+
+  if (isSensitiveAuth) {
+    config = RATE_LIMIT_CONFIG.SENSITIVE_AUTH
+    keyPrefix = 'auth'
+  } else {
+    config = userId
+      ? RATE_LIMIT_CONFIG.AUTHENTICATED
+      : RATE_LIMIT_CONFIG.ANONYMOUS
+    keyPrefix = userId ? 'user' : 'ip'
+  }
 
   // 生成唯一鍵（IP 或 userId）
-  const key = userId ? `user:${userId}` : `ip:${ip}`
+  // 對於敏感 endpoints，使用 IP 而非 userId，防止同一用戶多帳號攻擊
+  const key = isSensitiveAuth
+    ? `${keyPrefix}:${ip}:${path}`
+    : (userId ? `${keyPrefix}:${userId}` : `${keyPrefix}:${ip}`)
 
   const now = Date.now()
   let record = requestStore.get(key)

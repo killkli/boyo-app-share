@@ -20,8 +20,25 @@ export default NuxtAuthHandler({
 
   // JWT strategy (與現有系統相容)
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30 天
   },
+
+  // Cookie 安全性設定
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
+
+  // 啟用 debug 模式（僅開發環境）
+  debug: process.env.NODE_ENV === 'development',
 
   providers: [
     // Google OAuth 2.0

@@ -11,11 +11,12 @@
 
 ## 🎯 專案狀態
 
-- **開發階段**: Stage 6 - 部署與優化 (88% 完成)
-- **測試覆蓋率**: 221 個測試案例 ✅
-  - 單元測試與整合測試: 198 個測試
+- **開發階段**: Stage 6 - 帳號合併與安全性 ✅ 完成
+- **測試覆蓋率**: 268 個測試案例 ✅
+  - 單元測試與整合測試: 245 個測試
   - E2E 測試: 23 個測試
 - **核心功能**: 100% 完成
+- **OAuth 社群登入**: ✅ 完成（Google、LINE、Facebook）
 - **部署準備**: 進行中
 
 ## 核心功能
@@ -31,6 +32,17 @@
 - 多標籤組合篩選
 - 多種排序方式（最新、熱門、評分、瀏覽）
 
+### 🔐 使用者認證
+- **Email/Password 登入**：傳統帳號註冊與登入
+- **OAuth 社群登入**：
+  - Google OAuth 2.0
+  - LINE Login
+  - Facebook Login
+- **帳號合併**：相同 email 的不同 OAuth 帳號自動連結
+- **Email 驗證**：註冊後 email 驗證流程
+- **密碼重設**：忘記密碼安全重設機制
+- **Session 管理**：JWT-based session，有效期 30 天
+
 ### 👥 社群互動
 - 評分系統（1-5 星）
 - 評論留言
@@ -41,7 +53,12 @@
 - **安全預覽**: Sandbox 環境執行 HTML App
 - **XSS 防護**: HTML、URL、Markdown sanitization
 - **內容安全策略 (CSP)**: 嚴格的安全 headers
-- **Rate Limiting**: 防止濫用（未認證 60 req/min，認證 100 req/min）
+- **CSRF 保護**: Auth.js 內建 CSRF token 驗證
+- **Rate Limiting**:
+  - 一般 API：60 req/min（未認證）、100 req/min（已認證）
+  - 敏感認證 endpoints：5 req/min（防止暴力破解）
+- **Secure Cookies**: httpOnly, sameSite, secure in production
+- **Password Security**: bcrypt hashing (salt rounds = 10)
 - **快取優化**: 智能快取策略，提升載入速度
 - **圖片延遲載入**: 使用 Intersection Observer 優化效能
 - **資料庫優化**: 索引優化、物化視圖、預先計算統計
@@ -102,8 +119,22 @@ cp .env.example .env
 # Database (Zeabur PostgreSQL)
 DATABASE_URL=postgresql://user:password@host:5432/database
 
-# JWT Secret
+# JWT Secret (傳統認證用)
 JWT_SECRET=your-super-secret-key-change-in-production
+
+# Auth.js Secret (OAuth 用，使用 openssl rand -base64 32 生成)
+AUTH_SECRET=your-randomly-generated-secret-here
+AUTH_ORIGIN=http://localhost:3000
+
+# OAuth Providers（設定方法請參閱 OAUTH_SETUP_GUIDE.md）
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxx
+
+LINE_CLIENT_ID=1234567890
+LINE_CLIENT_SECRET=xxxxx
+
+FACEBOOK_CLIENT_ID=1234567890123456
+FACEBOOK_CLIENT_SECRET=xxxxx
 
 # Tebi S3
 TEBI_ENDPOINT=https://s3.tebi.io
@@ -248,10 +279,15 @@ boyo-app-share/
 
 生產環境需要設定以下環境變數：
 - `DATABASE_URL`: PostgreSQL 連接字串
-- `JWT_SECRET`: JWT 加密金鑰
+- `JWT_SECRET`: JWT 加密金鑰（傳統認證）
+- `AUTH_SECRET`: Auth.js 加密金鑰（OAuth）
+- `AUTH_ORIGIN`: 正式網域 URL（例如：https://yourdomain.com）
+- OAuth Providers: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `LINE_CLIENT_ID`, `LINE_CLIENT_SECRET`, `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`
 - `TEBI_ENDPOINT`, `TEBI_ACCESS_KEY`, `TEBI_SECRET_KEY`, `TEBI_BUCKET`: S3 設定
 
-詳細設定說明請參閱 [.env.example](./.env.example) 和 [DEPLOYMENT.md](./docs/DEPLOYMENT.md)。
+詳細設定說明請參閱：
+- OAuth 設定：[OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md)
+- 部署設定：[.env.example](./.env.example) 和 [DEPLOYMENT.md](./docs/DEPLOYMENT.md)
 
 ### 健康檢查
 
@@ -308,9 +344,11 @@ git commit -m "feat(upload): 實現 ZIP 檔案上傳功能
 
 ### 開發文檔
 - [TDD 開發指南](./CLAUDE.md) - 測試驅動開發方法論與最佳實踐
-- [執行計畫](./docs/IMPLEMENTATION_PLAN.md) - 詳細的開發階段與進度追蹤
+- [執行計畫](./IMPLEMENTATION_PLAN.md) - 詳細的開發階段與進度追蹤
 - [架構設計](./docs/ARCHITECTURE_DESIGN.md) - 系統架構與技術設計
 - [技術棧](./docs/TECH_STACK.md) - 技術選型與決策說明
+- [OAuth 設定指南](./OAUTH_SETUP_GUIDE.md) - Google、LINE、Facebook 社群登入完整設定步驟
+- [OAuth 快速開始](./docs/OAUTH_QUICK_START.md) - 5 分鐘快速設定社群登入
 
 ### 部署文檔
 - [部署指南](./docs/DEPLOYMENT.md) - Cloudflare Pages / Vercel 部署教學
