@@ -127,9 +127,10 @@
                   </DialogHeader>
 
                   <Tabs v-model="reuploadType" class="w-full mt-4">
-                    <TabsList class="grid w-full grid-cols-2 !bg-gray-100 !text-gray-700">
+                    <TabsList class="grid w-full grid-cols-3 !bg-gray-100 !text-gray-700">
                       <TabsTrigger value="paste" class="data-[state=active]:!bg-white data-[state=active]:!text-black">剪貼簿</TabsTrigger>
                       <TabsTrigger value="file" class="data-[state=active]:!bg-white data-[state=active]:!text-black">上傳檔案</TabsTrigger>
+                      <TabsTrigger value="zip" class="data-[state=active]:!bg-white data-[state=active]:!text-black">壓縮檔</TabsTrigger>
                     </TabsList>
 
                     <!-- Paste upload -->
@@ -160,6 +161,80 @@
                         <p v-if="selectedFile" class="text-sm !text-gray-600">
                           已選擇: {{ selectedFile.name }}
                         </p>
+                      </div>
+                    </TabsContent>
+
+                    <!-- ZIP upload -->
+                    <TabsContent value="zip" class="space-y-4 mt-4">
+                      <div class="space-y-4">
+                        <Label class="!text-black">選擇 ZIP 壓縮檔 *</Label>
+
+                        <!-- Drop Zone -->
+                        <div
+                          class="relative border-2 border-dashed border-gray-400 p-8 text-center cursor-pointer transition-colors hover:bg-gray-50"
+                          :class="{
+                            'border-blue-500 bg-blue-50': isDraggingZip,
+                            'border-red-500': reuploadErrors.zip
+                          }"
+                          @dragover.prevent="isDraggingZip = true"
+                          @dragleave.prevent="isDraggingZip = false"
+                          @drop.prevent="handleZipDrop"
+                          @click="triggerZipInput"
+                        >
+                          <input
+                            ref="zipInputRef"
+                            type="file"
+                            accept=".zip"
+                            class="hidden"
+                            @change="handleZipChange"
+                          />
+
+                          <div class="space-y-3">
+                            <div class="w-16 h-16 mx-auto border-2 border-gray-400 bg-gray-100 flex items-center justify-center rounded">
+                              <span class="text-3xl">📦</span>
+                            </div>
+                            <div>
+                              <p class="font-bold text-lg !text-black">
+                                {{ isDraggingZip ? '放開以上傳' : '拖放 ZIP 檔案至此' }}
+                              </p>
+                              <p class="text-sm !text-gray-600 mt-1">或點擊選擇檔案</p>
+                            </div>
+                            <div class="text-xs !text-gray-500 space-y-1">
+                              <p>支援 .zip 格式，最大 50MB</p>
+                              <p>ZIP 須包含 index.html 作為入口檔案</p>
+                              <p class="!text-orange-600 font-medium">⚠️ 上傳將會清空並替換所有現有檔案</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Selected file info -->
+                        <div v-if="selectedZipFile" class="p-4 bg-gray-100 border-2 border-gray-300 rounded">
+                          <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                              <span class="text-2xl">📦</span>
+                              <div>
+                                <p class="font-bold font-mono !text-black">{{ selectedZipFile.name }}</p>
+                                <p class="text-sm !text-gray-600">{{ formatFileSize(selectedZipFile.size) }}</p>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              @click="clearZipFile"
+                              class="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              移除
+                            </Button>
+                          </div>
+                          <div v-if="zipProcessing" class="mt-3">
+                            <div class="h-2 bg-gray-300 overflow-hidden rounded">
+                              <div class="h-full bg-blue-500 animate-pulse w-full"></div>
+                            </div>
+                            <p class="text-xs !text-gray-600 mt-1">處理中...</p>
+                          </div>
+                        </div>
+
+                        <p v-if="reuploadErrors.zip" class="text-sm text-red-500 font-medium">{{ reuploadErrors.zip }}</p>
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -275,13 +350,23 @@ const errors = ref<Record<string, string>>({})
 
 // HTML 重新上傳相關狀態
 const showReuploadDialog = ref(false)
-const reuploadType = ref<'paste' | 'file'>('paste')
+const reuploadType = ref<'paste' | 'file' | 'zip'>('paste')
 const reuploadForm = ref({
   htmlContent: '',
   regenerateThumbnail: false
 })
 const selectedFile = ref<File | null>(null)
 const reuploading = ref(false)
+
+// ZIP 上傳相關狀態
+const selectedZipFile = ref<File | null>(null)
+const zipContent = ref<string>('')
+const zipProcessing = ref(false)
+const isDraggingZip = ref(false)
+const zipInputRef = ref<HTMLInputElement | null>(null)
+const reuploadErrors = ref<Record<string, string>>({})
+
+const MAX_ZIP_SIZE = 50 * 1024 * 1024 // 50MB
 
 // 判斷是否可編輯
 const canEdit = computed(() => {
@@ -439,14 +524,98 @@ const handleReuploadFileChange = async (event: Event) => {
   }
 }
 
-// 處理重新上傳
-const handleReupload = async () => {
-  if (!reuploadForm.value.htmlContent.trim()) {
-    alert('請輸入或選擇 HTML 內容')
+// ZIP 檔案處理函數
+const triggerZipInput = () => {
+  zipInputRef.value?.click()
+}
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
+const processZipFile = async (file: File) => {
+  // 檢查檔案類型
+  if (!file.name.toLowerCase().endsWith('.zip')) {
+    reuploadErrors.value.zip = '請選擇 .zip 格式的檔案'
     return
   }
 
-  if (!confirm('確定要重新上傳 HTML 嗎？這將會替換現有的內容。')) {
+  // 檢查檔案大小
+  if (file.size > MAX_ZIP_SIZE) {
+    reuploadErrors.value.zip = `ZIP 檔案不能超過 ${formatFileSize(MAX_ZIP_SIZE)}`
+    return
+  }
+
+  selectedZipFile.value = file
+  zipProcessing.value = true
+  reuploadErrors.value.zip = ''
+
+  try {
+    // 轉換為 base64
+    const buffer = await file.arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    zipContent.value = btoa(binary)
+  } catch (error) {
+    console.error('ZIP 處理失敗:', error)
+    reuploadErrors.value.zip = 'ZIP 檔案處理失敗，請重試'
+    selectedZipFile.value = null
+    zipContent.value = ''
+  } finally {
+    zipProcessing.value = false
+  }
+}
+
+const handleZipChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    await processZipFile(file)
+  }
+}
+
+const handleZipDrop = async (event: DragEvent) => {
+  isDraggingZip.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file) {
+    await processZipFile(file)
+  }
+}
+
+const clearZipFile = () => {
+  selectedZipFile.value = null
+  zipContent.value = ''
+  reuploadErrors.value.zip = ''
+  if (zipInputRef.value) {
+    zipInputRef.value.value = ''
+  }
+}
+
+// 處理重新上傳
+const handleReupload = async () => {
+  // 根據上傳類型驗證
+  if (reuploadType.value === 'zip') {
+    if (!zipContent.value) {
+      alert('請選擇 ZIP 檔案')
+      return
+    }
+  } else {
+    if (!reuploadForm.value.htmlContent.trim()) {
+      alert('請輸入或選擇 HTML 內容')
+      return
+    }
+  }
+
+  const confirmMessage = reuploadType.value === 'zip'
+    ? '確定要重新上傳 ZIP 嗎？這將會清空並替換所有現有檔案。'
+    : '確定要重新上傳 HTML 嗎？這將會替換現有的內容。'
+
+  if (!confirm(confirmMessage)) {
     return
   }
 
@@ -454,13 +623,22 @@ const handleReupload = async () => {
     reuploading.value = true
 
     const appId = route.params.id as string
+
+    // 根據上傳類型構建請求 body
+    const requestBody: Record<string, any> = {
+      regenerateThumbnail: reuploadForm.value.regenerateThumbnail
+    }
+
+    if (reuploadType.value === 'zip') {
+      requestBody.zipContent = zipContent.value
+    } else {
+      requestBody.htmlContent = reuploadForm.value.htmlContent
+    }
+
     await $fetch(`/api/apps/${appId}/reupload`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: {
-        htmlContent: reuploadForm.value.htmlContent,
-        regenerateThumbnail: reuploadForm.value.regenerateThumbnail
-      }
+      body: requestBody
     })
 
     // 重新上傳成功
@@ -470,9 +648,13 @@ const handleReupload = async () => {
       regenerateThumbnail: false
     }
     selectedFile.value = null
+    clearZipFile()
 
     // 顯示成功訊息並導航到檢視頁面
-    alert('HTML 內容已成功更新！')
+    const successMessage = reuploadType.value === 'zip'
+      ? 'ZIP 檔案已成功上傳！'
+      : 'HTML 內容已成功更新！'
+    alert(successMessage)
     // 導航到檢視頁面，強制重新載入資料
     router.push(`/app/${appId}?t=${Date.now()}`)
   } catch (err: any) {

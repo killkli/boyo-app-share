@@ -1,8 +1,7 @@
-import { randomUUID } from 'crypto'
 import { query } from '~/server/utils/db'
 import { reuploadAppSchema } from '~/server/utils/validation'
 import { uploadToS3 } from '~/server/utils/s3'
-import { cleanupAppS3Files, cleanupThumbnail } from '~/server/utils/s3-cleanup'
+import { cleanupAppS3Files, cleanupThumbnail, deleteS3Directory } from '~/server/utils/s3-cleanup'
 import { extractZip, findMainHtml } from '~/server/utils/zip'
 import { getAppCreators } from '~/server/utils/creators'
 
@@ -66,11 +65,12 @@ export default defineEventHandler(async (event) => {
   const oldHtmlS3Key = app.html_s3_key
   const oldFileManifest = app.file_manifest
   const oldThumbnailS3Key = app.thumbnail_s3_key
-  const uploadType = app.upload_type
+  const oldUploadType = app.upload_type
 
   let newHtmlS3Key: string
   let newFileManifest: Record<string, string> | null = null
   let newThumbnailS3Key: string | null = oldThumbnailS3Key
+  let newUploadType: 'paste' | 'file' | 'zip' = oldUploadType
 
   // 處理縮圖
   if (validated.thumbnailBase64) {
@@ -96,8 +96,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // 處理主要內容上傳
-  if (uploadType === 'zip' && validated.zipContent) {
-    // ZIP 重新上傳
+  if (validated.zipContent) {
+    // ZIP 重新上傳（支援任何原始 uploadType）
     let zipBuffer: Buffer
     try {
       zipBuffer = Buffer.from(validated.zipContent, 'base64')
@@ -135,6 +135,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // 先清空整個 APP 目錄（刪除所有舊檔案）
+    await deleteS3Directory(`apps/${appId}/`)
+
     // 上傳所有檔案到 S3
     newFileManifest = {}
     const uploadPromises = files.map(async (file) => {
@@ -151,13 +154,15 @@ export default defineEventHandler(async (event) => {
     await Promise.all(uploadPromises)
 
     newHtmlS3Key = `apps/${appId}/${mainHtmlPath}`
-
-    // 清理舊的 S3 檔案（只有當舊檔案與新檔案的 key 不同時才清理）
-    if (oldHtmlS3Key !== newHtmlS3Key) {
-      await cleanupAppS3Files(oldHtmlS3Key, oldFileManifest ? `apps/${appId}/` : null)
-    }
+    newUploadType = 'zip'
   } else if (validated.htmlContent) {
     // paste 或 file 重新上傳
+
+    // 如果原本是 zip 上傳，先清空整個目錄
+    if (oldUploadType === 'zip') {
+      await deleteS3Directory(`apps/${appId}/`)
+    }
+
     newHtmlS3Key = `apps/${appId}/index.html`
 
     await uploadToS3(
@@ -167,9 +172,15 @@ export default defineEventHandler(async (event) => {
       { cacheControl: 'public, max-age=31536000' }
     )
 
-    // 清理舊的 S3 檔案（只有當舊檔案與新檔案的 key 不同時才清理）
-    if (oldHtmlS3Key !== newHtmlS3Key) {
+    // 如果原本不是 zip，且舊檔案與新檔案的 key 不同時才清理
+    if (oldUploadType !== 'zip' && oldHtmlS3Key !== newHtmlS3Key) {
       await cleanupAppS3Files(oldHtmlS3Key, null)
+    }
+
+    // 保持原本的 uploadType（paste 或 file）
+    // 如果原本是 zip，則改為 paste
+    if (oldUploadType === 'zip') {
+      newUploadType = 'paste'
     }
   } else {
     throw createError({
@@ -184,13 +195,15 @@ export default defineEventHandler(async (event) => {
      SET html_s3_key = $1,
          file_manifest = $2,
          thumbnail_s3_key = $3,
+         upload_type = $4,
          updated_at = CURRENT_TIMESTAMP
-     WHERE id = $4
+     WHERE id = $5
      RETURNING *`,
     [
       newHtmlS3Key,
       newFileManifest ? JSON.stringify(newFileManifest) : null,
       newThumbnailS3Key,
+      newUploadType,
       appId
     ]
   )

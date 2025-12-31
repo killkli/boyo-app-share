@@ -28,7 +28,7 @@ export async function cleanupAppS3Files(
  * 刪除 S3 目錄下的所有檔案
  * @param prefix S3 目錄前綴
  */
-async function deleteS3Directory(prefix: string): Promise<void> {
+export async function deleteS3Directory(prefix: string): Promise<void> {
   const runtimeConfig = useRuntimeConfig()
 
   const client = new S3Client({
