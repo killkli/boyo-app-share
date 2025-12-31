@@ -64,7 +64,8 @@ export default defineNuxtConfig({
     // 全域中間件設定（手動控制需要認證的頁面）
     globalAppMiddleware: {
       isEnabled: false
-    }
+    },
+    baseURL: process.env.AUTH_ORIGIN
   },
 
   // shadcn-nuxt 配置
