@@ -1,4 +1,5 @@
 import { verifyToken } from '~/server/utils/jwt'
+import { getServerSession } from '#auth'
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url
@@ -36,10 +37,7 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // 注意：不在 middleware 中調用 getServerSession，避免遞迴
-  // 改為在需要認證的 API endpoint 中直接調用
-
-  // 檢查是否有 JWT token（向後相容 + 主要認證方式）
+  // 檢查是否有 JWT token（向後相容 Legacy 登入）
   const authorization = getHeader(event, 'authorization')
   if (authorization) {
     try {
@@ -54,16 +52,18 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 檢查 cookie 中的 session token（Auth.js 使用 cookie）
-  // Auth.js session 驗證會在各 endpoint 中透過 getServerSession 處理
-  // 這裡只做基本的 cookie 存在檢查
-  const sessionToken = getCookie(event, 'next-auth.session-token') ||
-                       getCookie(event, '__Secure-next-auth.session-token')
-
-  if (sessionToken) {
-    // 有 session cookie，允許請求繼續
-    // 實際的 session 驗證會在 endpoint 中進行
-    return
+  // 檢查 Auth.js session（OAuth 登入使用）
+  // 注意：這裡可以安全調用 getServerSession，因為 /api/auth 路由已被排除
+  try {
+    const session = await getServerSession(event)
+    if (session?.user?.id) {
+      // 從 Auth.js session 獲取 userId 並注入到 context
+      event.context.userId = session.user.id
+      return
+    }
+  } catch (error) {
+    // Session 獲取失敗，繼續
+    console.error('Failed to get session:', error)
   }
 
   // 沒有有效的認證
