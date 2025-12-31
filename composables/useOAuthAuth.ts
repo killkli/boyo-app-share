@@ -11,14 +11,6 @@ export const useOAuthAuth = () => {
     signIn('google', { callbackUrl: '/explore' })
   }
 
-  const loginWithLine = () => {
-    signIn('line', { callbackUrl: '/explore' })
-  }
-
-  const loginWithFacebook = () => {
-    signIn('facebook', { callbackUrl: '/explore' })
-  }
-
   const loginWithCredentials = async (email: string, password: string) => {
     const result = await signIn('credentials', {
       email,
@@ -43,8 +35,6 @@ export const useOAuthAuth = () => {
     isAuthenticated,
     user,
     loginWithGoogle,
-    loginWithLine,
-    loginWithFacebook,
     loginWithCredentials,
     logout
   }

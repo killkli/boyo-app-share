@@ -21,10 +21,6 @@ export default defineNuxtConfig({
     // OAuth Providers
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    lineClientId: process.env.LINE_CLIENT_ID,
-    lineClientSecret: process.env.LINE_CLIENT_SECRET,
-    facebookClientId: process.env.FACEBOOK_CLIENT_ID,
-    facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
 
     // S3
     tebiEndpoint: process.env.TEBI_ENDPOINT || 'https://s3.tebi.io',

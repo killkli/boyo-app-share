@@ -20,26 +20,6 @@
             <GoogleIcon />
             使用 Google 登入
           </Button>
-
-          <Button
-            @click="loginWithLine"
-            variant="outline"
-            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
-            type="button"
-          >
-            <LineIcon />
-            使用 LINE 登入
-          </Button>
-
-          <Button
-            @click="loginWithFacebook"
-            variant="outline"
-            class="w-full font-bold uppercase tracking-wide flex items-center justify-center gap-2"
-            type="button"
-          >
-            <FacebookIcon />
-            使用 Facebook 登入
-          </Button>
         </div>
 
         <!-- 分隔線 -->
@@ -108,8 +88,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import GoogleIcon from '@/components/icons/GoogleIcon.vue'
-import LineIcon from '@/components/icons/LineIcon.vue'
-import FacebookIcon from '@/components/icons/FacebookIcon.vue'
 
 definePageMeta({
   layout: 'default',
@@ -117,7 +95,7 @@ definePageMeta({
 })
 
 const router = useRouter()
-const { loginWithGoogle, loginWithLine, loginWithFacebook, loginWithCredentials } = useOAuthAuth()
+const { loginWithGoogle, loginWithCredentials } = useOAuthAuth()
 
 const email = ref('')
 const password = ref('')

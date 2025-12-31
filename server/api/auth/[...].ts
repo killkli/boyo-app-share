@@ -1,16 +1,12 @@
 import { NuxtAuthHandler } from '#auth'
 import type { AuthOptions } from 'next-auth'
 import _GoogleProvider from 'next-auth/providers/google'
-import _LINEProvider from 'next-auth/providers/line'
-import _FacebookProvider from 'next-auth/providers/facebook'
 import _CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { query } from '~/server/utils/db'
 
 // Handle default exports from CommonJS modules
 const GoogleProvider = (_GoogleProvider as any).default || _GoogleProvider
-const LINEProvider = (_LINEProvider as any).default || _LINEProvider
-const FacebookProvider = (_FacebookProvider as any).default || _FacebookProvider
 const CredentialsProvider = (_CredentialsProvider as any).default || _CredentialsProvider
 
 const config = useRuntimeConfig()
@@ -52,18 +48,6 @@ export default NuxtAuthHandler({
           response_type: 'code'
         }
       }
-    }),
-
-    // LINE Login
-    LINEProvider({
-      clientId: config.lineClientId,
-      clientSecret: config.lineClientSecret
-    }),
-
-    // Facebook Login
-    FacebookProvider({
-      clientId: config.facebookClientId,
-      clientSecret: config.facebookClientSecret
     }),
 
     // Credentials Provider (保留現有 email/password 登入)
