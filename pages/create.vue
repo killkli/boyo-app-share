@@ -83,14 +83,18 @@
             </CardHeader>
             <CardContent class="pt-6">
               <Tabs v-model="uploadType" class="w-full">
-                <TabsList class="grid w-full grid-cols-2 p-1 bg-muted border-2 border-foreground">
+                <TabsList class="grid w-full grid-cols-3 p-1 bg-muted border-2 border-foreground">
                   <TabsTrigger value="paste"
-                    class="font-bold uppercase tracking-wide data-[state=active]:bg-background data-[state=active]:shadow-brutal-sm data-[state=active]:border-2 data-[state=active]:border-foreground">
+                    class="font-bold uppercase tracking-wide text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-brutal-sm data-[state=active]:border-2 data-[state=active]:border-foreground">
                     剪貼簿
                   </TabsTrigger>
                   <TabsTrigger value="file"
-                    class="font-bold uppercase tracking-wide data-[state=active]:bg-background data-[state=active]:shadow-brutal-sm data-[state=active]:border-2 data-[state=active]:border-foreground">
+                    class="font-bold uppercase tracking-wide text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-brutal-sm data-[state=active]:border-2 data-[state=active]:border-foreground">
                     上傳檔案
+                  </TabsTrigger>
+                  <TabsTrigger value="zip"
+                    class="font-bold uppercase tracking-wide text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:shadow-brutal-sm data-[state=active]:border-2 data-[state=active]:border-foreground">
+                    壓縮檔
                   </TabsTrigger>
                 </TabsList>
 
@@ -133,6 +137,79 @@
                       已選擇: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
                     </p>
                     <p v-if="errors.file" class="text-sm text-red-500 font-medium">{{ errors.file }}</p>
+                  </div>
+                </TabsContent>
+
+                <!-- ZIP upload -->
+                <TabsContent value="zip" class="space-y-4 mt-6">
+                  <div class="space-y-4">
+                    <Label class="text-sm font-bold uppercase tracking-wide">選擇 ZIP 壓縮檔 *</Label>
+
+                    <!-- Drop Zone -->
+                    <div
+                      class="relative border-3 border-dashed border-foreground p-8 text-center cursor-pointer transition-colors hover:bg-muted/50"
+                      :class="{
+                        'border-primary bg-primary/5': isDraggingZip,
+                        'border-red-500': errors.zip
+                      }"
+                      @dragover.prevent="isDraggingZip = true"
+                      @dragleave.prevent="isDraggingZip = false"
+                      @drop.prevent="handleZipDrop"
+                      @click="triggerZipInput"
+                    >
+                      <input
+                        ref="zipInputRef"
+                        type="file"
+                        accept=".zip"
+                        class="hidden"
+                        @change="handleZipChange"
+                      />
+
+                      <div class="space-y-3">
+                        <div class="w-16 h-16 mx-auto border-3 border-foreground bg-muted flex items-center justify-center">
+                          <span class="text-3xl">📦</span>
+                        </div>
+                        <div>
+                          <p class="font-bold text-lg uppercase tracking-wide">
+                            {{ isDraggingZip ? '放開以上傳' : '拖放 ZIP 檔案至此' }}
+                          </p>
+                          <p class="text-sm text-muted-foreground mt-1">或點擊選擇檔案</p>
+                        </div>
+                        <div class="text-xs text-muted-foreground space-y-1">
+                          <p>支援 .zip 格式，最大 50MB</p>
+                          <p>ZIP 須包含 index.html 作為入口檔案</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Selected file info -->
+                    <div v-if="selectedZipFile" class="p-4 bg-muted border-2 border-foreground">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <span class="text-2xl">📦</span>
+                          <div>
+                            <p class="font-bold font-mono">{{ selectedZipFile.name }}</p>
+                            <p class="text-sm text-muted-foreground">{{ formatFileSize(selectedZipFile.size) }}</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          @click="clearZipFile"
+                          class="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          移除
+                        </Button>
+                      </div>
+                      <div v-if="zipProcessing" class="mt-3">
+                        <div class="h-2 bg-muted-foreground/20 overflow-hidden">
+                          <div class="h-full bg-primary animate-pulse w-full"></div>
+                        </div>
+                        <p class="text-xs text-muted-foreground mt-1">處理中...</p>
+                      </div>
+                    </div>
+
+                    <p v-if="errors.zip" class="text-sm text-red-500 font-medium">{{ errors.zip }}</p>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -238,7 +315,7 @@ const router = useRouter()
 const { generateThumbnail, blobToBase64 } = useThumbnail()
 
 // 上傳方式
-const uploadType = ref<'paste' | 'file'>('paste')
+const uploadType = ref<'paste' | 'file' | 'zip'>('paste')
 
 // 表單資料
 const form = ref({
@@ -320,6 +397,15 @@ watch(tagsInput, (newValue) => {
 // 檔案上傳
 const selectedFile = ref<File | null>(null)
 
+// ZIP 上傳
+const selectedZipFile = ref<File | null>(null)
+const zipContent = ref<string>('')
+const zipProcessing = ref(false)
+const isDraggingZip = ref(false)
+const zipInputRef = ref<HTMLInputElement | null>(null)
+
+const MAX_ZIP_SIZE = 50 * 1024 * 1024 // 50MB
+
 const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
@@ -336,6 +422,72 @@ const handleFileChange = async (event: Event) => {
 
     // 清除檔案錯誤
     errors.value.file = ''
+  }
+}
+
+// ZIP 檔案處理
+const triggerZipInput = () => {
+  zipInputRef.value?.click()
+}
+
+const processZipFile = async (file: File) => {
+  // 檢查檔案類型
+  if (!file.name.toLowerCase().endsWith('.zip')) {
+    errors.value.zip = '請選擇 .zip 格式的檔案'
+    return
+  }
+
+  // 檢查檔案大小
+  if (file.size > MAX_ZIP_SIZE) {
+    errors.value.zip = `ZIP 檔案不能超過 ${formatFileSize(MAX_ZIP_SIZE)}`
+    return
+  }
+
+  selectedZipFile.value = file
+  zipProcessing.value = true
+  errors.value.zip = ''
+
+  try {
+    // 轉換為 base64
+    const buffer = await file.arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    zipContent.value = btoa(binary)
+  } catch (error) {
+    console.error('ZIP 處理失敗:', error)
+    errors.value.zip = 'ZIP 檔案處理失敗，請重試'
+    selectedZipFile.value = null
+    zipContent.value = ''
+  } finally {
+    zipProcessing.value = false
+  }
+}
+
+const handleZipChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    await processZipFile(file)
+  }
+}
+
+const handleZipDrop = async (event: DragEvent) => {
+  isDraggingZip.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file) {
+    await processZipFile(file)
+  }
+}
+
+const clearZipFile = () => {
+  selectedZipFile.value = null
+  zipContent.value = ''
+  errors.value.zip = ''
+  if (zipInputRef.value) {
+    zipInputRef.value.value = ''
   }
 }
 
@@ -379,7 +531,12 @@ const validateForm = (): boolean => {
     errors.value.creators = '創作者最多 10 個'
   }
 
-  if (!form.value.htmlContent.trim()) {
+  // 根據上傳類型驗證內容
+  if (uploadType.value === 'zip') {
+    if (!zipContent.value) {
+      errors.value.zip = '請選擇 ZIP 檔案'
+    }
+  } else if (!form.value.htmlContent.trim()) {
     if (uploadType.value === 'paste') {
       errors.value.htmlContent = 'HTML 內容不能為空'
     } else {
@@ -402,32 +559,42 @@ const handleSubmit = async () => {
   uploadSuccess.value = false
 
   try {
-    // 生成縮圖
+    // 生成縮圖（僅適用於 paste 和 file 模式）
     let thumbnailBase64: string | undefined
-    try {
-      const thumbnailBlob = await generateThumbnail(form.value.htmlContent, {
-        width: 1200,
-        height: 630
-      })
-      thumbnailBase64 = await blobToBase64(thumbnailBlob)
-    } catch (error) {
-      console.warn('縮圖生成失敗，將繼續上傳:', error)
-      // 縮圖生成失敗不應阻止上傳
+    if (uploadType.value !== 'zip' && form.value.htmlContent) {
+      try {
+        const thumbnailBlob = await generateThumbnail(form.value.htmlContent, {
+          width: 1200,
+          height: 630
+        })
+        thumbnailBase64 = await blobToBase64(thumbnailBlob)
+      } catch (error) {
+        console.warn('縮圖生成失敗，將繼續上傳:', error)
+        // 縮圖生成失敗不應阻止上傳
+      }
+    }
+
+    // 根據上傳類型構建請求 body
+    const requestBody: Record<string, any> = {
+      uploadType: uploadType.value,
+      title: form.value.title,
+      description: form.value.description || undefined,
+      category: form.value.category || undefined,
+      tags: form.value.tags.length > 0 ? form.value.tags : undefined,
+      creators: form.value.creators.length > 0 ? form.value.creators : undefined
+    }
+
+    if (uploadType.value === 'zip') {
+      requestBody.zipContent = zipContent.value
+    } else {
+      requestBody.htmlContent = form.value.htmlContent
+      requestBody.thumbnailBase64 = thumbnailBase64
     }
 
     const response = await $fetch<{ app: any; url: string }>('/api/apps', {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: {
-        uploadType: uploadType.value,
-        title: form.value.title,
-        description: form.value.description || undefined,
-        category: form.value.category || undefined,
-        tags: form.value.tags.length > 0 ? form.value.tags : undefined,
-        creators: form.value.creators.length > 0 ? form.value.creators : undefined,
-        htmlContent: form.value.htmlContent,
-        thumbnailBase64: thumbnailBase64
-      }
+      body: requestBody
     })
 
     // 上傳成功 - 使用應用詳情頁的URL
@@ -457,11 +624,14 @@ const handleReset = () => {
   uploadError.value = ''
   uploadSuccess.value = false
 
-  // 清除檔案輸入
+  // 清除 HTML 檔案輸入
   const fileInput = document.getElementById('fileInput') as HTMLInputElement
   if (fileInput) {
     fileInput.value = ''
   }
+
+  // 清除 ZIP 檔案
+  clearZipFile()
 }
 </script>
 
