@@ -50,9 +50,11 @@ export default defineNuxtConfig({
 
   // Auth.js 配置
   auth: {
-    // 基本設定 - 使用 originEnvKey 讓模組自動從環境變數讀取
+    // 基本設定 - 使用 originEnvKey 讓模組自動從環境變數讀取 origin
     // 開發環境會自動偵測，生產環境需要設定 AUTH_ORIGIN 環境變數
     originEnvKey: 'AUTH_ORIGIN',
+    // 明確指定 basePath 確保路由正確
+    basePath: '/api/auth',
     provider: {
       type: 'authjs'
     },
@@ -64,8 +66,7 @@ export default defineNuxtConfig({
     // 全域中間件設定（手動控制需要認證的頁面）
     globalAppMiddleware: {
       isEnabled: false
-    },
-    baseURL: process.env.AUTH_ORIGIN
+    }
   },
 
   // shadcn-nuxt 配置
