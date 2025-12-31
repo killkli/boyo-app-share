@@ -1,4 +1,3 @@
-import { getServerSession } from '#auth'
 import { verifyToken } from '~/server/utils/jwt'
 
 export default defineEventHandler(async (event) => {
@@ -10,12 +9,13 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // 公開路由跳過認證
+  // 公開路由跳過認證（包括所有 Auth.js 路由，避免遞迴）
   const publicPaths = [
     '/api/auth',  // Auth.js endpoints (所有 /api/auth/* 路由)
     '/api/health',
     '/api/sitemap.xml',
-    '/api/robots.txt'
+    '/api/robots.txt',
+    '/api/ai'  // AI 相關 API
   ]
 
   if (publicPaths.some(p => path?.startsWith(p))) {
@@ -36,16 +36,10 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // 優先使用 Auth.js session
-  const session = await getServerSession(event)
+  // 注意：不在 middleware 中調用 getServerSession，避免遞迴
+  // 改為在需要認證的 API endpoint 中直接調用
 
-  if (session?.user?.id) {
-    // 將 userId 注入到 context
-    event.context.userId = session.user.id
-    return
-  }
-
-  // 向後相容：如果沒有 Auth.js session，檢查是否有舊的 JWT token
+  // 檢查是否有 JWT token（向後相容 + 主要認證方式）
   const authorization = getHeader(event, 'authorization')
   if (authorization) {
     try {
@@ -56,11 +50,23 @@ export default defineEventHandler(async (event) => {
       event.context.userId = decoded.userId
       return
     } catch (error) {
-      // JWT 驗證失敗，繼續拋出 401
+      // JWT 驗證失敗，繼續檢查其他方式
     }
   }
 
-  // 沒有有效的 session 或 token
+  // 檢查 cookie 中的 session token（Auth.js 使用 cookie）
+  // Auth.js session 驗證會在各 endpoint 中透過 getServerSession 處理
+  // 這裡只做基本的 cookie 存在檢查
+  const sessionToken = getCookie(event, 'next-auth.session-token') ||
+                       getCookie(event, '__Secure-next-auth.session-token')
+
+  if (sessionToken) {
+    // 有 session cookie，允許請求繼續
+    // 實際的 session 驗證會在 endpoint 中進行
+    return
+  }
+
+  // 沒有有效的認證
   throw createError({
     statusCode: 401,
     message: 'Unauthorized'
