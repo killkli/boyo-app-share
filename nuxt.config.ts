@@ -50,11 +50,12 @@ export default defineNuxtConfig({
 
   // Auth.js 配置
   auth: {
-    // 基本設定 - 使用 originEnvKey 讓模組自動從環境變數讀取 origin
-    // 開發環境會自動偵測，生產環境需要設定 AUTH_ORIGIN 環境變數
-    originEnvKey: 'AUTH_ORIGIN',
-    // 明確指定 basePath 確保路由正確
-    basePath: '/api/auth',
+    // 完整的 baseURL（必須包含 /api/auth 路徑）
+    // 開發環境：http://localhost:3000/api/auth
+    // 生產環境：從 AUTH_ORIGIN 環境變數讀取並加上 /api/auth
+    baseURL: process.env.AUTH_ORIGIN
+      ? `${process.env.AUTH_ORIGIN}/api/auth`
+      : 'http://localhost:3000/api/auth',
     provider: {
       type: 'authjs'
     },
