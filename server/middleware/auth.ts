@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
     '/api/health',
     '/api/sitemap.xml',
     '/api/robots.txt',
+    '/api/__sitemap__',  // Nuxt SEO sitemap dynamic URLs
     '/api/ai'  // AI 相關 API
   ]
 

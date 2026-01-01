@@ -62,7 +62,7 @@ useSeoMeta({
 2. 設定 `nuxt.config.ts` 的 site config
 3. 驗證 `/robots.txt` 和 `/sitemap.xml` 可存取
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
@@ -78,7 +78,7 @@ useSeoMeta({
 2. 設定 sitemap sources
 3. 移除 `server/api/sitemap.xml.get.ts`
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
@@ -94,7 +94,7 @@ useSeoMeta({
 2. 將 SEO meta 移到 composable 層級
 3. 確保 Structured Data (JSON-LD) 在 SSR 輸出
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
@@ -117,7 +117,7 @@ curl -s https://domain/sitemap.xml
 curl -s https://domain/robots.txt
 ```
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 

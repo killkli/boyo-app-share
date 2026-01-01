@@ -342,13 +342,134 @@ const normalizeCreator = (creator: string | { name: string; link?: string }): Cr
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
+const siteUrl = siteConfig.url || 'https://boyo-app-share.zeabur.app'
 
-const app = ref<App | null>(null)
-// const htmlContent = ref('') // No longer needed
-const loading = ref(true)
-const error = ref(false)
+// ============================================
+// SSR 資料取得 - 使用 useAsyncData 確保 SEO 正確
+// ============================================
+const { data: appData, status, error: fetchError, refresh: refreshApp } = await useAsyncData(
+  `app-${route.params.id}`,
+  () => $fetch<{ app: App }>(`/api/apps/${route.params.id}`),
+  {
+    watch: [() => route.params.id]
+  }
+)
 
-// 互動狀態
+// 響應式 app 變數 (從 SSR 資料取得)
+const app = computed(() => appData.value?.app || null)
+const loading = computed(() => status.value === 'pending')
+const error = computed(() => status.value === 'error' || fetchError.value !== null)
+
+// ============================================
+// SSR SEO Meta Tags - 會在伺服器端渲染
+// ============================================
+const getCreatorNames = (): string => {
+  if (!app.value || !app.value.creators || app.value.creators.length === 0) {
+    return app.value?.author_username || '創作者'
+  }
+  return app.value.creators
+    .map(c => normalizeCreator(c).name)
+    .join('、')
+}
+
+// 使用 computed 確保響應式更新
+const seoTitle = computed(() =>
+  app.value ? `${app.value.title} - 博幼APP分享平臺` : '博幼APP分享平臺'
+)
+
+const seoDescription = computed(() =>
+  app.value?.description || (app.value ? `查看 ${app.value.title} - 一個由 ${getCreatorNames()} 創作的互動應用` : '博幼基金會教學應用分享平台')
+)
+
+const seoUrl = computed(() =>
+  app.value ? `${siteUrl}/app/${app.value.id}` : siteUrl
+)
+
+const seoImage = computed(() =>
+  app.value?.thumbnail_s3_key
+    ? `${config.public.s3BaseUrl}/${app.value.thumbnail_s3_key}`
+    : undefined
+)
+
+const seoKeywords = computed(() =>
+  app.value?.tags?.join(', ') || '教育應用,互動學習,HTML App'
+)
+
+// SSR 兼容的 SEO meta 設定
+useHead({
+  title: seoTitle,
+  meta: [
+    { name: 'description', content: seoDescription },
+    { name: 'keywords', content: seoKeywords }
+  ],
+  link: [
+    { rel: 'canonical', href: seoUrl }
+  ]
+})
+
+useSeoMeta({
+  // Open Graph
+  ogType: 'website',
+  ogTitle: () => app.value?.title || '博幼APP分享平臺',
+  ogDescription: seoDescription,
+  ogUrl: seoUrl,
+  ogImage: seoImage,
+  ogSiteName: '博幼APP分享平臺',
+  ogLocale: 'zh_TW',
+
+  // Twitter Card
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => app.value?.title || '博幼APP分享平臺',
+  twitterDescription: seoDescription,
+  twitterImage: seoImage
+})
+
+// Structured Data (JSON-LD) - SSR 兼容
+useSchemaOrg([
+  defineWebPage({
+    name: seoTitle
+  }),
+  () => app.value ? {
+    '@type': 'SoftwareApplication',
+    'name': app.value.title,
+    'description': seoDescription.value,
+    'image': seoImage.value,
+    'author': app.value.creators && app.value.creators.length > 0
+      ? app.value.creators.map(c => {
+          const creator = normalizeCreator(c)
+          return {
+            '@type': 'Person',
+            'name': creator.name,
+            ...(creator.link && { url: creator.link })
+          }
+        })
+      : {
+          '@type': 'Person',
+          'name': app.value.author_username
+        },
+    'datePublished': app.value.created_at,
+    'applicationCategory': 'EducationalApplication',
+    ...(app.value.avg_rating && app.value.rating_count ? {
+      'aggregateRating': {
+        '@type': 'AggregateRating',
+        'ratingValue': app.value.avg_rating,
+        'ratingCount': app.value.rating_count,
+        'bestRating': 5,
+        'worstRating': 1
+      }
+    } : {}),
+    'offers': {
+      '@type': 'Offer',
+      'price': '0',
+      'priceCurrency': 'TWD'
+    }
+  } : undefined
+])
+
+// ============================================
+// 客戶端互動狀態
+// ============================================
 const comments = ref<Comment[]>([])
 const commentsLoading = ref(false)
 const userRating = ref<number>(0)
@@ -372,6 +493,18 @@ const appUrl = computed(() => {
   if (!app.value) return ''
   return `${config.public.s3BaseUrl}/${app.value.html_s3_key}`
 })
+
+// 初始化用戶互動狀態
+watch(app, (newApp) => {
+  if (newApp) {
+    if (newApp.user_rating) {
+      userRating.value = newApp.user_rating
+    }
+    if (newApp.is_favorited !== undefined) {
+      isFavorited.value = newApp.is_favorited
+    }
+  }
+}, { immediate: true })
 
 // 開啟APP在新分頁
 const openAppInNewTab = () => {
@@ -431,135 +564,6 @@ const toggleFullscreen = () => {
   }
 }
 
-// 獲取 App 詳情
-const fetchApp = async () => {
-  try {
-    loading.value = true
-    error.value = false
-
-    const appId = route.params.id as string
-    const response = await $fetch<{ app: App }>(`/api/apps/${appId}`)
-    app.value = response.app
-
-    // 初始化用戶評分（如果有的話）
-    if (app.value.user_rating) {
-      userRating.value = app.value.user_rating
-    }
-
-    // 初始化收藏狀態（如果有的話）
-    if (app.value.is_favorited !== undefined) {
-      isFavorited.value = app.value.is_favorited
-    }
-
-    // 設置 SEO Meta Tags
-    setupSeoMeta()
-
-    // 載入 HTML 內容 - 不再需要
-    // await fetchHtmlContent()
-  } catch (err) {
-    console.error('Failed to fetch app:', err)
-    error.value = true
-  } finally {
-    loading.value = false
-  }
-}
-
-// 設置 SEO Meta Tags
-const setupSeoMeta = () => {
-  if (!app.value) return
-
-  const appTitle = app.value.title
-  const appDescription = app.value.description || `查看 ${appTitle} - 一個由 ${getCreatorNames()} 創作的互動應用`
-  const appUrl = `https://boyo-app-share.zeabur.app/app/${app.value.id}`
-  const thumbnailUrl = app.value.thumbnail_s3_key
-    ? `${config.public.s3BaseUrl}/${app.value.thumbnail_s3_key}`
-    : undefined
-
-  // 設置頁面標題和基本 meta
-  useHead({
-    title: `${appTitle} - 博幼APP分享平臺`,
-    meta: [
-      { name: 'description', content: appDescription },
-      { name: 'keywords', content: app.value.tags?.join(', ') || '教育應用,互動學習,HTML App' },
-    ],
-    link: [
-      { rel: 'canonical', href: appUrl }
-    ]
-  })
-
-  // 設置 Open Graph 和 Twitter Card meta tags
-  useSeoMeta({
-    // Open Graph
-    ogType: 'website',
-    ogTitle: appTitle,
-    ogDescription: appDescription,
-    ogUrl: appUrl,
-    ogImage: thumbnailUrl,
-    ogSiteName: '博幼APP分享平臺',
-    ogLocale: 'zh_TW',
-
-    // Twitter Card
-    twitterCard: 'summary_large_image',
-    twitterTitle: appTitle,
-    twitterDescription: appDescription,
-    twitterImage: thumbnailUrl,
-  })
-
-  // 設置 Structured Data (JSON-LD)
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: appTitle,
-    description: appDescription,
-    image: thumbnailUrl,
-    author: app.value.creators && app.value.creators.length > 0
-      ? app.value.creators.map(c => {
-          const creator = normalizeCreator(c)
-          return {
-            '@type': 'Person',
-            name: creator.name,
-            ...(creator.link && { url: creator.link })
-          }
-        })
-      : {
-          '@type': 'Person',
-          name: app.value.author_username
-        },
-    datePublished: app.value.created_at,
-    applicationCategory: 'EducationalApplication',
-    aggregateRating: app.value.avg_rating && app.value.rating_count ? {
-      '@type': 'AggregateRating',
-      ratingValue: app.value.avg_rating,
-      ratingCount: app.value.rating_count,
-      bestRating: 5,
-      worstRating: 1
-    } : undefined,
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'TWD'
-    }
-  }
-
-  useHead({
-    script: [
-      {
-        type: 'application/ld+json',
-        innerHTML: JSON.stringify(structuredData)
-      }
-    ]
-  })
-}
-
-// 獲取創作者名稱字串
-const getCreatorNames = (): string => {
-  if (!app.value || !app.value.creators || app.value.creators.length === 0) {
-    return app.value?.author_username || '創作者'
-  }
-  return app.value.creators
-    .map(c => normalizeCreator(c).name)
-    .join('、')
-}
 
 // 獲取 HTML 內容
 // const fetchHtmlContent = async () => {
@@ -710,21 +714,20 @@ const handleToggleFavorite = async () => {
   }
 }
 
+// 客戶端載入評論
 onMounted(async () => {
-  await fetchApp()
   await fetchComments()
 })
 
 // 當頁面重新激活時（例如從編輯頁面返回），重新載入資料
 onActivated(async () => {
-  await fetchApp()
+  await refreshApp()
   await fetchComments()
 })
 
-// 監聽路由參數變化，重新載入資料
+// 監聽路由參數變化，重新載入評論（app 資料已由 useAsyncData 的 watch 選項處理）
 watch(() => route.params.id, async (newId, oldId) => {
   if (newId && newId !== oldId) {
-    await fetchApp()
     await fetchComments()
   }
 })

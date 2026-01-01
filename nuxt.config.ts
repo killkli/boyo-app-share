@@ -45,8 +45,31 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@vueuse/nuxt',
-    '@sidebase/nuxt-auth'
+    '@sidebase/nuxt-auth',
+    '@nuxtjs/seo'
   ],
+
+  // Site Config (for @nuxtjs/seo)
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://boyo-app-share.zeabur.app',
+    name: '博幼APP分享平臺',
+    description: '博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用',
+    defaultLocale: 'zh-TW'
+  },
+
+  // Sitemap 設定
+  sitemap: {
+    sources: [
+      '/api/__sitemap__/urls'
+    ],
+    cacheMaxAgeSeconds: 3600 // 快取 1 小時
+  },
+
+  // Robots 設定
+  robots: {
+    sitemap: '/sitemap.xml',
+    disallow: ['/api/', '/profile/', '/edit/', '/create']
+  },
 
   // Auth.js 配置
   auth: {

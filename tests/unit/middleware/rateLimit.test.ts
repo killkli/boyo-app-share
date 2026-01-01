@@ -61,7 +61,7 @@ describe('Rate Limit Middleware', () => {
   })
 
   it('應該為認證用戶提供更高的限制', async () => {
-    mockEvent.context = { userId: 'user-123' }
+    mockEvent.context = { userId: 'user-123' } as unknown as typeof mockEvent.context
 
     // 模擬 60 個請求（未認證用戶的限制）
     for (let i = 0; i < 60; i++) {
