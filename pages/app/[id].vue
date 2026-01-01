@@ -35,7 +35,7 @@
             <CardHeader class="bg-muted border-b-3 border-foreground">
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                  <CardTitle class="text-3xl font-bold mb-3">{{ app.title }}</CardTitle>
+                  <CardTitle as="h1" class="text-3xl font-bold mb-3">{{ app.title }}</CardTitle>
                   <CardDescription class="text-base">
                     {{ app.description || '暫無描述' }}
                   </CardDescription>
@@ -392,9 +392,26 @@ const seoImage = computed(() =>
     : undefined
 )
 
-const seoKeywords = computed(() =>
-  app.value?.tags?.join(', ') || '教育應用,互動學習,HTML App'
-)
+const seoKeywords = computed(() => {
+  const baseKeywords = ['博幼基金會', '教育應用', 'HTML App']
+  const appTags = app.value?.tags || []
+  const category = app.value?.category ? [getCategoryLabel(app.value.category)] : []
+  return [...new Set([...appTags, ...category, ...baseKeywords])].join(', ')
+})
+
+// 分類標籤對照（移到這裡供 SEO 使用）
+const getCategoryLabel = (category: string) => {
+  const labels: Record<string, string> = {
+    game: '遊戲',
+    tool: '工具',
+    art: '藝術',
+    education: '教育',
+    demo: '展示',
+    experiment: '實驗',
+    other: '其他'
+  }
+  return labels[category] || category
+}
 
 // SSR 兼容的 SEO meta 設定
 useHead({
@@ -582,19 +599,6 @@ const toggleFullscreen = () => {
 // 輔助函數
 const getInitials = (username: string) => {
   return username.slice(0, 2).toUpperCase()
-}
-
-const getCategoryLabel = (category: string) => {
-  const labels: Record<string, string> = {
-    game: '遊戲',
-    tool: '工具',
-    art: '藝術',
-    education: '教育',
-    demo: '展示',
-    experiment: '實驗',
-    other: '其他'
-  }
-  return labels[category] || category
 }
 
 const getUploadTypeLabel = (type: string) => {

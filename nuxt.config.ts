@@ -106,16 +106,19 @@ export default defineNuxtConfig({
       },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: '博幼APP分享平臺',
+      // 使用 titleTemplate 避免重複
+      titleTemplate: '%s',
       meta: [
         { name: 'format-detection', content: 'telephone=no' },
-        { name: 'robots', content: 'index, follow' },
-        { name: 'description', content: '博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用' },
-        { name: 'keywords', content: '博幼基金會,教育,HTML App,應用分享,教學工具,互動學習' },
         // Open Graph 預設值
         { property: 'og:site_name', content: '博幼APP分享平臺' },
         { property: 'og:locale', content: 'zh_TW' },
         { property: 'og:type', content: 'website' },
+        // 預設 og:image（當頁面沒有縮圖時使用）
+        { property: 'og:image', content: 'https://boyo-app-share.zeabur.app/og-image.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { name: 'twitter:image', content: 'https://boyo-app-share.zeabur.app/og-image.png' }
       ]
     }
   },
