@@ -91,9 +91,9 @@ pages/admin/index.vue
 **Goal**: 讓管理員可以查看和管理平台用戶
 
 **Success Criteria**:
-- [ ] 可查看所有用戶列表（分頁）
-- [ ] 可搜尋用戶（email/username）
-- [ ] 可禁用/啟用用戶帳號
+- [x] 可查看所有用戶列表（分頁）
+- [x] 可搜尋用戶（email/username）
+- [x] 可禁用/啟用用戶帳號
 
 **實作項目**:
 
@@ -130,7 +130,7 @@ server/database/migrations/005_add_user_status.sql
 - `server/api/admin/users/index.test.ts`
 - `server/api/admin/users/[id].test.ts`
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
