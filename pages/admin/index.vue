@@ -127,14 +127,20 @@
           </NuxtLink>
 
           <!-- 留言管理 -->
-          <Card class="border-3 border-foreground shadow-brutal hover:shadow-brutal-lg transition-shadow opacity-50">
-            <CardHeader class="bg-muted border-b-3 border-foreground">
-              <CardTitle class="text-lg font-bold uppercase">留言管理</CardTitle>
-            </CardHeader>
-            <CardContent class="pt-4">
-              <p class="text-sm text-muted-foreground font-mono">即將推出</p>
-            </CardContent>
-          </Card>
+          <NuxtLink to="/admin/comments">
+            <Card class="border-3 border-foreground shadow-brutal hover:shadow-brutal-lg transition-shadow cursor-pointer">
+              <CardHeader class="bg-muted border-b-3 border-foreground">
+                <CardTitle class="text-lg font-bold uppercase">留言管理</CardTitle>
+              </CardHeader>
+              <CardContent class="pt-4">
+                <p class="text-sm text-muted-foreground font-mono">查看和管理平台留言</p>
+                <div class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary mt-2">
+                  <span>前往</span>
+                  <span>→</span>
+                </div>
+              </CardContent>
+            </Card>
+          </NuxtLink>
         </div>
       </div>
     </div>

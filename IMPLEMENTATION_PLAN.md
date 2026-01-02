@@ -192,8 +192,8 @@ server/database/migrations/006_add_featured_flag.sql
 **Goal**: 讓管理員可以管理平台留言
 
 **Success Criteria**:
-- [ ] 可查看所有留言
-- [ ] 可刪除不當留言
+- [x] 可查看所有留言
+- [x] 可刪除不當留言
 
 **實作項目**:
 
@@ -212,7 +212,7 @@ server/api/admin/comments/[id].delete.ts
 pages/admin/comments.vue
 ```
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
