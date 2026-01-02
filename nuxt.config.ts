@@ -112,6 +112,8 @@ export default defineNuxtConfig({
       titleTemplate: '%s',
       meta: [
         { name: 'format-detection', content: 'telephone=no' },
+        // Google Search Console 驗證
+        { name: 'google-site-verification', content: 'd05OJPCKQJPiHlxCXg_j1q-7uz6c8n0jb-oaWs4EHA0' },
         // Open Graph 預設值
         { property: 'og:site_name', content: '博幼APP分享平臺' },
         { property: 'og:locale', content: 'zh_TW' },
