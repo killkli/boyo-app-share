@@ -1,152 +1,289 @@
-# SEO 最佳化實作計畫
+# 管理員介面實作計畫
 
-## 問題分析
+## 概述
 
-### 現有問題
+為博幼APP分享平臺新增管理員介面，初期採用硬編碼方式認定管理員身份。
 
-1. **SEO Meta 無法被爬蟲抓取**
-   - 目前頁面使用 `onMounted` + `$fetch` 取得資料
-   - SEO meta 在資料取得後才設定 (`setupSeoMeta()`)
-   - 爬蟲取得的 HTML 不包含正確的 meta tags
+**管理員帳號**: `dchensterebay@gmail.com`
 
-2. **Sitemap 實作不標準**
-   - 手動建立 `/api/sitemap.xml.get.ts`
-   - 未使用標準 Nuxt SEO 模組
-   - 未自動連結 robots.txt
+---
 
-3. **缺少 robots.txt**
-   - 沒有設定爬蟲存取規則
-   - 沒有指向 sitemap 的連結
+## Stage 1: 基礎建設
 
-### 技術根因
+**Goal**: 建立管理員權限判斷的核心邏輯
 
-```typescript
-// 目前實作 (CSR - 客戶端渲染)
-onMounted(async () => {
-  const response = await $fetch(`/api/apps/${appId}`)
-  app.value = response.app
-  setupSeoMeta() // <- 太遲了，爬蟲拿不到
-})
+**Success Criteria**:
+- [x] `isAdmin()` 函數可正確判斷管理員身份
+- [x] `requireAdmin()` 可在 API 層面阻擋非管理員
+- [x] `useAdmin` composable 可在前端判斷管理員身份
+- [x] admin middleware 可保護管理員頁面
+
+**實作項目**:
+
+### 1.1 後端工具函數
 ```
-
-應改為：
-
-```typescript
-// 正確實作 (SSR - 伺服器端渲染)
-const { data: app } = await useAsyncData(
-  `app-${route.params.id}`,
-  () => $fetch(`/api/apps/${route.params.id}`)
-)
-
-// useSeoMeta 會在 SSR 時執行
-useSeoMeta({
-  title: () => app.value?.title,
-  description: () => app.value?.description
-})
+server/utils/admin.ts
 ```
+- `isAdmin(email)`: 判斷是否為管理員
+- `requireAdmin(event)`: API middleware helper
 
----
+### 1.2 前端 Composable
+```
+composables/useAdmin.ts
+```
+- `isAdmin`: computed 響應式判斷
+- 基於現有 `useAuth()` session
 
-## 實作計畫
-
-### Stage 1: 安裝與設定 @nuxtjs/seo
-**Goal**: 建立 SEO 基礎設施
-**Success Criteria**:
-- @nuxtjs/seo 模組安裝成功
-- Site Config 正確設定
-- robots.txt 可存取
-- 基本 sitemap 可存取
-
-**Tasks**:
-1. 安裝 `@nuxtjs/seo` 模組
-2. 設定 `nuxt.config.ts` 的 site config
-3. 驗證 `/robots.txt` 和 `/sitemap.xml` 可存取
-
-**Status**: ✅ Completed
-
----
-
-### Stage 2: 動態 Sitemap 設定
-**Goal**: 從資料庫生成動態 sitemap
-**Success Criteria**:
-- 所有公開 APP 出現在 sitemap
-- sitemap 每小時更新
-- 移除舊的手動 sitemap 實作
-
-**Tasks**:
-1. 建立 `server/api/__sitemap__/urls.ts` endpoint
-2. 設定 sitemap sources
-3. 移除 `server/api/sitemap.xml.get.ts`
-
-**Status**: ✅ Completed
-
----
-
-### Stage 3: 修改動態頁面實作 SSR
-**Goal**: 讓動態頁面的 SEO meta 在 SSR 時輸出
-**Success Criteria**:
-- `/app/[id]` 頁面 HTML 包含正確的 meta tags
-- 使用 `curl` 可以看到完整的 SEO meta
-- Open Graph 和 Twitter Card 正確輸出
-
-**Tasks**:
-1. 修改 `pages/app/[id].vue` 使用 `useAsyncData`
-2. 將 SEO meta 移到 composable 層級
-3. 確保 Structured Data (JSON-LD) 在 SSR 輸出
-
-**Status**: ✅ Completed
-
----
-
-### Stage 4: 驗證與測試
-**Goal**: 確認 SEO 實作正確
-**Success Criteria**:
-- 使用 curl 可看到 meta tags
-- Google Rich Results Test 通過
-- Sitemap 包含所有公開 APP
+### 1.3 路由 Middleware
+```
+middleware/admin.ts
+```
+- 保護 `/admin/*` 路由
+- 非管理員重導至首頁
 
 **Tests**:
-```bash
-# 測試 SSR meta 輸出
-curl -s https://domain/app/{id} | grep -E '<meta|<title'
-
-# 測試 sitemap
-curl -s https://domain/sitemap.xml
-
-# 測試 robots.txt
-curl -s https://domain/robots.txt
-```
+- `server/utils/admin.test.ts`
 
 **Status**: ✅ Completed
 
 ---
 
-## 參考資源
+## Stage 2: Dashboard 統計總覽
 
-- [Nuxt SEO 官方文檔](https://nuxtseo.com/)
-- [@nuxtjs/seo 模組](https://nuxt.com/modules/seo)
-- [@nuxtjs/sitemap 模組](https://nuxtseo.com/docs/sitemap/getting-started/installation)
-- [Nuxt SEO Meta Tags Guide](https://nuxtseo.com/learn-seo/nuxt/mastering-meta)
+**Goal**: 建立管理員 Dashboard 顯示平台統計資料
+
+**Success Criteria**:
+- [x] API 回傳正確的統計數據
+- [x] Dashboard 頁面顯示統計卡片
+- [x] 非管理員無法存取
+
+**實作項目**:
+
+### 2.1 統計 API
+```
+server/api/admin/stats.get.ts
+```
+回傳資料：
+- 總用戶數
+- 總 App 數
+- 今日新增用戶
+- 今日新增 App
+- 總留言數
+- 總評分數
+
+### 2.2 Dashboard 頁面
+```
+pages/admin/index.vue
+```
+- 統計卡片展示
+- 使用 shadcn-vue Card 元件
+- 響應式佈局
+
+**Tests**:
+- `server/api/admin/stats.test.ts`
+
+**Status**: ✅ Completed
 
 ---
 
-## 預期結果
+## Stage 3: 用戶管理
 
-### Before (現在)
-```html
-<!-- 爬蟲看到的 HTML -->
-<title>博幼APP分享平臺</title>
-<meta name="description" content="博幼基金會教學應用分享平台...">
-<!-- 動態內容完全缺失 -->
+**Goal**: 讓管理員可以查看和管理平台用戶
+
+**Success Criteria**:
+- [ ] 可查看所有用戶列表（分頁）
+- [ ] 可搜尋用戶（email/username）
+- [ ] 可禁用/啟用用戶帳號
+
+**實作項目**:
+
+### 3.1 用戶列表 API
+```
+server/api/admin/users/index.get.ts
+```
+- 分頁查詢
+- 搜尋過濾
+- 排序選項
+
+### 3.2 更新用戶狀態 API
+```
+server/api/admin/users/[id].put.ts
+```
+- 禁用/啟用帳號
+- 需新增 `is_active` 欄位
+
+### 3.3 用戶管理頁面
+```
+pages/admin/users.vue
+```
+- 用戶列表表格
+- 搜尋欄
+- 操作按鈕
+
+### 3.4 資料庫遷移
+```
+server/database/migrations/005_add_user_status.sql
+```
+- 新增 `is_active` 欄位
+
+**Tests**:
+- `server/api/admin/users/index.test.ts`
+- `server/api/admin/users/[id].test.ts`
+
+**Status**: Not Started
+
+---
+
+## Stage 4: App 管理
+
+**Goal**: 讓管理員可以管理平台上的所有 App
+
+**Success Criteria**:
+- [ ] 可查看所有 App（包含私人）
+- [ ] 可刪除任意 App
+- [ ] 可設定 App 為精選
+
+**實作項目**:
+
+### 4.1 App 列表 API
+```
+server/api/admin/apps/index.get.ts
+```
+- 查看所有 App（含私人）
+- 分頁、搜尋、過濾
+
+### 4.2 刪除 App API
+```
+server/api/admin/apps/[id].delete.ts
+```
+- 管理員可刪除任意 App
+- 同步清理 S3 檔案
+
+### 4.3 設定精選 API
+```
+server/api/admin/apps/[id]/featured.put.ts
+```
+- 需新增 `is_featured` 欄位
+
+### 4.4 App 管理頁面
+```
+pages/admin/apps.vue
+```
+- App 列表表格
+- 篩選器（分類、狀態）
+- 批量操作
+
+### 4.5 資料庫遷移
+```
+server/database/migrations/006_add_featured_flag.sql
+```
+- 新增 `is_featured` 欄位
+
+**Tests**:
+- `server/api/admin/apps/index.test.ts`
+- `server/api/admin/apps/[id].test.ts`
+
+**Status**: Not Started
+
+---
+
+## Stage 5: 留言管理
+
+**Goal**: 讓管理員可以管理平台留言
+
+**Success Criteria**:
+- [ ] 可查看所有留言
+- [ ] 可刪除不當留言
+
+**實作項目**:
+
+### 5.1 留言列表 API
+```
+server/api/admin/comments/index.get.ts
 ```
 
-### After (修改後)
-```html
-<!-- 爬蟲看到的 HTML -->
-<title>我的應用名稱 - 博幼APP分享平臺</title>
-<meta name="description" content="這是我的應用描述...">
-<meta property="og:title" content="我的應用名稱">
-<meta property="og:description" content="這是我的應用描述...">
-<meta property="og:image" content="https://...thumbnail.png">
-<script type="application/ld+json">{"@context":"https://schema.org",...}</script>
+### 5.2 刪除留言 API
 ```
+server/api/admin/comments/[id].delete.ts
+```
+
+### 5.3 留言管理頁面
+```
+pages/admin/comments.vue
+```
+
+**Status**: Not Started
+
+---
+
+## 技術規格
+
+### 管理員判斷邏輯
+
+```typescript
+// server/utils/admin.ts
+const ADMIN_EMAILS = ['dchensterebay@gmail.com']
+
+export function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false
+  return ADMIN_EMAILS.includes(email.toLowerCase())
+}
+
+export async function requireAdmin(event: H3Event) {
+  const session = await getSession(event)
+
+  if (!session?.user?.email || !isAdmin(session.user.email)) {
+    throw createError({
+      statusCode: 403,
+      message: '需要管理員權限'
+    })
+  }
+
+  return session.user
+}
+```
+
+### API 結構
+
+```
+server/api/admin/
+├── stats.get.ts
+├── users/
+│   ├── index.get.ts
+│   └── [id].put.ts
+├── apps/
+│   ├── index.get.ts
+│   ├── [id].delete.ts
+│   └── [id]/
+│       └── featured.put.ts
+└── comments/
+    ├── index.get.ts
+    └── [id].delete.ts
+```
+
+### 頁面結構
+
+```
+pages/admin/
+├── index.vue      # Dashboard
+├── users.vue      # 用戶管理
+├── apps.vue       # App 管理
+└── comments.vue   # 留言管理
+```
+
+### 權限控制
+
+- 所有 `/api/admin/*` API 必須通過 `requireAdmin()` 檢查
+- 所有 `/admin/*` 頁面必須使用 `admin` middleware
+
+---
+
+## 未來擴展
+
+當需要更彈性的權限管理時，可考慮：
+
+1. 在 users 表新增 `role` 欄位
+2. 將管理員 email 移至環境變數或資料庫
+3. 實作角色權限系統（RBAC）
+
+目前採用硬編碼是為了快速實作，避免過度設計。
