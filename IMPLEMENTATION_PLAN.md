@@ -139,9 +139,9 @@ server/database/migrations/005_add_user_status.sql
 **Goal**: 讓管理員可以管理平台上的所有 App
 
 **Success Criteria**:
-- [ ] 可查看所有 App（包含私人）
-- [ ] 可刪除任意 App
-- [ ] 可設定 App 為精選
+- [x] 可查看所有 App（包含私人）
+- [x] 可刪除任意 App
+- [x] 可設定 App 為精選
 
 **實作項目**:
 
@@ -183,7 +183,7 @@ server/database/migrations/006_add_featured_flag.sql
 - `server/api/admin/apps/index.test.ts`
 - `server/api/admin/apps/[id].test.ts`
 
-**Status**: Not Started
+**Status**: ✅ Completed
 
 ---
 
