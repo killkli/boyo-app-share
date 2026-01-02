@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://boyo-app-share.zeabur.app'
+
 export default defineNuxtConfig({
   // Nitro 設定
   // Nitro 設定
@@ -51,7 +53,7 @@ export default defineNuxtConfig({
 
   // Site Config (for @nuxtjs/seo)
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://boyo-app-share.zeabur.app',
+    url: siteUrl,
     name: '博幼APP分享平臺',
     description: '博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用',
     defaultLocale: 'zh-TW'
@@ -115,10 +117,10 @@ export default defineNuxtConfig({
         { property: 'og:locale', content: 'zh_TW' },
         { property: 'og:type', content: 'website' },
         // 預設 og:image（當頁面沒有縮圖時使用）
-        { property: 'og:image', content: 'https://boyo-app-share.zeabur.app/og-image.png' },
+        { property: 'og:image', content: `${siteUrl}/og-image.png` },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
-        { name: 'twitter:image', content: 'https://boyo-app-share.zeabur.app/og-image.png' }
+        { name: 'twitter:image', content: `${siteUrl}/og-image.png` }
       ]
     }
   },
