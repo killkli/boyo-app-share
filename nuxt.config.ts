@@ -34,6 +34,8 @@ export default defineNuxtConfig({
     public: {
       apiBase: '/api',
       s3BaseUrl: process.env.NUXT_PUBLIC_S3_BASE_URL || 'https://s3.tebi.io/boyo-app-share',
+      // Admin Emails
+      adminEmails: process.env.NUXT_PUBLIC_ADMIN_EMAILS || '',
       // SEO 設定
       appName: process.env.NUXT_PUBLIC_APP_NAME || '博幼APP分享平臺',
       appNameEn: process.env.NUXT_PUBLIC_APP_NAME_EN || 'Boyo App Share',

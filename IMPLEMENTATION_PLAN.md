@@ -4,7 +4,7 @@
 
 為博幼APP分享平臺新增管理員介面，初期採用硬編碼方式認定管理員身份。
 
-**管理員帳號**: `dchensterebay@gmail.com`
+**管理員帳號**: `admin@example.com`
 
 ---
 
@@ -222,7 +222,7 @@ pages/admin/comments.vue
 
 ```typescript
 // server/utils/admin.ts
-const ADMIN_EMAILS = ['dchensterebay@gmail.com']
+const ADMIN_EMAILS = ['admin@example.com']
 
 export function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false

@@ -1,17 +1,20 @@
 import type { H3Event } from 'h3'
 
 /**
- * 管理員 email 白名單
- * 初期採用硬編碼方式，未來可改為環境變數或資料庫
- */
-const ADMIN_EMAILS = ['dchensterebay@gmail.com']
-
-/**
  * 判斷指定 email 是否為管理員
  */
 export function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false
-  return ADMIN_EMAILS.includes(email.toLowerCase())
+  
+  const config = useRuntimeConfig()
+  const adminEmailsConfig = config.public.adminEmails
+  
+  // 處理字串 (環境變數) 或陣列 (Runtime Config 直接設定)
+  const adminEmails = Array.isArray(adminEmailsConfig)
+    ? adminEmailsConfig
+    : (String(adminEmailsConfig) || '').split(',').map(e => e.trim())
+
+  return adminEmails.some(adminEmail => adminEmail.toLowerCase() === email.toLowerCase())
 }
 
 /**

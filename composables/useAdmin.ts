@@ -1,11 +1,9 @@
 /**
  * 管理員權限判斷 composable
  */
-
-const ADMIN_EMAILS = ['dchensterebay@gmail.com']
-
 export const useAdmin = () => {
   const { data: session, status } = useAuth()
+  const config = useRuntimeConfig()
 
   /**
    * 判斷當前使用者是否為管理員
@@ -16,7 +14,12 @@ export const useAdmin = () => {
     const email = session.value?.user?.email
     if (!email) return false
 
-    return ADMIN_EMAILS.includes(email.toLowerCase())
+    const adminEmailsConfig = config.public.adminEmails
+    const adminEmails = Array.isArray(adminEmailsConfig)
+      ? adminEmailsConfig
+      : (String(adminEmailsConfig) || '').split(',').map(e => e.trim())
+
+    return adminEmails.some(adminEmail => adminEmail.toLowerCase() === email.toLowerCase())
   })
 
   return {

@@ -1,21 +1,29 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { isAdmin } from './admin'
+
+// Mock useRuntimeConfig global
+const mockRuntimeConfig = {
+  public: {
+    adminEmails: 'admin@example.com,TEST@EXAMPLE.COM'
+  }
+}
+
+vi.stubGlobal('useRuntimeConfig', () => mockRuntimeConfig)
 
 describe('admin 工具函數', () => {
   describe('isAdmin', () => {
     it('應該識別管理員 email', () => {
-      expect(isAdmin('dchensterebay@gmail.com')).toBe(true)
+      expect(isAdmin('admin@example.com')).toBe(true)
     })
 
     it('應該忽略大小寫', () => {
-      expect(isAdmin('DCHENSTEREBAY@GMAIL.COM')).toBe(true)
-      expect(isAdmin('DchensterEbay@Gmail.com')).toBe(true)
+      expect(isAdmin('ADMIN@EXAMPLE.COM')).toBe(true)
+      expect(isAdmin('test@example.com')).toBe(true)
     })
 
     it('應該拒絕非管理員 email', () => {
       expect(isAdmin('user@example.com')).toBe(false)
-      expect(isAdmin('admin@example.com')).toBe(false)
-      expect(isAdmin('dchensterebay@yahoo.com')).toBe(false)
+      expect(isAdmin('other@gmail.com')).toBe(false)
     })
 
     it('應該處理 null/undefined/空字串', () => {
