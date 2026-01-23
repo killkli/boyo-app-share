@@ -3,6 +3,8 @@
  * 設置安全相關的 HTTP headers
  */
 export default defineEventHandler((event) => {
+
+  const config = useRuntimeConfig(event)
   const res = event.node.res
 
   // 1. Content Security Policy (CSP)
@@ -15,8 +17,8 @@ export default defineEventHandler((event) => {
       "style-src 'self' 'unsafe-inline' blob:",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://s3.tebi.io https://generativelanguage.googleapis.com blob:",
-      "frame-src 'self' blob: https://s3.tebi.io",
+      `connect-src 'self' ${config.public.s3BaseUrl} https://generativelanguage.googleapis.com blob:`,
+      `frame-src 'self' blob: ${config.public.s3BaseUrl}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
