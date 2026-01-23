@@ -1,0 +1,23 @@
+{
+  "CORSRules": [
+    {
+      "AllowedHeaders": [
+        "*"
+      ],
+      "AllowedMethods": [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "AllowedOrigins": [
+        "https://boyo-share.zeabur.app/"
+      ],
+      "ExposeHeaders": [
+        "Etag"
+      ],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}
