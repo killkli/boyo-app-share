@@ -47,3 +47,6 @@ wrangler.toml
 # Database backups
 backups/
 backup_db.sh
+
+# Migration config (secrets)
+MIGRATE
