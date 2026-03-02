@@ -50,3 +50,4 @@ backup_db.sh
 
 # Migration config (secrets)
 MIGRATE
+.omc
