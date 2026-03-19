@@ -8,7 +8,7 @@
           我的作品
         </h1>
         <p class="mt-4 text-lg text-muted-foreground font-medium">
-          你創建的所有應用
+          你建立的所有應用
         </p>
       </div>
 
@@ -58,7 +58,7 @@
         <!-- Results count and action button - Brutalist badge -->
         <div class="mb-6 flex items-center justify-between">
           <div class="inline-flex items-center gap-2 bg-muted border-2 border-foreground px-4 py-2 font-mono text-sm">
-            共創建 <span class="font-bold text-primary">{{ total }}</span> 個應用
+            共建立 <span class="font-bold text-primary">{{ total }}</span> 個應用
           </div>
 
           <Button as-child class="font-bold uppercase tracking-wide">
@@ -73,8 +73,8 @@
           :current-page="currentPage"
           :total-pages="totalPages"
           :show-pagination="true"
-          empty-title="尚未創建作品"
-          empty-message="開始創建你的第一個應用吧！"
+          empty-title="尚未建立作品"
+          empty-message="開始建立你的第一個應用吧！"
           @page-change="handlePageChange"
         />
       </div>

@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 400,
-      message: '重設 token 已過期，請重新發送重設密碼請求'
+      message: '重設 token 已過期，請重新傳送重設密碼請求'
     })
   }
 

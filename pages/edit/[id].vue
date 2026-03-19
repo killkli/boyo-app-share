@@ -3,7 +3,7 @@
     <!-- 載入狀態 -->
     <div v-if="loading" class="container mx-auto px-4 py-16 text-center">
       <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      <p class="mt-4 text-gray-600">載入中...</p>
+      <p class="mt-4 text-gray-600">載入中……</p>
     </div>
 
     <!-- 錯誤或無權限 -->
@@ -64,7 +64,7 @@
             <Textarea
               id="description"
               v-model="form.description"
-              placeholder="這是一個簡單的 HTML App..."
+              placeholder="這是一個簡單的 HTML App……"
               rows="4"
             />
           </div>
@@ -197,7 +197,7 @@
                               <p class="font-bold text-lg !text-black">
                                 {{ isDraggingZip ? '放開以上傳' : '拖放 ZIP 檔案至此' }}
                               </p>
-                              <p class="text-sm !text-gray-600 mt-1">或點擊選擇檔案</p>
+                              <p class="text-sm !text-gray-600 mt-1">或點選以選擇檔案</p>
                             </div>
                             <div class="text-xs !text-gray-500 space-y-1">
                               <p>支援 .zip 格式，最大 50MB</p>
@@ -230,7 +230,7 @@
                             <div class="h-2 bg-gray-300 overflow-hidden rounded">
                               <div class="h-full bg-blue-500 animate-pulse w-full"></div>
                             </div>
-                            <p class="text-xs !text-gray-600 mt-1">處理中...</p>
+                            <p class="text-xs !text-gray-600 mt-1">處理中……</p>
                           </div>
                         </div>
 
@@ -256,7 +256,7 @@
                       取消
                     </Button>
                     <Button class="!bg-blue-600 !text-white hover:!bg-blue-700" @click="handleReupload" :disabled="reuploading">
-                      {{ reuploading ? '上傳中...' : '確認上傳' }}
+                      {{ reuploading ? '上傳中……' : '確認上傳' }}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -284,10 +284,10 @@
           </Button>
           <div class="flex gap-2">
             <Button variant="destructive" @click="handleDelete" :disabled="deleting">
-              {{ deleting ? '刪除中...' : '刪除應用' }}
+              {{ deleting ? '刪除中……' : '刪除應用' }}
             </Button>
             <Button @click="handleSubmit" :disabled="saving">
-              {{ saving ? '儲存中...' : '儲存變更' }}
+              {{ saving ? '儲存中……' : '儲存變更' }}
             </Button>
           </div>
         </CardFooter>

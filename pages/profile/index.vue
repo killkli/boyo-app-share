@@ -44,7 +44,7 @@
                   <span class="text-3xl">📱</span>
                 </div>
                 <p class="text-muted-foreground font-mono">
-                  查看和管理您創建的所有應用
+                  檢視與管理您建立的所有應用
                 </p>
                 <div class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary">
                   <span>前往</span>

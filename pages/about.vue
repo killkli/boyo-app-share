@@ -71,7 +71,7 @@
           </div>
         </div>
 
-        <!-- 平台特色 -->
+        <!-- 平臺特色 -->
         <div class="bg-white rounded-lg shadow-lg p-8">
           <div class="flex items-center gap-3 mb-6">
             <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
@@ -79,7 +79,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900">平台特色</h2>
+            <h2 class="text-3xl font-bold text-gray-900">平臺特色</h2>
           </div>
 
           <div class="grid md:grid-cols-2 gap-6">
@@ -102,7 +102,7 @@
             <div class="border-2 border-purple-200 rounded-lg p-6 hover:border-purple-400 transition-colors">
               <h3 class="text-xl font-bold text-gray-900 mb-3">🛡️ 安全可靠</h3>
               <p class="text-gray-700">
-                採用 Sandbox 沙箱環境預覽，XSS 防護機制，
+                採用 Sandbox 沙盒環境預覽、XSS 防護機制，
                 確保每個應用都能安全地執行。
               </p>
             </div>
@@ -170,7 +170,7 @@
           </div>
         </div>
 
-        <!-- 開源理念 -->
+        <!-- 開放原始碼理念 -->
         <div class="bg-white rounded-lg shadow-lg p-8">
           <div class="flex items-center gap-3 mb-6">
             <div class="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
@@ -178,14 +178,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900">開源精神</h2>
+            <h2 class="text-3xl font-bold text-gray-900">開放原始碼精神</h2>
           </div>
 
           <div class="space-y-4">
             <p class="text-gray-700 text-lg leading-relaxed">
-              本平台採用 <strong class="text-orange-600">MIT License</strong> 開源授權，
+              本平臺採用 <strong class="text-orange-600">MIT License</strong> 開放原始碼授權，
               意味著任何人都可以自由使用、修改和分發程式碼。我們相信，
-              透過開源協作，能夠匯集更多智慧，創造出更好的教育工具。
+              透過開放原始碼協作，能夠匯集更多智慧，創造出更好的教育工具。
             </p>
 
             <div class="bg-orange-50 rounded-lg p-6">
@@ -224,7 +224,7 @@
           </div>
 
           <p class="text-gray-700 mb-4">
-            本平台採用現代化的技術棧，注重效能、安全性和開發體驗：
+            本平臺採用現代化的技術堆疊，注重效能、安全性與開發體驗：
           </p>
 
           <div class="grid md:grid-cols-2 gap-4">
@@ -268,7 +268,7 @@
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
               </svg>
-              查看 GitHub 專案
+              檢視 GitHub 專案
             </a>
           </div>
         </div>
@@ -278,7 +278,7 @@
           <div class="text-center">
             <h2 class="text-3xl font-bold mb-4">一起讓教育更美好</h2>
             <p class="text-lg mb-6 text-blue-50">
-              如果您有任何問題、建議，或想要參與這個專案，歡迎與我們聯繫！
+              如果您有任何問題、建議，或想參與這個專案，歡迎與我們聯絡！
             </p>
             <div class="flex flex-wrap justify-center gap-4">
               <a
@@ -293,7 +293,7 @@
                 to="/privacy"
                 class="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors"
               >
-                隱私政策
+                隱私權政策
               </NuxtLink>
               <NuxtLink
                 to="/terms"
@@ -320,7 +320,7 @@ useHead({
     },
     {
       name: 'keywords',
-      content: '博幼基金會, 教育, 開源, 教學應用, 知識分享, 偏鄉教育'
+      content: '博幼基金會，教育，開放原始碼，教學應用，知識分享，偏鄉教育'
     }
   ]
 })

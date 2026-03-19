@@ -69,7 +69,7 @@
             <Label class="font-bold uppercase tracking-wide text-sm">創意描述</Label>
             <Textarea 
               v-model="prompt" 
-              placeholder="例如：做一個復古風格的彈珠台遊戲..." 
+              placeholder="例如：做一個復古風格的彈珠台遊戲……" 
               rows="6"
               class="resize-none border-3 border-foreground rounded-none text-base p-4 focus:ring-0 focus:shadow-brutal-sm placeholder:text-muted-foreground/50 shadow-none font-medium"
             />
@@ -101,7 +101,7 @@
         >
           <span v-if="isGenerating" class="flex items-center gap-2">
             <div class="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
-            生成中...
+            生成中……
           </span>
           <span v-else>開始生成 ✨</span>
         </Button>

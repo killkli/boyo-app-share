@@ -10,7 +10,7 @@
       <form @submit.prevent="handleSubmit">
         <Textarea
           v-model="newComment"
-          placeholder="分享你的想法..."
+          placeholder="分享你的想法……"
           class="mb-4 border-3 border-foreground shadow-brutal-sm font-mono"
           :disabled="submitting"
           rows="4"
@@ -21,7 +21,7 @@
             :disabled="!newComment.trim() || submitting"
             class="font-bold uppercase tracking-wide"
           >
-            {{ submitting ? '發送中...' : '發送評論' }}
+            {{ submitting ? '傳送中……' : '發表評論' }}
           </Button>
         </div>
       </form>

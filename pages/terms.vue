@@ -32,7 +32,7 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-800 mb-2">1.1 服務內容</h3>
               <p class="text-gray-700 leading-relaxed">
-                本平臺提供一個教育性質的 HTML 應用程式分享平台，使用者可以：
+                本平臺提供一個教育性質的 HTML 應用程式分享平臺，使用者可以：
               </p>
               <ul class="list-disc list-inside text-gray-700 mt-2 ml-4 space-y-1">
                 <li>上傳、分享自己創作的 HTML 應用程式</li>
@@ -45,8 +45,8 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-800 mb-2">1.2 服務性質</h3>
               <p class="text-gray-700 leading-relaxed">
-                本平臺為<strong class="text-blue-600">免費、開源、教育性質</strong>的服務，
-                旨在促進知識分享與教育資源的流通。我們不對服務的持續可用性或特定功能的提供做出保證。
+                本平臺為<strong class="text-blue-600">免費、開放原始碼、教育性質</strong>的服務，
+                旨在促進知識分享與教育資源的流通。我們不保證服務的持續可用性，或特定功能一定會提供。
               </p>
             </div>
           </div>
@@ -134,7 +134,7 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-800 mb-2">4.1 內容責任</h3>
               <p class="text-gray-700 leading-relaxed">
-                本平臺為使用者提供分享平台，<strong>不對使用者上傳的內容負責</strong>。
+                本平臺為使用者提供分享平臺，<strong>不對使用者上傳的內容負責</strong>。
                 使用者應自行判斷內容的正確性、適用性和安全性。
               </p>
             </div>
@@ -155,7 +155,7 @@
             <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
               <h4 class="text-yellow-800 font-bold mb-2">⚠️ 重要提醒</h4>
               <p class="text-yellow-700 text-sm">
-                雖然我們採用 Sandbox 沙箱環境和多重安全機制，但仍建議使用者：
+                雖然我們採用 Sandbox 沙盒環境和多重安全機制，但仍建議使用者：
                 <strong>不要在應用程式中輸入真實的個人資料、密碼或敏感資訊</strong>。
               </p>
             </div>
@@ -228,7 +228,7 @@
         <section>
           <h2 class="text-2xl font-bold text-gray-900 mb-4">八、聯絡我們</h2>
           <p class="text-gray-700 leading-relaxed mb-3">
-            如果您對本使用條款有任何疑問或建議，歡迎透過以下方式與我們聯繫：
+            如果您對本使用條款有任何疑問或建議，歡迎透過以下方式與我們聯絡：
           </p>
           <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-gray-700 mb-2">
@@ -265,7 +265,7 @@
               關於我們
             </NuxtLink>
             <NuxtLink to="/privacy" class="text-blue-600 hover:underline">
-              隱私政策
+              隱私權政策
             </NuxtLink>
           </div>
         </div>

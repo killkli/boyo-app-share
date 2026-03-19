@@ -6,7 +6,7 @@
     @keydown.space.prevent="navigateToApp"
     tabindex="0"
     role="button"
-    :aria-label="`查看應用: ${app.title}，分類: ${getCategoryLabel(app.category || 'other')}，作者: ${app.author_username}`"
+    :aria-label="`檢視應用：${app.title}，分類：${getCategoryLabel(app.category || 'other')}，作者：${app.author_username}`"
   >
     <!-- Thumbnail -->
     <div class="relative aspect-video overflow-hidden" :class="thumbnailBgClass" aria-hidden="true">

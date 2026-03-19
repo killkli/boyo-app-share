@@ -7,14 +7,14 @@
           管理員後台
         </h1>
         <p class="text-lg text-muted-foreground font-mono mt-4">
-          平台數據總覽
+          平臺數據總覽
         </p>
       </div>
 
       <!-- 載入中 -->
       <div v-if="pending" class="flex justify-center py-12">
         <div class="border-3 border-foreground p-8 bg-muted">
-          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中...</p>
+          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中……</p>
         </div>
       </div>
 
@@ -29,18 +29,18 @@
 
       <!-- 統計卡片 -->
       <div v-else-if="stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        <!-- 總用戶數 -->
+        <!-- 總使用者數 -->
         <Card class="border-3 border-foreground shadow-brutal hover:shadow-brutal-lg transition-shadow">
           <CardHeader class="bg-primary/10 border-b-3 border-foreground">
             <CardTitle class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
               <span class="text-2xl">👥</span>
-              總用戶數
+              總使用者數
             </CardTitle>
           </CardHeader>
           <CardContent class="pt-6">
             <p class="text-5xl font-bold">{{ stats.totalUsers }}</p>
             <p class="text-sm text-muted-foreground font-mono mt-2">
-              今日新增: {{ stats.todayUsers }}
+              今日新增：{{ stats.todayUsers }}
             </p>
           </CardContent>
         </Card>
@@ -56,7 +56,7 @@
           <CardContent class="pt-6">
             <p class="text-5xl font-bold">{{ stats.totalApps }}</p>
             <p class="text-sm text-muted-foreground font-mono mt-2">
-              今日新增: {{ stats.todayApps }}
+              今日新增：{{ stats.todayApps }}
             </p>
           </CardContent>
         </Card>
@@ -98,10 +98,10 @@
           <NuxtLink to="/admin/users">
             <Card class="border-3 border-foreground shadow-brutal hover:shadow-brutal-lg transition-shadow cursor-pointer">
               <CardHeader class="bg-muted border-b-3 border-foreground">
-                <CardTitle class="text-lg font-bold uppercase">用戶管理</CardTitle>
+                <CardTitle class="text-lg font-bold uppercase">使用者管理</CardTitle>
               </CardHeader>
               <CardContent class="pt-4">
-                <p class="text-sm text-muted-foreground font-mono">查看和管理平台用戶</p>
+                <p class="text-sm text-muted-foreground font-mono">檢視與管理平臺使用者</p>
                 <div class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary mt-2">
                   <span>前往</span>
                   <span>→</span>
@@ -117,7 +117,7 @@
                 <CardTitle class="text-lg font-bold uppercase">應用管理</CardTitle>
               </CardHeader>
               <CardContent class="pt-4">
-                <p class="text-sm text-muted-foreground font-mono">查看和管理平台應用</p>
+                <p class="text-sm text-muted-foreground font-mono">檢視與管理平臺應用</p>
                 <div class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary mt-2">
                   <span>前往</span>
                   <span>→</span>
@@ -133,7 +133,7 @@
                 <CardTitle class="text-lg font-bold uppercase">留言管理</CardTitle>
               </CardHeader>
               <CardContent class="pt-4">
-                <p class="text-sm text-muted-foreground font-mono">查看和管理平台留言</p>
+                <p class="text-sm text-muted-foreground font-mono">檢視與管理平臺留言</p>
                 <div class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary mt-2">
                   <span>前往</span>
                   <span>→</span>

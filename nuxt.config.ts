@@ -39,8 +39,8 @@ export default defineNuxtConfig({
       // SEO 設定
       appName: process.env.NUXT_PUBLIC_APP_NAME || '博幼APP分享平臺',
       appNameEn: process.env.NUXT_PUBLIC_APP_NAME_EN || 'Boyo App Share',
-      appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION || '博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用',
-      appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS || '博幼基金會,教育,HTML App,應用分享,教學工具,互動學習'
+      appDescription: process.env.NUXT_PUBLIC_APP_DESCRIPTION || '博幼基金會教學應用分享平臺－快速分享與瀏覽教育性 HTML 應用',
+      appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS || '博幼基金會，教育，HTML App，應用分享，教學工具，互動學習'
     }
   },
 
@@ -57,7 +57,7 @@ export default defineNuxtConfig({
   site: {
     url: siteUrl,
     name: '博幼APP分享平臺',
-    description: '博幼基金會教學應用分享平台 - 快速分享與瀏覽教育性 HTML 應用',
+    description: '博幼基金會教學應用分享平臺－快速分享與瀏覽教育性 HTML 應用',
     defaultLocale: 'zh-TW'
   },
 

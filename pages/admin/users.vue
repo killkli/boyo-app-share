@@ -7,7 +7,7 @@
           ← 返回管理後台
         </NuxtLink>
         <h1 class="text-4xl md:text-5xl font-bold uppercase tracking-tight mb-4 border-b-4 border-foreground pb-4 inline-block">
-          用戶管理
+          使用者管理
         </h1>
       </div>
 
@@ -19,7 +19,7 @@
             <div class="flex-1">
               <Input
                 v-model="searchQuery"
-                placeholder="搜尋 email 或用戶名..."
+                placeholder="搜尋 Email 或使用者名稱……"
                 class="border-3 border-foreground"
                 @keyup.enter="search"
               />
@@ -33,7 +33,7 @@
               <SelectContent>
                 <SelectItem value="all">全部</SelectItem>
                 <SelectItem value="active">啟用</SelectItem>
-                <SelectItem value="inactive">已禁用</SelectItem>
+                <SelectItem value="inactive">已停用</SelectItem>
               </SelectContent>
             </Select>
 
@@ -48,7 +48,7 @@
       <!-- 載入中 -->
       <div v-if="pending" class="flex justify-center py-12">
         <div class="border-3 border-foreground p-8 bg-muted">
-          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中...</p>
+          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中……</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@
       <div v-else-if="data" class="space-y-4">
         <!-- 統計 -->
         <p class="text-sm text-muted-foreground font-mono mb-4">
-          共 {{ data.pagination.total }} 位用戶，第 {{ data.pagination.page }} / {{ data.pagination.totalPages }} 頁
+          共 {{ data.pagination.total }} 位使用者，第 {{ data.pagination.page }} / {{ data.pagination.totalPages }} 頁
         </p>
 
         <!-- 用戶卡片 -->
@@ -87,7 +87,7 @@
                   <p class="text-sm text-muted-foreground font-mono">{{ user.email }}</p>
                   <div class="flex items-center gap-2 mt-1">
                     <Badge :variant="user.isActive ? 'default' : 'destructive'">
-                      {{ user.isActive ? '啟用' : '已禁用' }}
+                      {{ user.isActive ? '啟用' : '已停用' }}
                     </Badge>
                     <span class="text-xs text-muted-foreground">
                       {{ user.appCount }} 個應用
@@ -109,7 +109,7 @@
                   :disabled="isUpdating === user.id"
                   @click="toggleUserStatus(user.id, false)"
                 >
-                  {{ isUpdating === user.id ? '處理中...' : '禁用' }}
+                  {{ isUpdating === user.id ? '處理中……' : '停用' }}
                 </Button>
                 <Button
                   v-else
@@ -119,7 +119,7 @@
                   :disabled="isUpdating === user.id"
                   @click="toggleUserStatus(user.id, true)"
                 >
-                  {{ isUpdating === user.id ? '處理中...' : '啟用' }}
+                  {{ isUpdating === user.id ? '處理中……' : '啟用' }}
                 </Button>
               </div>
             </div>
@@ -128,7 +128,7 @@
 
         <!-- 空狀態 -->
         <div v-if="data.users.length === 0" class="text-center py-12">
-          <p class="text-xl text-muted-foreground">沒有找到符合條件的用戶</p>
+          <p class="text-xl text-muted-foreground">沒有找到符合條件的使用者</p>
         </div>
 
         <!-- 分頁 -->

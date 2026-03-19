@@ -23,7 +23,7 @@ export const creatorsArraySchema = z.array(creatorSchema)
  * 註冊表單驗證 Schema
  */
 export const registerSchema = z.object({
-  email: z.string().email('無效的 email 格式'),
+  email: z.string().email('無效的 Email 格式'),
   username: z
     .string()
     .min(3, '使用者名稱至少 3 個字元')
@@ -39,7 +39,7 @@ export const registerSchema = z.object({
  * 登入表單驗證 Schema
  */
 export const loginSchema = z.object({
-  email: z.string().email('無效的 email 格式'),
+  email: z.string().email('無效的 Email 格式'),
   password: z.string().min(1, '密碼不能為空')
 })
 
@@ -113,7 +113,7 @@ export const updateAppSchema = z.object({
   title: z.string().min(1, '標題不能為空').max(255, '標題最多 255 個字元').optional(),
   description: z.string().max(2000, '描述最多 2000 個字元').optional(),
   category: z.enum(appCategories, {
-    errorMap: () => ({ message: `分類必須是以下之一: ${appCategories.join(', ')}` })
+    errorMap: () => ({ message: `分類必須是以下其中之一：${appCategories.join('、')}` })
   }).optional(),
   tags: z.array(z.string()).max(10, '標籤最多 10 個').optional(),
   creators: creatorsArraySchema

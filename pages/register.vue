@@ -96,7 +96,7 @@
           </div>
 
           <Button type="submit" class="w-full font-bold uppercase tracking-wide text-lg py-6" :disabled="loading">
-            {{ loading ? '註冊中...' : '註冊' }}
+            {{ loading ? '註冊中……' : '註冊' }}
           </Button>
         </form>
       </CardContent>

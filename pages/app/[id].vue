@@ -125,7 +125,7 @@
                   class="absolute top-4 right-4 font-bold uppercase tracking-wide z-10"
                   @click="toggleFullscreen"
                 >
-                  {{ isFullscreen ? '退出全屏' : '全屏' }}
+                  {{ isFullscreen ? '離開全螢幕' : '全螢幕' }}
                 </Button>
               </div>
 
@@ -379,7 +379,7 @@ const seoTitle = computed(() =>
 )
 
 const seoDescription = computed(() =>
-  app.value?.description || (app.value ? `查看 ${app.value.title} - 一個由 ${getCreatorNames()} 創作的互動應用` : '博幼基金會教學應用分享平台')
+  app.value?.description || (app.value ? `檢視 ${app.value.title} - 一個由 ${getCreatorNames()} 創作的互動應用` : '博幼基金會教學應用分享平臺')
 )
 
 const seoUrl = computed(() =>
@@ -660,7 +660,7 @@ const handleSubmitComment = async (content: string) => {
     }
   } catch (err) {
     console.error('Failed to submit comment:', err)
-    alert('發送評論失敗，請稍後再試')
+    alert('發表評論失敗，請稍後再試')
   }
 }
 

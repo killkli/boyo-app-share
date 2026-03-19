@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 400,
-      message: '驗證 token 已過期，請重新發送驗證信'
+      message: '驗證 token 已過期，請重新傳送驗證信'
     })
   }
 
@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    message: 'Email 驗證成功！',
+    message: 'Email 已成功驗證！',
     user: updateResult.rows[0]
   }
 })

@@ -19,7 +19,7 @@
               id="search"
               v-model="filters.search"
               type="text"
-              placeholder="搜尋應用標題或描述..."
+              placeholder="搜尋應用標題或描述……"
               class="text-base"
               @input="handleSearch"
             />

@@ -1,5 +1,5 @@
 /**
- * 發送 Email 驗證信
+ * 傳送 Email 驗證信
  *
  * POST /api/auth/send-verification-email
  *
@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { query } from '~/server/utils/db'
 
 const requestSchema = z.object({
-  email: z.string().email('請輸入有效的 email 地址')
+  email: z.string().email('請輸入有效的 Email 地址')
 })
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   if (userResult.rows.length === 0) {
     throw createError({
       statusCode: 404,
-      message: '找不到該 email 的使用者'
+      message: '找不到該 Email 對應的使用者'
     })
   }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
   if (user.email_verified) {
     throw createError({
       statusCode: 400,
-      message: '該 email 已經驗證過了'
+      message: '該 Email 已完成驗證'
     })
   }
 
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
   console.log(`[DEV] Email verification URL: ${verificationUrl}`)
 
   return {
-    message: '驗證信已發送，請檢查您的 email',
+    message: '驗證信已傳送，請檢查您的 Email',
     ...(isDev ? { devToken: token, devUrl: verificationUrl } : {})
   }
 })

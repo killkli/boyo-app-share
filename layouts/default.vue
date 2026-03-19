@@ -5,7 +5,7 @@
       class="border-b-2 md:border-b-4 border-foreground bg-background/95 backdrop-blur-md sticky top-0 z-50 transition-shadow duration-200 shadow-brutal-sm"
       role="banner"
     >
-      <nav class="container mx-auto px-4 py-3 md:py-4" aria-label="主要導航">
+      <nav class="container mx-auto px-4 py-3 md:py-4" aria-label="主要導覽">
         <div class="flex items-center justify-between">
           <!-- Logo - Monospace, bold, uppercase -->
           <NuxtLink
@@ -112,7 +112,7 @@
       <!-- Subtle grid pattern -->
       <div class="absolute inset-0 bg-grid opacity-5 pointer-events-none"></div>
 
-      <nav class="flex flex-col gap-6 relative z-10" aria-label="行動版導航">
+      <nav class="flex flex-col gap-6 relative z-10" aria-label="行動版導覽">
         <NuxtLink
           to="/explore"
           class="text-4xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 text-black hover:text-primary transition-colors"
@@ -191,7 +191,7 @@
           <div class="flex flex-wrap justify-center gap-6 text-sm font-bold uppercase tracking-wide">
             <NuxtLink to="/about" class="hover:text-primary transition-colors">關於</NuxtLink>
             <NuxtLink to="/terms" class="hover:text-primary transition-colors">使用條款</NuxtLink>
-            <NuxtLink to="/privacy" class="hover:text-primary transition-colors">隱私政策</NuxtLink>
+            <NuxtLink to="/privacy" class="hover:text-primary transition-colors">隱私權政策</NuxtLink>
             <a href="https://github.com/killkli/boyo-app-share" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">GitHub</a>
           </div>
         </div>

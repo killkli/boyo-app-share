@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     if (usernameCheck.rows.length > 0) {
       throw createError({
         statusCode: 400,
-        message: 'username 已被使用'
+        message: '使用者名稱已被使用'
       })
     }
 

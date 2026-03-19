@@ -19,7 +19,7 @@
             <div class="flex-1">
               <Input
                 v-model="searchQuery"
-                placeholder="搜尋留言內容..."
+                placeholder="搜尋留言內容……"
                 class="border-3 border-foreground"
                 @keyup.enter="search"
               />
@@ -36,7 +36,7 @@
       <!-- 載入中 -->
       <div v-if="pending" class="flex justify-center py-12">
         <div class="border-3 border-foreground p-8 bg-muted">
-          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中...</p>
+          <p class="text-xl font-bold uppercase tracking-wide animate-pulse">載入中……</p>
         </div>
       </div>
 
@@ -90,7 +90,7 @@
                   :disabled="isDeleting === comment.id"
                   @click="confirmDelete(comment)"
                 >
-                  {{ isDeleting === comment.id ? '刪除中...' : '刪除' }}
+                  {{ isDeleting === comment.id ? '刪除中……' : '刪除' }}
                 </Button>
               </div>
             </div>
@@ -148,7 +148,7 @@
             :disabled="isDeleting !== null"
             @click="deleteComment"
           >
-            {{ isDeleting ? '刪除中...' : '確認刪除' }}
+            {{ isDeleting ? '刪除中……' : '確認刪除' }}
           </Button>
         </DialogFooter>
       </DialogContent>

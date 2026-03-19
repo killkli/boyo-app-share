@@ -12,7 +12,7 @@ const paramsSchema = z.object({
 
 /**
  * PUT /api/admin/users/:id
- * 更新用戶狀態（管理員專用）
+ * 更新使用者狀態（管理員專用）
  */
 export default defineEventHandler(async (event) => {
   // 驗證管理員權限
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   const { id } = params
   const { isActive } = body
 
-  // 檢查用戶是否存在
+  // 檢查使用者是否存在
   const userResult = await query(
     'SELECT id, email FROM users WHERE id = $1',
     [id]
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   if (userResult.rows.length === 0) {
     throw createError({
       statusCode: 404,
-      message: '找不到該用戶'
+      message: '找不到該使用者'
     })
   }
 
@@ -44,11 +44,11 @@ export default defineEventHandler(async (event) => {
   if (isAdmin(user.email) && !isActive) {
     throw createError({
       statusCode: 400,
-      message: '無法禁用管理員帳號'
+      message: '無法停用管理員帳號'
     })
   }
 
-  // 更新用戶狀態
+  // 更新使用者狀態
   await query(
     'UPDATE users SET is_active = $1, updated_at = NOW() WHERE id = $2',
     [isActive, id]
@@ -56,6 +56,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    message: isActive ? '已啟用用戶帳號' : '已禁用用戶帳號'
+    message: isActive ? '已啟用使用者帳號' : '已停用使用者帳號'
   }
 })

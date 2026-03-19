@@ -93,7 +93,7 @@
           <h2 class="text-2xl font-bold text-gray-900 mb-4">四、第三方連結與服務</h2>
           <p class="text-gray-700 leading-relaxed mb-3">
             本平臺可能包含連結至第三方網站或服務。這些外部連結不在本隱私權政策的適用範圍內。
-            我們建議您在訪問第三方網站時，詳細閱讀其隱私權政策。
+            我們建議您在造訪第三方網站時，詳細閱讀其隱私權政策。
           </p>
           <p class="text-gray-600 text-sm">
             本平臺對於第三方網站的隱私保護措施或內容不負任何責任。
@@ -120,7 +120,7 @@
           <p class="text-gray-700 leading-relaxed">
             本平臺為教育性質平臺，可能有未成年人使用。由於本平臺不蒐集個人資料，
             因此不會特別針對兒童進行資料蒐集。若您是未成年人的家長或監護人，
-            發現任何疑慮，歡迎透過下方聯絡方式與我們聯繫。
+            發現任何疑慮，歡迎透過下方聯絡方式與我們聯絡。
           </p>
         </section>
 
@@ -147,7 +147,7 @@
             <li>請求刪除</li>
           </ul>
           <p class="text-gray-600 text-sm mt-3">
-            由於本平臺不蒐集個人資料，上述權利可能不適用。若您有任何疑問，請與我們聯繫。
+            由於本平臺不蒐集個人資料，上述權利可能不適用。若您有任何疑問，請與我們聯絡。
           </p>
         </section>
 
@@ -155,7 +155,7 @@
         <section>
           <h2 class="text-2xl font-bold text-gray-900 mb-4">九、聯絡我們</h2>
           <p class="text-gray-700 leading-relaxed mb-3">
-            如果您對本隱私權政策有任何疑問或建議，歡迎透過以下方式與我們聯繫：
+            如果您對本隱私權政策有任何疑問或建議，歡迎透過以下方式與我們聯絡：
           </p>
           <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-gray-700 mb-2">
@@ -185,7 +185,7 @@
         <!-- Footer -->
         <div class="text-center pt-6 border-t">
           <p class="text-sm text-gray-500">
-            本平臺為開源教育專案，遵守 MIT License
+            本平臺為開放原始碼教育專案，遵守 MIT License
           </p>
           <NuxtLink to="/" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
             返回首頁

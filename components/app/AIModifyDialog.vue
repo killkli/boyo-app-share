@@ -9,7 +9,7 @@
           <span class="text-2xl">⚡</span> AI Remix
         </DialogTitle>
         <DialogDescription class="text-base text-muted-foreground font-medium">
-          基於目前應用進行修改或優化
+          基於目前應用進行修改或改善
         </DialogDescription>
       </DialogHeader>
 
@@ -17,7 +17,7 @@
         <!-- Loading State -->
         <div v-if="isLoadingSource" class="flex flex-col items-center justify-center p-12 space-y-4 bg-muted/20 border-3 border-dashed border-foreground/30">
           <div class="w-10 h-10 border-4 border-foreground border-t-transparent animate-spin"></div>
-          <p class="font-bold uppercase tracking-wide">讀取代碼中...</p>
+          <p class="font-bold uppercase tracking-wide">讀取代碼中……</p>
         </div>
 
         <!-- Main Content -->
@@ -77,7 +77,7 @@
               <Label class="font-bold uppercase tracking-wide text-sm">修改指令</Label>
               <Textarea 
                 v-model="prompt" 
-                placeholder="例如：把背景改成亮黃色，計分板加大，增加音效..." 
+                placeholder="例如：把背景改成亮黃色，計分板加大，增加音效……" 
                 rows="5"
                 class="resize-none border-3 border-foreground rounded-none text-base p-4 focus:ring-0 focus:shadow-brutal-sm placeholder:text-muted-foreground/50 shadow-none font-medium"
               />
@@ -114,7 +114,7 @@
         >
           <span v-if="isGenerating" class="flex items-center gap-2">
             <div class="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
-            生成中...
+            生成中……
           </span>
           <span v-else>開始 Remix ✨</span>
         </Button>

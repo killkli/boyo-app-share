@@ -67,7 +67,7 @@
           </div>
 
           <Button type="submit" class="w-full font-bold uppercase tracking-wide text-lg py-6" :disabled="loading">
-            {{ loading ? '登入中...' : '登入' }}
+            {{ loading ? '登入中……' : '登入' }}
           </Button>
         </form>
       </CardContent>

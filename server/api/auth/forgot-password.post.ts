@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { query } from '~/server/utils/db'
 
 const requestSchema = z.object({
-  email: z.string().email('請輸入有效的 email 地址')
+  email: z.string().email('請輸入有效的 Email 地址')
 })
 
 export default defineEventHandler(async (event) => {
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   // 無論使用者是否存在都返回相同的訊息
   if (userResult.rows.length === 0) {
     return {
-      message: '如果該 email 存在，您將會收到重設密碼的郵件'
+      message: '如果該 Email 存在，您將會收到重設密碼郵件'
     }
   }
 
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
   console.log(`[DEV] Password reset URL: ${resetUrl}`)
 
   return {
-    message: '如果該 email 存在，您將會收到重設密碼的郵件',
+    message: '如果該 Email 存在，您將會收到重設密碼郵件',
     ...(isDev ? { devToken: token, devUrl: resetUrl } : {})
   }
 })

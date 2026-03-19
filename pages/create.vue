@@ -32,7 +32,7 @@
               <!-- Description -->
               <div class="space-y-2">
                 <Label for="description" class="text-sm font-bold uppercase tracking-wide">描述</Label>
-                <Textarea id="description" v-model="form.description" placeholder="這是一個簡單又有趣的 HTML App..." rows="3"
+                <Textarea id="description" v-model="form.description" placeholder="這是一個簡單又有趣的 HTML App……" rows="3"
                   class="resize-none text-base" />
               </div>
 
@@ -173,7 +173,7 @@
                           <p class="font-bold text-lg uppercase tracking-wide">
                             {{ isDraggingZip ? '放開以上傳' : '拖放 ZIP 檔案至此' }}
                           </p>
-                          <p class="text-sm text-muted-foreground mt-1">或點擊選擇檔案</p>
+                          <p class="text-sm text-muted-foreground mt-1">或點選以選擇檔案</p>
                         </div>
                         <div class="text-xs text-muted-foreground space-y-1">
                           <p>支援 .zip 格式，最大 50MB</p>
@@ -205,7 +205,7 @@
                         <div class="h-2 bg-muted-foreground/20 overflow-hidden">
                           <div class="h-full bg-primary animate-pulse w-full"></div>
                         </div>
-                        <p class="text-xs text-muted-foreground mt-1">處理中...</p>
+                        <p class="text-xs text-muted-foreground mt-1">處理中……</p>
                       </div>
                     </div>
 
@@ -245,7 +245,7 @@
             <p class="font-bold text-green-700 mb-2 uppercase tracking-wide">上傳成功！</p>
             <NuxtLink :to="uploadedUrl"
               class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 hover:underline uppercase tracking-wide">
-              查看 APP 詳情 →
+              檢視 APP 詳情 →
             </NuxtLink>
           </div>
         </div>
@@ -255,7 +255,7 @@
           <Card class="sticky top-4 border-3 border-foreground shadow-brutal-lg">
             <CardHeader class="bg-muted border-b-3 border-foreground">
               <CardTitle class="text-2xl font-bold uppercase tracking-wide">即時預覽</CardTitle>
-              <CardDescription class="text-base">查看你的 HTML App 渲染效果</CardDescription>
+              <CardDescription class="text-base">檢視你的 HTML App 渲染效果</CardDescription>
             </CardHeader>
             <CardContent class="p-6">
               <AppPreview v-if="form.htmlContent" :html-content="form.htmlContent" />

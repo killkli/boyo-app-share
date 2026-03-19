@@ -65,9 +65,9 @@
           <NuxtLink
             to="/explore?sort=latest"
             class="font-bold uppercase text-xs sm:text-sm tracking-wide hover:text-primary transition-colors group focus-ring px-2 py-1 -mx-2 -my-1 rounded-sm"
-            aria-label="查看所有最新應用"
+            aria-label="檢視所有最新應用"
           >
-            查看全部
+            檢視全部
             <span class="inline-block transition-transform group-hover:translate-x-1 ml-1" aria-hidden="true">→</span>
           </NuxtLink>
         </div>
@@ -108,7 +108,7 @@
             to="/explore?sort=popular"
             class="font-bold uppercase text-sm tracking-wide hover:text-primary transition-colors group"
           >
-            查看全部
+            檢視全部
             <span class="inline-block transition-transform group-hover:translate-x-1 ml-1">→</span>
           </NuxtLink>
         </div>
